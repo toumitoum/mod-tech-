@@ -32,8 +32,9 @@ const Navbar = () => {
               {link.label}
             </a>
           )}
-          <Button variant="hero" size="sm" asChild>
+          <Button variant="hero" size="sm" asChild className=" text-white bg-teal-600 hover:bg-teal-700">
             <a href="#contact">Demander un devis</a>
+            
           </Button>
         </div>
 
@@ -56,7 +57,7 @@ const Navbar = () => {
               {link.label}
             </a>
         )}
-          <Button variant="hero" size="sm" className="w-full mt-2" asChild>
+          <Button variant="hero" size="sm" className=" " asChild>
             <a href="#contact">Demander un devis</a>
           </Button>
         </div>

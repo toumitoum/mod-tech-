@@ -1,43 +1,42 @@
 "use client";
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, MapPin, Send } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/app/supabase";
 
-const ContactSection = () => {
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
-
- const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
-
-  const message =
-    `name: ${formData.name}\n` +
-    `email: ${formData.email}\n` +
-    `phone: ${formData.phone}\n` +
-    `message: ${formData.message}`;
-
-
-  window.open(`https://wa.me/213556074480?text=${message}`, "_blank");
-  setFormData({ name: "", email: "", phone: "", message: "" });
-
-toast({
-  title: "Message envoyé",
-  description: "Nous vous répondrons sur WhatsApp.",
-});
-
+const DEFAULT = {
+  phone1: "06 57 84 14 23",
+  phone2: "06 69 21 19 51",
+  email: "modtech.srv@gmail.com",
+  address: "Algérie",
+  whatsapp: "213556074480",
 };
 
+const ContactSection = () => {
+  const [info, setInfo] = useState(DEFAULT);
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
 
+  useEffect(() => {
+    supabase
+      .from("site_content")
+      .select("content")
+      .eq("section", "contact")
+      .single()
+      .then(({ data }) => {
+        if (data?.content) setInfo({ ...DEFAULT, ...data.content });
+      });
+  }, []);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const message =
+      `name: ${formData.name}\n` +
+      `email: ${formData.email}\n` +
+      `phone: ${formData.phone}\n` +
+      `message: ${formData.message}`;
+    window.open(`https://wa.me/${info.whatsapp}?text=${encodeURIComponent(message)}`, "_blank");
+    setFormData({ name: "", email: "", phone: "", message: "" });
+  };
 
   return (
     <section id="contact" className="py-24 bg-background relative">
@@ -61,7 +60,6 @@ toast({
         </motion.div>
 
         <div className="grid lg:grid-cols-5 gap-12">
-          {/* Contact info */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -70,9 +68,9 @@ toast({
             className="lg:col-span-2 space-y-8"
           >
             {[
-              { icon: Phone, label: "Téléphone", value: "06 57 84 14 23 / 06 69 21 19 51" },
-              { icon: Mail, label: "Email", value: "modtech.srv@gmail.com" },
-              { icon: MapPin, label: "Adresse", value: "Algérie" },
+              { icon: Phone,  label: "Téléphone", value: `${info.phone1} / ${info.phone2}` },
+              { icon: Mail,   label: "Email",     value: info.email },
+              { icon: MapPin, label: "Adresse",   value: info.address },
             ].map((item) => (
               <div key={item.label} className="flex gap-4">
                 <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 h-fit">
@@ -86,7 +84,6 @@ toast({
             ))}
           </motion.div>
 
-          {/* Form */}
           <motion.form
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -96,41 +93,44 @@ toast({
             className="lg:col-span-3 space-y-5"
           >
             <div className="grid sm:grid-cols-2 gap-4">
-              <Input
+              <input
                 placeholder="Votre nom"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
-                className="bg-card border-border focus:border-primary"
+                className="bg-card border border-border focus:border-primary rounded-lg px-4 py-3 text-foreground outline-none w-full"
               />
-              <Input
+              <input
                 type="email"
                 placeholder="Votre email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
-                className="bg-card border-border focus:border-primary"
+                className="bg-card border border-border focus:border-primary rounded-lg px-4 py-3 text-foreground outline-none w-full"
               />
             </div>
-            <Input
+            <input
               type="tel"
               placeholder="Votre téléphone"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              className="bg-card border-border focus:border-primary"
+              className="bg-card border border-border focus:border-primary rounded-lg px-4 py-3 text-foreground outline-none w-full"
             />
-            <Textarea
+            <textarea
               placeholder="Décrivez votre projet..."
               value={formData.message}
               onChange={(e) => setFormData({ ...formData, message: e.target.value })}
               required
               rows={5}
-              className="bg-card border-border focus:border-primary resize-none"
+              className="bg-card border border-border focus:border-primary rounded-lg px-4 py-3 text-foreground outline-none w-full resize-none"
             />
-            <Button variant="hero" size="lg" type="submit" className="w-full sm:w-auto">
-              <Send className="w-4 h-4 mr-2" />
+            <button
+              type="submit"
+              className="inline-flex items-center gap-2 px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
+            >
+              <Send className="w-4 h-4" />
               Envoyer le message
-            </Button>
+            </button>
           </motion.form>
         </div>
       </div>
