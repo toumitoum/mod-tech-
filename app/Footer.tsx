@@ -47,7 +47,7 @@ const Footer = () => {
             />
 
             <p className="text-sm text-muted-foreground mt-3 max-w-xs">
-              M2 MOD-TECHNOLOGIE
+              MOD-TECHNOLOGIE
             </p>
 
             {contact.email && (
