@@ -7,7 +7,6 @@ import { supabase } from "@/app/supabase";
 const strengths = [
   "Expertise technique certifiée",
   "Équipements de haute qualité",
-  "Support réactif 7j/7",
   "Solutions sur mesure",
   "Installation professionnelle",
   "Maintenance préventive",
@@ -79,7 +78,6 @@ const AboutSection = () => {
               { number: data.years,    label: "Années d'expérience" },
               { number: data.projects, label: "Projets réalisés" },
               { number: data.clients,  label: "Clients satisfaits" },
-              { number: "24/7",        label: "Support technique" },
             ].map((stat) => (
               <div key={stat.label} className="p-6 rounded-xl bg-card border border-border text-center">
                 <div className="text-3xl font-heading font-bold text-primary mb-2">

@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, ArrowRight } from "lucide-react";
-import heroBg from "@/assets/hero-bg.jpg";
 import { supabase } from "@/app/supabase";
 
 const DEFAULT = {
@@ -29,9 +28,11 @@ const HeroSection = () => {
       });
   }, []);
 
+  // If admin uploaded an image via dashboard → use it
+  // Otherwise fall back to the local file in /public/assets/
   const bgStyle = data.bgImage
     ? { backgroundImage: `url(${data.bgImage})` }
-    : { backgroundImage: `url(${heroBg.src})` };
+    : { backgroundImage: `url(/assets/hero-bg.jpg)` };
 
   return (
     <section id="accueil" className="relative min-h-screen flex items-center overflow-hidden">
