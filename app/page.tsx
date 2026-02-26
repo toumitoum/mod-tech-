@@ -6,6 +6,7 @@ import AboutSection from "./AboutSection";
 import Footer from "./Footer";
 import WhatsAppButton from "./WhatsAppButton";
 import dynamic from "next/dynamic";
+import PartnersBar from "@/app/PartnersBar";
 
 const ImageSlider = dynamic(() => import("./ImageSlider"), { ssr: false });
 const ContactSection = dynamic(() => import("./ContactSection"), { ssr: false });
@@ -18,7 +19,11 @@ export default function Home() {
       <ImageSlider />
       <ServicesSection />
       <AboutSection />
-      <ContactSection />
+      <ContactSection />      
+
+
+
+     <PartnersBar />
       <Footer />
       <WhatsAppButton />
     </main>
