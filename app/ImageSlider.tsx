@@ -2,6 +2,9 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import Link from "next/link";
+import { ShoppingCart } from "lucide-react";
+
 
 
 const supabase = createClient(
@@ -68,7 +71,7 @@ export default function ImageSlider() {
   // Don't render if no slides or still loading
   if (loading) {
     return (
-      <div className="w-full h-[280px] md:h-[420px] lg:h-[520px] bg-gray-200 animate-pulse" />
+      <div className="w-full h-[280px] md:h-[420px] lg:h-[520px]  animate-pulse" />
     );
   }
 
@@ -84,31 +87,39 @@ export default function ImageSlider() {
             <img
               src={slide.image}
               alt={slide.title || "Slide"}
-              className="w-full  transition-transform h-[380px] md:h-[480px] lg:h-[420px] object-cover  transition-transform group-hover:scale-135"
+              className="w-full  transition-transform h-[220px] md:h-[300px] lg:h-[340px] object-contain bg-white  transition-transform group-hover:scale-135"
 
             />
 
             {/* overlay */}
-            <div className="absolute inset-0 bg-black/40" />
+            <div className="absolute inset-0 bg-black/25" />
 
             {/* text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
-              {slide.title && (
-                <h2 className="text-2xl md:text-4xl font-bold mb-4">
-                  {slide.title}
-                </h2>
-              )}
-              {slide.description && (
-                <p className="max-w-xl text-sm md:text-lg mb-6">
-                  {slide.description}
-                </p>
-              )}
+             
+              
 
-              <a href="#contact">
-                  <button className="px-10 py-4 rounded-xl font-semibold bg-teal-500 hover:bg-teal-400 text-white shadow-xl shadow-teal-500/30 hover:shadow-teal-400/50 transition-all duration-300 hover:-translate-y-1">
-                  Contact Us
-                </button>
-              </a>
+       <Link
+  href="/store"
+  className="
+    absolute bottom-4 md:bottom-6
+    left-1/2 -translate-x-1/2
+    z-10
+    px-6 md:px-10
+    py-2 md:py-4
+    text-sm md:text-base
+    rounded-xl font-semibold
+    text-white
+    shadow-xl shadow-teal-500/30 hover:shadow-teal-400/50
+    transition-all  duration-300 hover:-translate-y-1
+    border border-teal-400/50 hover:border-teal-400
+    whitespace-nowrap 
+ hover:bg-teal-500 active:bg-teal-500   
+flex items-center gap-2
+  "
+>
+  <ShoppingCart className="w-4 h-4 md:w-5 md:h-5" />
+Acheter maintenant</Link>
             </div>
           </div>
         ))}
@@ -153,18 +164,7 @@ export default function ImageSlider() {
 
 
           {/* dots */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {slides.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => emblaApi?.scrollTo(i)}
-                className={`w-3 h-3 rounded-full transition-all ${
-                  selected === i ? "bg-white w-6" : "bg-white/40 hover:bg-white/60"
-                }`}
-                aria-label={`Go to slide ${i + 1}`}
-              />
-            ))}
-          </div>
+          
         </>
       )}
     </div>

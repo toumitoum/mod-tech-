@@ -130,8 +130,8 @@ export default function ProductPage() {
   const checkPromo = async () => {
     if (!promo.trim()) { setPromoMsg("Entrez un code"); setPromoOk(false); return; }
     const { data } = await supabase.from("promo_codes").select("*").eq("code", promo.trim().toUpperCase()).eq("is_active", true).single();
-    if (!data) { setPromoMsg("❌ Code invalide ou expiré"); setPromoOk(false); setPromoDisc(0); }
-    else { setPromoDisc(data.discount); setPromoMsg(`✅ -${data.discount}% appliqué !`); setPromoOk(true); }
+    if (!data) { setPromoMsg(" Code invalide ou expiré"); setPromoOk(false); setPromoDisc(0); }
+    else { setPromoDisc(data.discount); setPromoMsg(` -${data.discount}% appliqué !`); setPromoOk(true); }
   };
 
   // Add to cart
@@ -307,8 +307,8 @@ export default function ProductPage() {
         <p className="text-slate-600 mb-2">
           Nous contacterons le <span className="text-slate-900 font-semibold">{form.phone}</span>
         </p>
-        <p className="text-slate-500 text-sm mb-1">📧 Équipe MOD-TECH informée</p>
-        <p className="text-slate-500 text-sm mb-6">💳 Paiement à la livraison</p>
+        <p className="text-slate-500 text-sm mb-1"> Équipe MOD-TECH informée</p>
+        <p className="text-slate-500 text-sm mb-6"> Paiement à la livraison</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={() => router.push("/store")}
@@ -446,7 +446,7 @@ export default function ProductPage() {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-6xl text-slate-300">
-                  📷
+                  
                 </div>
               )}
 

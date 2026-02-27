@@ -16,6 +16,10 @@ export default function Home() {
     <main>
       <Navbar />
       <HeroSection />
+     <h2 className="text-xl md:text-3xl bg-gradient-to-r from-teal-500 to-blue-500 text-white font-bold text-center my-8 p-4 rounded-lg whitespace-nowrap">
+      NOUS GAME DE PRODUITS
+</h2>
+
       <ImageSlider />
       <ServicesSection />
       <AboutSection />

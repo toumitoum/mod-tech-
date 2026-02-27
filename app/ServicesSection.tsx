@@ -63,8 +63,7 @@ const ServicesSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, i) => {
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">          {services.map((service, i) => {
             const staticData = STATIC[i] ?? STATIC[0];
             const Icon = staticData.icon;
             const imgSrc = service.image ? service.image : staticData.fallback.src;
@@ -89,7 +88,7 @@ const ServicesSection = () => {
                   <div className="p-3 rounded-lg bg-primary/10 border border-primary/20 w-fit mb-5 group-hover:bg-primary/20 transition-colors">
                     <Icon className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-lg font-heading font-semibold mb-3">{service.title}</h3>
+                  <h3 className="text-base md:text-lg font-heading font-semibold mb-3">{service.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {service.description}
                   </p>

@@ -3,11 +3,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import logo from "@/assets/logo.jpeg";
+import Link from "next/link";
 
 const navLinks = [
 { label: "Accueil", href: "#accueil" },
 { label: "Services", href: "#services" },
 { label: "À propos", href: "#apropos" },
+{ label: "Store", href: "/store" },
 { label: "Contact", href: "#contact" }];
 
 

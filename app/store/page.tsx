@@ -1,5 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
+
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -66,6 +67,15 @@ type StoreHero = {
   btnSecondary: string;
 };
 
+type Slide = {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  sort_order: number;
+  is_active: boolean;
+};
+
 const CATS = ["Tous", "Caméras", "Réseau", "Accès", "Sonorisation", "Domotique", "Autre"];
 
 const WILAYAS = ["Adrar", "Chlef", "Laghouat", "Oum El Bouaghi", "Batna", "Béjaïa", "Biskra", "Béchar", "Blida", "Bouira", "Tamanrasset", "Tébessa", "Tlemcen", "Tiaret", "Tizi Ouzou", "Alger", "Djelfa", "Jijel", "Sétif", "Saïda", "Skikda", "Sidi Bel Abbès", "Annaba", "Guelma", "Constantine", "Médéa", "Mostaganem", "M'Sila", "Mascara", "Ouargla", "Oran", "El Bayadh", "Illizi", "Bordj Bou Arreridj", "Boumerdès", "El Tarf", "Tindouf", "Tissemsilt", "El Oued", "Khenchela", "Souk Ahras", "Tipaza", "Mila", "Aïn Defla", "Naâma", "Aïn Témouchent", "Ghardaïa", "Relizane", "Timimoun", "Bordj Badji Mokhtar", "Ouled Djellal", "Béni Abbès", "In Salah", "In Guezzam", "Touggourt", "Djanet", "El M'Ghair", "El Menia"];
@@ -105,11 +115,15 @@ const saveCartToStorage = (cart: CartItem[]) => {
 
 export default function StorePage() {
   const router = useRouter();
+  const emblaRef = useRef<HTMLDivElement>(null);
 
   const [products, setProducts] = useState<Product[]>([]);
+  const [slides, setSlides] = useState<Slide[]>([]);
   const [heroData, setHeroData] = useState<StoreHero>(DEFAULT_STORE_HERO);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-const [contact, setContact] = useState<any>({});
+  const [contact, setContact] = useState<any>({});
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
   const [loading, setLoading] = useState(true);
   const [cat, setCat] = useState("Tous");
   const [search, setSearch] = useState("");
@@ -149,56 +163,70 @@ const [contact, setContact] = useState<any>({});
 
   /* ================= LOAD DATA ================= */
   useEffect(() => {
-  const load = async () => {
+    const load = async () => {
+      const [productsRes, slidesRes, heroRes, contactRes] = await Promise.all([
+        supabase
+          .from("products")
+          .select("*")
+          .eq("is_active", true)
+          .order("sort_order"),
 
-    const [productsRes, heroRes, contactRes] = await Promise.all([
+        supabase
+          .from("slider_slides")
+          .select("*")
+          .eq("is_active", true)
+          .order("sort_order"),
 
-      supabase
-        .from("products")
-        .select("*")
-        .eq("is_active", true)
-        .order("sort_order"),
+        supabase
+          .from("site_content")
+          .select("content")
+          .eq("section", "store-hero")
+          .single(),
 
-      supabase
-        .from("site_content")
-        .select("content")
-        .eq("section", "store-hero")
-        .single(),
+        supabase
+          .from("site_content")
+          .select("content")
+          .eq("section", "contact")
+          .single(),
+      ]);
 
-      supabase
-        .from("site_content")
-        .select("content")
-        .eq("section", "contact")
-        .single(),
+      setProducts(productsRes.data ?? []);
+      setFilteredProducts(productsRes.data ?? []);
+      setSlides(slidesRes.data ?? []);
 
-    ]);
+      if (heroRes.data?.content) {
+        setHeroData({ ...DEFAULT_STORE_HERO, ...heroRes.data.content });
+      }
 
-    setProducts(productsRes.data ?? []);
-    setFilteredProducts(productsRes.data ?? []);
+      if (contactRes.data?.content) {
+        setContact(contactRes.data.content);
+      }
 
-    if (heroRes.data?.content) {
-      setHeroData({ ...DEFAULT_STORE_HERO, ...heroRes.data.content });
-    }
+      setLoading(false);
+    };
 
-    if (contactRes.data?.content) {
-      setContact(contactRes.data.content);
-    }
+    load();
+  }, []);
 
-    setLoading(false);
-  };
+  /* ================= AUTO SLIDE ================= */
+  useEffect(() => {
+    if (!slides || slides.length < 2) return;
 
-  load();
-}, []);
+    const timer = setInterval(() => {
+      setSelectedIndex((prev) => (prev + 1) % slides.length);
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [slides]);
+
   /* ================= FILTER PRODUCTS ================= */
   useEffect(() => {
     let filtered = products;
     
-    // Filter by category
     if (cat !== "Tous") {
       filtered = filtered.filter(p => p.category === cat);
     }
     
-    // Filter by search
     if (search) {
       filtered = filtered.filter(p => 
         p.name.toLowerCase().includes(search.toLowerCase()) || 
@@ -238,7 +266,7 @@ const [contact, setContact] = useState<any>({});
       }
     });
     
-    setAddedMessage("✅ Produit ajouté au panier!");
+    setAddedMessage(" Produit ajouté au panier!");
     setTimeout(() => setAddedMessage(""), 3000);
     setCartOpen(true);
   };
@@ -376,7 +404,7 @@ const [contact, setContact] = useState<any>({});
             <span className="font-semibold">{form.phone}</span>
           </p>
           
-          <p className="text-slate-500 text-sm mb-6">💳 Paiement à la livraison</p>
+          <p className="text-slate-500 text-sm mb-6"> Paiement à la livraison</p>
 
           <button
             onClick={() => {
@@ -417,73 +445,65 @@ const [contact, setContact] = useState<any>({});
 
             <div className="flex items-center gap-4">
               {/* Search */}
-             <div className="relative">
-
-  {/* SEARCH ICON */}
-  <button
-    onClick={() => setSearchOpen(v => !v)}
-    className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-lg transition"
-  >
-    <Search className="w-5 h-5 text-slate-700" />
-  </button>
-
-  
-
-</div>
+              <div className="relative">
+                <button
+                  onClick={() => setSearchOpen(v => !v)}
+                  className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-lg transition"
+                >
+                  <Search className="w-5 h-5 text-slate-700" />
+                </button>
+              </div>
 
               {/* Cart button */}
-             <button
-  onClick={() => setCartOpen(true)}
-  className="relative flex items-center justify-center w-10 h-10 hover:bg-slate-100 rounded-lg transition"
->
-  <ShoppingCart className="w-5 h-5 text-slate-700" />
+              <button
+                onClick={() => setCartOpen(true)}
+                className="relative flex items-center justify-center w-10 h-10 hover:bg-slate-100 rounded-lg transition"
+              >
+                <ShoppingCart className="w-5 h-5 text-slate-700" />
 
-  {cart.length > 0 && (
-    <span className="absolute -top-1 -right-1 bg-red-500 text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow">
-      {cart.length}
-    </span>
-  )}
-</button>
+                {cart.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow">
+                    {cart.length}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
-
-        
         </div>
       </header>
+
+      {/* Search overlay */}
       <AnimatePresence>
-  {searchOpen && (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[60]  "
-      onClick={() => setSearchOpen(false)}
-    >
-      <motion.div
-        initial={{ y: -80 }}
-        animate={{ y: 0 }}
-        exit={{ y: -80 }}
-        transition={{ duration: 0.25 }}
-        onClick={(e) => e.stopPropagation()}
-        className="bg-slate-50 p-4 shadow-lg"
-      >
-        <div className="relative max-w-xl mx-auto">
-
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-
-          <input
-            autoFocus
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            placeholder="Rechercher..."
-            className="w-full bg-slate-100 rounded-xl pl-9 pr-4 py-3 text-sm outline-none focus:ring-2 focus:ring-teal-500"
-          />
-
-        </div>
-      </motion.div>
-    </motion.div>
-  )}
-</AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60]"
+            onClick={() => setSearchOpen(false)}
+          >
+            <motion.div
+              initial={{ y: -80 }}
+              animate={{ y: 0 }}
+              exit={{ y: -80 }}
+              transition={{ duration: 0.25 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-slate-50 p-4 shadow-lg"
+            >
+              <div className="relative max-w-xl mx-auto">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  autoFocus
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Rechercher..."
+                  className="w-full bg-slate-100 rounded-xl pl-9 pr-4 py-3 text-sm outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile menu */}
       <AnimatePresence>
@@ -525,32 +545,92 @@ const [contact, setContact] = useState<any>({});
         )}
       </AnimatePresence>
 
-      {/* HERO */}
-<section className="relative overflow-hidden h-[260px] w-full flex items-center">        <div className="absolute inset-0">
-          <img
-            src={heroData.bgImage}
-            alt="Hero"
-              className="w-full  transition-transform h-[380px] md:h-[480px] lg:h-[420px] object-cover  transition-transform group-hover:scale-135"
-          />
-          
-          <div className="absolute inset-0 bg-gradient-to-r  to-transparent" />
-        </div>
+      {/* SLIDER - Embla Carousel Style */}
+      {slides && slides.length > 0 ? (
+<section className="w-full bg-white pb-0 mb-0">  <div className="w-full">
+            <div className="relative  w-full overflow-hidden" ref={emblaRef}>
+              <div className="flex">
+                {slides.map((slide, i) => (
+                 <div
+  key={slide.id}
+  className="min-w-full relative"
+  style={{
+    transform: `translateX(-${selectedIndex * 100}%)`,
+    transition: "transform 0.5s ease",
+  }}
+>
+  <img
+    src={slide.image}
+    alt={slide.title || "Slide"}
+              className="w-full  transition-transform h-[160px] md:h-[220px] lg:h-[260px] object-contain bg-white  transition-transform group-hover:scale-135"
+  />
 
-        <div className="container mx-auto px-4 py-12 md:py-24">
-          <motion.div
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="max-w-2xl"
-          >
-          
+  {/* overlay */}
+  <div className="absolute inset-0 bg-black/7" />
 
+  {/* content */}
+ 
+</div>
+                ))}
+              </div>
 
+              {/* Only show arrows and dots if there's more than one slide */}
+              {slides.length > 1 && (
+                <>
+                  {/* arrows */}
+                  <button
+                    onClick={() => setSelectedIndex((prev) => (prev - 1 + slides.length) % slides.length)}
+                    aria-label="Previous slide"
+                    className="absolute text-gray-400 left-1 top-1/2 -translate-y-1/2 text-xl p-2 md:left-4 md:text-3xl md:p-3 rounded-full hover:bg-black/20 transition-colors"
+                  >
+                    ‹
+                  </button>
 
-            
-          </motion.div>
-        </div>
-      </section>
+                  <button
+                    onClick={() => setSelectedIndex((prev) => (prev + 1) % slides.length)}
+                    aria-label="Next slide"
+                    className="absolute text-gray-400 right-1 top-1/2 -translate-y-1/2 text-xl p-2 md:right-4 md:text-3xl md:p-3 rounded-full hover:bg-black/20 transition-colors"
+                  >
+                    ›
+                  </button>
+
+                 
+                </>
+              )}
+            </div>
+          </div>
+        </section>
+      ) : (
+        /* Fallback Hero if no slides */
+        <section className="relative overflow-hidden h-[260px] w-full flex items-center bg-slate-900">
+          <div className="absolute inset-0">
+            <img
+              src={heroData.bgImage}
+              alt="Hero"
+              className="w-full h-full object-cover opacity-60"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+          </div>
+          <div className="container mx-auto px-4 relative z-10">
+            <motion.div
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="max-w-2xl text-white"
+            >
+              <span className="inline-block text-sm bg-teal-500/20 border border-teal-400/30 text-teal-300 px-4 py-1 rounded-full mb-4">
+                {heroData.badge}
+              </span>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
+                {heroData.title}
+              </h1>
+              <p className="text-sm md:text-base text-slate-200 mb-6">
+                {heroData.subtitle}
+              </p>
+            </motion.div>
+          </div>
+        </section>
+      )}
 
       {/* Categories */}
       <div className="container mx-auto px-3 py-6 md:py-8">
@@ -591,17 +671,17 @@ const [contact, setContact] = useState<any>({});
                 key={p.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className=" border-slate-200 rounded-xl   transition-all p-3 flex flex-col"
+                className="border border-slate-200 rounded-xl transition-all p-3 flex flex-col hover:shadow-md"
               >
                 <div
-                  className="relative h-36 md:h-40 overflow-hidden rounded-lg mb-3 mb- cursor-pointer"
+                  className="relative h-36 md:h-40 overflow-hidden rounded-lg mb-3 cursor-pointer bg-white"
                   onClick={() => router.push(`/store/${p.id}`)}
                 >
-                <img
-  src={p.image}
-  className="w-full h-full object-contain bg-white p-2"
-  alt={p.name}
-/>
+                  <img
+                    src={p.image}
+                    className="w-full h-full object-contain p-2"
+                    alt={p.name}
+                  />
                   
                   {/* Badges */}
                   {disc > 0 && (
@@ -617,9 +697,9 @@ const [contact, setContact] = useState<any>({});
                   )}
                 </div>
 
-<h3 className="font-semibold text-sm md:text-base mb-2 break-words leading-snug">
-  {p.name}
-</h3>
+                <h3 className="font-semibold text-sm md:text-base mb-2 break-words leading-snug">
+                  {p.name}
+                </h3>
 
                 {/* Colors */}
                 {p.colors && p.colors.length > 0 && (
@@ -644,7 +724,7 @@ const [contact, setContact] = useState<any>({});
                 {/* Sizes */}
                 {p.sizes && p.sizes.length > 0 && (
                   <div className="mb-3">
-                    <div className="text-xs text-slate-200 mb-1">Tailles:</div>
+                    <div className="text-xs text-slate-500 mb-1">Tailles:</div>
                     <div className="flex gap-1 flex-wrap">
                       {p.sizes.map(s => (
                         <button
@@ -665,12 +745,27 @@ const [contact, setContact] = useState<any>({});
 
                 <div className="flex items-center justify-between mt-2">
                   <div>
-                    
-                    
-                    
+                    <p className="text-teal-600 font-bold text-base md:text-lg">
+                      {p.price.toLocaleString()} DA
+                    </p>
+                    {disc > 0 && p.original_price > 0 && (
+                      <p className="text-xs text-slate-400 line-through">
+                        {p.original_price.toLocaleString()} DA
+                      </p>
+                    )}
                   </div>
 
-                 
+                  <button
+                    onClick={() => addToCart(p)}
+                    disabled={!p.in_stock}
+                    className={`p-2 rounded-lg ${
+                      p.in_stock
+                        ? 'bg-teal-600 hover:bg-teal-700 text-white'
+                        : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                    }`}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
                 </div>
               </motion.div>
             );
@@ -680,102 +775,83 @@ const [contact, setContact] = useState<any>({});
 
       {/* Trust badges */}
       <div className="bg-white border-t py-6 md:py-8">
-  <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 items-center">
 
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 items-center">
-
-      {/* LOGO + CONTACT */}
-      <div className="flex items-center gap-3">
-
-        <img
-          src="/lovable-uploads/5c0baea8-dfe7-4330-a35f-643db8adb0b0.png"
-          className="h-10"
-          alt="logo"
-        />
-
-        <div className="text-sm">
-          <div className="font-semibold text-slate-800">
-            MOD-TECH
-          </div>
-
-          {contact?.phone1 && (
-            <div className="text-slate-500 text-xs">
-              {contact.phone1}
+            {/* LOGO + CONTACT */}
+            <div className="flex items-center gap-3">
+              <img
+                src="/lovable-uploads/5c0baea8-dfe7-4330-a35f-643db8adb0b0.png"
+                className="h-10"
+                alt="logo"
+              />
+              <div className="text-sm">
+                <div className="font-semibold text-slate-800">
+                  MOD-TECH
+                </div>
+                {contact?.phone1 && (
+                  <div className="text-slate-500 text-xs">
+                    {contact.phone1}
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-        </div>
 
+            {/* TRUST BADGES */}
+            {[
+              { icon: Truck, text: "Livraison rapide", sub: "Toute l'Algérie" },
+              { icon: Shield, text: "Paiement sécurisé", sub: "À la livraison" },
+              { icon: Clock, text: "Support 24/7", sub: "Réponse rapide" }
+            ].map((item, i) => (
+              <div key={i} className="flex items-center gap-3 justify-start md:justify-center">
+                <div className="w-10 h-10 rounded-lg border bg-slate-50 flex items-center justify-center">
+                  <item.icon className="w-5 h-5 text-teal-600" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-slate-800">
+                    {item.text}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {item.sub}
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            {/* SOCIAL */}
+            <div className="flex gap-2 md:justify-end">
+              {contact?.facebook && (
+                <a
+                  href={contact.facebook}
+                  target="_blank"
+                  className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 transition"
+                >
+                  <Facebook size={16} />
+                </a>
+              )}
+              {contact?.instagram && (
+                <a
+                  href={contact.instagram}
+                  target="_blank"
+                  className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-pink-50 hover:text-pink-600 transition"
+                >
+                  <Instagram size={16} />
+                </a>
+              )}
+              {contact?.linkedin && (
+                <a
+                  href={contact.linkedin}
+                  target="_blank"
+                  className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-sky-50 hover:text-sky-600 transition"
+                >
+                  <Linkedin size={16} />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
-
-
-      {/* TRUST BADGES */}
-      {[
-        { icon: Truck, text: "Livraison rapide", sub: "Toute l'Algérie" },
-        { icon: Shield, text: "Paiement sécurisé", sub: "À la livraison" },
-        { icon: Clock, text: "Support 24/7", sub: "Réponse rapide" }
-      ].map((item, i) => (
-
-        <div key={i} className="flex items-center gap-3 justify-start md:justify-center">
-
-          <div className="w-10 h-10 rounded-lg border bg-slate-50 flex items-center justify-center">
-            <item.icon className="w-5 h-5 text-teal-600" />
-          </div>
-
-          <div>
-            <div className="text-sm font-semibold text-slate-800">
-              {item.text}
-            </div>
-            <div className="text-xs text-slate-500">
-              {item.sub}
-            </div>
-          </div>
-
-        </div>
-
-      ))}
-
-
-
-      {/* SOCIAL */}
-      <div className="flex gap-2 md:justify-end">
-
-        {contact?.facebook && (
-          <a
-            href={contact.facebook}
-            target="_blank"
-            className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 transition"
-          >
-            <Facebook size={16}/>
-          </a>
-        )}
-
-        {contact?.instagram && (
-          <a
-            href={contact.instagram}
-            target="_blank"
-            className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-pink-50 hover:text-pink-600 transition"
-          >
-            <Instagram size={16}/>
-          </a>
-        )}
-
-        {contact?.linkedin && (
-          <a
-            href={contact.linkedin}
-            target="_blank"
-            className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-sky-50 hover:text-sky-600 transition"
-          >
-            <Linkedin size={16}/>
-          </a>
-        )}
-
-      </div>
-
-    </div>
-
-  </div>
-</div>
       {/* Shopping Cart Drawer */}
       <AnimatePresence>
         {cartOpen && (
@@ -917,7 +993,7 @@ const [contact, setContact] = useState<any>({});
 
                     {/* Form fields */}
                     {[
-                      { k: 'name', l: 'Nom complet *', p: 'name' },
+                      { k: 'name', l: 'Nom complet *', p: 'Nom complet' },
                       { k: 'phone', l: 'Téléphone *', p: '06**' },
                       { k: 'email', l: 'Email', p: 'email@exemple.com' },
                     ].map(({ k, l, p }) => (
@@ -983,7 +1059,7 @@ const [contact, setContact] = useState<any>({});
                       disabled={sending}
                       className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50"
                     >
-                      {sending ? '⏳ Envoi...' : ' Confirmer la commande'}
+                      {sending ? ' Envoi...' : ' Confirmer la commande'}
                     </button>
                     <button
                       onClick={() => setCheckout(false)}
