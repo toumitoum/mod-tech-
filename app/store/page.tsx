@@ -1,15 +1,17 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ShoppingCart, 
-  Search, 
-  X, 
-  Check, 
-  Plus, 
-  Minus, 
+import {
+  Facebook,
+  Instagram,
+  Linkedin,
+  ShoppingCart,
+  Search,
+  X,
+  Check,
+  Plus,
+  Minus,
   Trash2,
   Menu,
   ChevronDown,
@@ -107,10 +109,11 @@ export default function StorePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [heroData, setHeroData] = useState<StoreHero>(DEFAULT_STORE_HERO);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-
+const [contact, setContact] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [cat, setCat] = useState("Tous");
   const [search, setSearch] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkout, setCheckout] = useState(false);
@@ -146,34 +149,46 @@ export default function StorePage() {
 
   /* ================= LOAD DATA ================= */
   useEffect(() => {
-    const load = async () => {
-      const [productsRes, heroRes] = await Promise.all([
-        supabase
-          .from("products")
-          .select("*")
-          .eq("is_active", true)
-          .order("sort_order"),
+  const load = async () => {
 
-        supabase
-          .from("site_content")
-          .select("content")
-          .eq("section", "store-hero")
-          .single(),
-      ]);
+    const [productsRes, heroRes, contactRes] = await Promise.all([
 
-      setProducts(productsRes.data ?? []);
-      setFilteredProducts(productsRes.data ?? []);
+      supabase
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order"),
 
-      if (heroRes.data?.content) {
-        setHeroData({ ...DEFAULT_STORE_HERO, ...heroRes.data.content });
-      }
+      supabase
+        .from("site_content")
+        .select("content")
+        .eq("section", "store-hero")
+        .single(),
 
-      setLoading(false);
-    };
+      supabase
+        .from("site_content")
+        .select("content")
+        .eq("section", "contact")
+        .single(),
 
-    load();
-  }, []);
+    ]);
 
+    setProducts(productsRes.data ?? []);
+    setFilteredProducts(productsRes.data ?? []);
+
+    if (heroRes.data?.content) {
+      setHeroData({ ...DEFAULT_STORE_HERO, ...heroRes.data.content });
+    }
+
+    if (contactRes.data?.content) {
+      setContact(contactRes.data.content);
+    }
+
+    setLoading(false);
+  };
+
+  load();
+}, []);
   /* ================= FILTER PRODUCTS ================= */
   useEffect(() => {
     let filtered = products;
@@ -402,45 +417,73 @@ export default function StorePage() {
 
             <div className="flex items-center gap-4">
               {/* Search */}
-              <div className="relative hidden md:block">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Rechercher..."
-                  className="w-64 bg-slate-50 border rounded-lg pl-9 pr-4 py-2 text-sm focus:ring-2 focus:ring-teal-500/50"
-                />
-              </div>
+             <div className="relative">
+
+  {/* SEARCH ICON */}
+  <button
+    onClick={() => setSearchOpen(v => !v)}
+    className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-lg transition"
+  >
+    <Search className="w-5 h-5 text-slate-700" />
+  </button>
+
+  
+
+</div>
 
               {/* Cart button */}
-              <button
-                onClick={() => setCartOpen(true)}
-                className="relative bg-white hover:bg-slate-50 border rounded-lg px-3 py-2 text-teal-600"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
+             <button
+  onClick={() => setCartOpen(true)}
+  className="relative flex items-center justify-center w-10 h-10 hover:bg-slate-100 rounded-lg transition"
+>
+  <ShoppingCart className="w-5 h-5 text-slate-700" />
+
+  {cart.length > 0 && (
+    <span className="absolute -top-1 -right-1 bg-red-500 text-black text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow">
+      {cart.length}
+    </span>
+  )}
+</button>
             </div>
           </div>
 
-          {/* Mobile search */}
-          <div className="md:hidden pb-3">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Rechercher..."
-                className="w-full bg-slate-50 border rounded-lg pl-9 pr-4 py-2 text-sm"
-              />
-            </div>
-          </div>
+        
         </div>
       </header>
+      <AnimatePresence>
+  {searchOpen && (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[60]  "
+      onClick={() => setSearchOpen(false)}
+    >
+      <motion.div
+        initial={{ y: -80 }}
+        animate={{ y: 0 }}
+        exit={{ y: -80 }}
+        transition={{ duration: 0.25 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-slate-50 p-4 shadow-lg"
+      >
+        <div className="relative max-w-xl mx-auto">
+
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+
+          <input
+            autoFocus
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Rechercher..."
+            className="w-full bg-slate-100 rounded-xl pl-9 pr-4 py-3 text-sm outline-none focus:ring-2 focus:ring-teal-500"
+          />
+
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
       {/* Mobile menu */}
       <AnimatePresence>
@@ -483,51 +526,34 @@ export default function StorePage() {
       </AnimatePresence>
 
       {/* HERO */}
-      <section className="relative overflow-hidden min-h-[400px] md:min-h-[500px] flex items-center">
-        <div className="absolute inset-0">
+<section className="relative overflow-hidden h-[260px] w-full flex items-center">        <div className="absolute inset-0">
           <img
             src={heroData.bgImage}
             alt="Hero"
-            className="w-full h-full object-cover"
+              className="w-full  transition-transform h-[380px] md:h-[480px] lg:h-[420px] object-cover  transition-transform group-hover:scale-135"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/70 to-transparent" />
+          
+          <div className="absolute inset-0 bg-gradient-to-r  to-transparent" />
         </div>
 
-        <div className="relative container mx-auto px-4 py-12 md:py-24">
+        <div className="container mx-auto px-4 py-12 md:py-24">
           <motion.div
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="max-w-2xl"
           >
-            <span className="inline-block text-sm text-teal-600 bg-teal-50 border px-4 py-1 rounded-full mb-4">
-              {heroData.badge}
-            </span>
+          
 
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">{heroData.title}</h1>
 
-            <p className="text-base md:text-lg text-slate-700 mb-6">
-              {heroData.subtitle}
-            </p>
 
-            <div className="flex gap-3 flex-wrap">
-              <button
-                onClick={() => setCartOpen(true)}
-                className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-6 py-2.5 rounded-xl"
-              >
-                {heroData.btnPrimary}
-              </button>
-
-              <button className="bg-white border px-6 py-2.5 rounded-xl">
-                {heroData.btnSecondary}
-              </button>
-            </div>
+            
           </motion.div>
         </div>
       </section>
 
       {/* Categories */}
-      <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="container mx-auto px-3 py-6 md:py-8">
         <div className="flex flex-wrap gap-2 justify-center">
           {CATS.map(c => (
             <button
@@ -536,7 +562,7 @@ export default function StorePage() {
               className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition ${
                 cat === c
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-lg'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               {c}
@@ -555,7 +581,7 @@ export default function StorePage() {
           <p className="text-lg text-slate-600">Aucun produit trouvé</p>
         </div>
       ) : (
-        <section className="container mx-auto px-4 pb-14 grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <section className="container mx-auto px-4 pb-14 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
           {filteredProducts.map((p) => {
             const disc = p.discount_percent || 0;
             const productOptions = selectedOptions[p.id] || {};
@@ -565,17 +591,17 @@ export default function StorePage() {
                 key={p.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-xl shadow hover:shadow-lg transition-all p-3 md:p-4 border"
+                className=" border-slate-200 rounded-xl   transition-all p-3 flex flex-col"
               >
                 <div
-                  className="relative h-36 md:h-40 overflow-hidden rounded-lg mb-3 cursor-pointer"
+                  className="relative h-36 md:h-40 overflow-hidden rounded-lg mb-3 mb- cursor-pointer"
                   onClick={() => router.push(`/store/${p.id}`)}
                 >
-                  <img
-                    src={p.image}
-                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                    alt={p.name}
-                  />
+                <img
+  src={p.image}
+  className="w-full h-full object-contain bg-white p-2"
+  alt={p.name}
+/>
                   
                   {/* Badges */}
                   {disc > 0 && (
@@ -591,11 +617,9 @@ export default function StorePage() {
                   )}
                 </div>
 
-                <h3 className="font-semibold text-sm md:text-base mb-1 line-clamp-1">{p.name}</h3>
-                
-                {p.description && (
-                  <p className="text-xs text-slate-500 mb-2 line-clamp-2">{p.description}</p>
-                )}
+<h3 className="font-semibold text-sm md:text-base mb-2 break-words leading-snug">
+  {p.name}
+</h3>
 
                 {/* Colors */}
                 {p.colors && p.colors.length > 0 && (
@@ -620,7 +644,7 @@ export default function StorePage() {
                 {/* Sizes */}
                 {p.sizes && p.sizes.length > 0 && (
                   <div className="mb-3">
-                    <div className="text-xs text-slate-500 mb-1">Tailles:</div>
+                    <div className="text-xs text-slate-200 mb-1">Tailles:</div>
                     <div className="flex gap-1 flex-wrap">
                       {p.sizes.map(s => (
                         <button
@@ -641,27 +665,12 @@ export default function StorePage() {
 
                 <div className="flex items-center justify-between mt-2">
                   <div>
-                    <p className="text-teal-600 font-bold text-base md:text-lg">
-                      {p.price.toLocaleString()} DA
-                    </p>
-                    {disc > 0 && p.original_price > 0 && (
-                      <p className="text-xs text-slate-400 line-through">
-                        {p.original_price.toLocaleString()} DA
-                      </p>
-                    )}
+                    
+                    
+                    
                   </div>
 
-                  <button
-                    onClick={() => addToCart(p)}
-                    disabled={!p.in_stock}
-                    className={`p-2 rounded-lg ${
-                      p.in_stock
-                        ? 'bg-teal-600 hover:bg-teal-700 text-white'
-                        : 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                    }`}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+                 
                 </div>
               </motion.div>
             );
@@ -671,27 +680,102 @@ export default function StorePage() {
 
       {/* Trust badges */}
       <div className="bg-white border-t py-6 md:py-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { icon: Truck, text: "Livraison rapide", sub: "Dans toute l'Algérie" },
-              { icon: Shield, text: "Paiement sécurisé", sub: "À la livraison" },
-              { icon: Clock, text: "Support 24/7", sub: "Service client réactif" }
-            ].map((item, i) => (
-              <div key={i} className="flex items-center justify-center gap-3">
-                <div className="w-10 h-10 bg-teal-50 rounded-full flex items-center justify-center">
-                  <item.icon className="w-5 h-5 text-teal-600" />
-                </div>
-                <div>
-                  <div className="font-semibold text-sm md:text-base">{item.text}</div>
-                  <div className="text-xs md:text-sm text-slate-500">{item.sub}</div>
-                </div>
-              </div>
-            ))}
+  <div className="container mx-auto px-4">
+
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 items-center">
+
+      {/* LOGO + CONTACT */}
+      <div className="flex items-center gap-3">
+
+        <img
+          src="/lovable-uploads/5c0baea8-dfe7-4330-a35f-643db8adb0b0.png"
+          className="h-10"
+          alt="logo"
+        />
+
+        <div className="text-sm">
+          <div className="font-semibold text-slate-800">
+            MOD-TECH
           </div>
+
+          {contact?.phone1 && (
+            <div className="text-slate-500 text-xs">
+              {contact.phone1}
+            </div>
+          )}
         </div>
+
       </div>
 
+
+
+      {/* TRUST BADGES */}
+      {[
+        { icon: Truck, text: "Livraison rapide", sub: "Toute l'Algérie" },
+        { icon: Shield, text: "Paiement sécurisé", sub: "À la livraison" },
+        { icon: Clock, text: "Support 24/7", sub: "Réponse rapide" }
+      ].map((item, i) => (
+
+        <div key={i} className="flex items-center gap-3 justify-start md:justify-center">
+
+          <div className="w-10 h-10 rounded-lg border bg-slate-50 flex items-center justify-center">
+            <item.icon className="w-5 h-5 text-teal-600" />
+          </div>
+
+          <div>
+            <div className="text-sm font-semibold text-slate-800">
+              {item.text}
+            </div>
+            <div className="text-xs text-slate-500">
+              {item.sub}
+            </div>
+          </div>
+
+        </div>
+
+      ))}
+
+
+
+      {/* SOCIAL */}
+      <div className="flex gap-2 md:justify-end">
+
+        {contact?.facebook && (
+          <a
+            href={contact.facebook}
+            target="_blank"
+            className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 transition"
+          >
+            <Facebook size={16}/>
+          </a>
+        )}
+
+        {contact?.instagram && (
+          <a
+            href={contact.instagram}
+            target="_blank"
+            className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-pink-50 hover:text-pink-600 transition"
+          >
+            <Instagram size={16}/>
+          </a>
+        )}
+
+        {contact?.linkedin && (
+          <a
+            href={contact.linkedin}
+            target="_blank"
+            className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-sky-50 hover:text-sky-600 transition"
+          >
+            <Linkedin size={16}/>
+          </a>
+        )}
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
       {/* Shopping Cart Drawer */}
       <AnimatePresence>
         {cartOpen && (
