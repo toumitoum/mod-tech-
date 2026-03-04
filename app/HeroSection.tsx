@@ -60,7 +60,7 @@ export default function HeroSection() {
 
       {/* ❌ Overlay removed */}
 
-      <div className="w-full px-6 sm:container sm:mx-auto relative z-10 pt-20">
+      <div className="w-full px-6 sm:container sm:mx-auto relative z-10 sm:pt-20">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
