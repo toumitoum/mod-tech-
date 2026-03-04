@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { Home } from "lucide-react";
 import { 
   ShoppingCart, 
   ChevronLeft, 
@@ -254,6 +255,16 @@ export default function ProductPage() {
       setSending(false);
       return;
     }
+    // SEND TO GOOGLE SHEET
+try {
+  await fetch("/api/google-sheet", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(orderData)
+  });
+} catch (err) {
+  console.log("Sheet error:", err);
+}
 
     try {
       await fetch("/api/send-order-email", {
@@ -349,7 +360,7 @@ export default function ProductPage() {
                 onClick={() => router.push("/store")}
                 className="text-slate-500 hover:text-slate-700 transition-colors text-sm flex items-center gap-1"
               >
-                ← Store
+                ← Store <Home/>
               </button>
               <span className="text-slate-300 hidden sm:inline">|</span>
               <span className="font-bold text-lg bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent hidden sm:inline">

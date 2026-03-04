@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import { supabase } from "@/app/supabase";
+import AnimatedCounter from "@/components/ui/AnimatedCounter";
 
 const strengths = [
   "Expertise technique certifiée",
@@ -13,16 +14,19 @@ const strengths = [
 ];
 
 const DEFAULT = {
+  visible: true,
   title: "Votre partenaire technologique de confiance",
-  description: "MOD-TECHNOLOGIE est une entreprise spécialisée dans les solutions de sécurité et les technologies de pointe. Nous accompagnons les entreprises et les particuliers dans la mise en place de systèmes fiables et innovants.",
-  mission: "Notre équipe d'experts qualifiés s'engage à fournir des installations de qualité supérieure, un service client irréprochable et un suivi technique continu pour garantir votre satisfaction.",
+  description: "MOD-TECHNOLOGIE est une entreprise spécialisée dans les solutions de sécurité et les technologies de pointe.",
+  mission: "Notre équipe d experts qualifiés s engage à fournir des installations de qualité supérieure.",
   years: "5+",
   clients: "200+",
   projects: "500+",
+  image: "",
 };
 
 const AboutSection = () => {
   const [data, setData] = useState(DEFAULT);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     supabase
@@ -32,8 +36,12 @@ const AboutSection = () => {
       .single()
       .then(({ data: row }) => {
         if (row?.content) setData({ ...DEFAULT, ...row.content });
+        setLoaded(true);
       });
   }, []);
+
+  if (!loaded) return null;
+  if (data.visible === false) return null;
 
   return (
     <section id="apropos" className="py-24 bg-muted/30 relative">
@@ -74,14 +82,29 @@ const AboutSection = () => {
             transition={{ duration: 0.6 }}
             className="grid grid-cols-2 gap-4"
           >
+            {data.image && (
+  <div className="col-span-2 overflow-hidden mb-2">
+    <img
+      src={data.image}
+      alt="À propos"
+      className="w-full h-52 object-cover object-left"
+    />
+  </div>
+)}
             {[
-              { number: data.years,    label: "Années d'expérience" },
+              { number: data.years,    label: "Années d experience" },
               { number: data.projects, label: "Projets réalisés" },
               { number: data.clients,  label: "Clients satisfaits" },
             ].map((stat) => (
               <div key={stat.label} className="p-6 rounded-xl bg-card border border-border text-center">
                 <div className="text-3xl font-heading font-bold text-primary mb-2">
-                  {stat.number}
+               <motion.div
+  initial={{ opacity: 0, y: 20 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true }}
+>
+  <AnimatedCounter value={stat.number} />
+</motion.div>
                 </div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
               </div>

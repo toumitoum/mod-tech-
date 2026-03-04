@@ -627,12 +627,402 @@ function ServicesEd({ data, onChange, dark }: { data: any[]; onChange: (d: any[]
 }
 
 // ── ABOUT ────────────────────────────────────────────────────────────────────
-function AboutEd({ data, onChange, dark }: { data: any; onChange: (d: any) => void; dark: boolean }) {
+// ── REUSSITES ─────────────────────────────────────────────────────────────────
+function ReussitesEd({ dark }: { dark: boolean }) {
   const s = ms(dark);
-  const f = (k: string, v: string) => onChange({ ...data, [k]: v });
-  
+  const [sectionVisible, setSectionVisible] = useState(true);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [adding, setAdding] = useState(false);
+  const [saving, setSaving] = useState<number | null>(null);
+  const [toggling, setToggling] = useState(false);
+  const [newImg, setNewImg] = useState("");
+  const [newTitle, setNewTitle] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const newImgRef = useRef<HTMLInputElement>(null);
+
+  const CATS = ["Sécurité", "Réseau", "Domotique", "Accès", "Sonorisation", "Autre"];
+
+  const load = async () => {
+    const { data } = await supabase.from("reussites").select("*").order("sort_order");
+    setProjects(data ?? []);
+    const { data: sc } = await supabase.from("site_content").select("content").eq("section", "reussites").single();
+    if (sc?.content) setSectionVisible(sc.content.visible !== false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const uploadImg = async (file: File, path: string): Promise<string> => {
+    const ext = file.name.split(".").pop();
+    const fp = `${path}-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("site-images").upload(fp, file, { upsert: true });
+    if (error) throw error;
+    return supabase.storage.from("site-images").getPublicUrl(fp).data.publicUrl;
+  };
+
+  const toggleSection = async () => {
+    setToggling(true);
+    const newVal = !sectionVisible;
+    await supabase.from("site_content").upsert(
+      { section: "reussites", content: { visible: newVal }, updated_at: new Date().toISOString() },
+      { onConflict: "section" }
+    );
+    setSectionVisible(newVal);
+    setToggling(false);
+  };
+
+  const toggleProject = async (p: any) => {
+    await supabase.from("reussites").update({ is_active: !p.is_active }).eq("id", p.id);
+    load();
+  };
+
+  const deleteProject = async (id: number) => {
+    if (!confirm("Supprimer cette réalisation ?")) return;
+    await supabase.from("reussites").delete().eq("id", id);
+    load();
+  };
+
+  const updateField = async (id: number, field: string, value: any) => {
+    setSaving(id);
+    await supabase.from("reussites").update({ [field]: value }).eq("id", id);
+    setSaving(null);
+    load();
+  };
+
+  const addProject = async () => {
+    if (!newImg) { alert("Image obligatoire"); return; }
+    setSaving(-1);
+    await supabase.from("reussites").insert([{
+      image: newImg,
+      title: newTitle,
+      category: newCategory,
+      is_active: true,
+      sort_order: projects.length + 1,
+    }]);
+    setNewImg(""); setNewTitle(""); setNewCategory("");
+    setAdding(false);
+    setSaving(null);
+    load();
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+
+      {/* Info */}
+      <div style={{
+        background: dark ? "rgba(13,148,136,0.06)" : "rgba(13,148,136,0.04)",
+        border: "1px solid rgba(13,148,136,0.2)",
+        borderRadius: 12, padding: "12px 16px",
+        fontSize: 13, color: s.sub,
+        display: "flex", alignItems: "center", gap: 8
+      }}>
+        <Star className="w-4 h-4" style={{ color: teal }} />
+        <span>
+          <span style={{ color: teal, fontWeight: 700 }}>{projects.length} réalisation{projects.length !== 1 ? "s" : ""}</span>
+          {" · "}
+          <span style={{ color: "#10b981", fontWeight: 600 }}>{projects.filter(x => x.is_active).length} actives</span>
+        </span>
+      </div>
+
+      {/* Section toggle */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        background: sectionVisible
+          ? (dark ? "rgba(13,148,136,0.08)" : "rgba(13,148,136,0.04)")
+          : (dark ? "rgba(51,65,85,0.3)" : "rgba(226,232,240,0.5)"),
+        border: "1px solid " + (sectionVisible ? "rgba(13,148,136,0.3)" : s.brd),
+        borderRadius: 12, padding: "14px 18px",
+      }}>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 14, color: s.tx }}>
+            {sectionVisible ? "✅ Section visible sur le site" : "🙈 Section masquée"}
+          </div>
+          <div style={{ fontSize: 12, color: s.sub, marginTop: 3 }}>
+            {sectionVisible ? "La section «Nos Réussites» est affichée" : "La section est cachée pour les visiteurs"}
+          </div>
+        </div>
+        <button
+          onClick={toggleSection}
+          disabled={toggling}
+          style={{
+            background: sectionVisible ? tG : (dark ? "rgba(51,65,85,0.5)" : "#e2e8f0"),
+            border: "none", borderRadius: 8, padding: "8px 18px",
+            color: sectionVisible ? "#fff" : s.sub,
+            fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" as const,
+          }}
+        >
+          {sectionVisible ? "Masquer" : "Afficher"}
+        </button>
+      </div>
+
+      {/* Projects grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {projects.map(p => (
+          <motion.div
+            key={p.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              background: s.card,
+              border: "1px solid " + (p.is_active ? s.brd : "rgba(239,68,68,0.25)"),
+              borderRadius: 12,
+              overflow: "hidden",
+              opacity: p.is_active ? 1 : 0.55,
+            }}
+          >
+            {/* Image */}
+            <div style={{ position: "relative", height: 130 }}>
+              <img src={p.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              <div style={{
+                position: "absolute", inset: 0,
+                background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent)",
+              }} />
+              {/* Change image btn */}
+              <label
+                htmlFor={`img-${p.id}`}
+                style={{
+                  position: "absolute", top: 6, left: 6,
+                  background: "rgba(0,0,0,0.6)", border: "none", borderRadius: 6,
+                  color: "#fff", fontSize: 11, padding: "3px 8px",
+                  cursor: "pointer", display: "flex", alignItems: "center", gap: 4,
+                }}
+              >
+                <ImageIcon className="w-3 h-3" /> Changer
+              </label>
+              <input
+                id={`img-${p.id}`} type="file" accept="image/*"
+                style={{ display: "none" }}
+                onChange={async e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  setSaving(p.id);
+                  const url = await uploadImg(file, `reussite-${p.id}`);
+                  await supabase.from("reussites").update({ image: url }).eq("id", p.id);
+                  setSaving(null);
+                  load();
+                }}
+              />
+            </div>
+
+            {/* Fields */}
+            <div style={{ padding: "10px 12px", display: "flex", flexDirection: "column", gap: 7 }}>
+              <input
+                defaultValue={p.title}
+                onBlur={e => updateField(p.id, "title", e.target.value)}
+                placeholder="Titre (optionnel)"
+                style={{
+                  background: s.ibg, border: "1px solid " + s.brd,
+                  borderRadius: 7, padding: "6px 10px",
+                  color: s.tx, fontSize: 13, outline: "none", width: "100%",
+                }}
+              />
+              <select
+                defaultValue={p.category}
+                onBlur={e => updateField(p.id, "category", e.target.value)}
+                style={{
+                  background: s.ibg, border: "1px solid " + s.brd,
+                  borderRadius: 7, padding: "6px 10px",
+                  color: s.tx, fontSize: 12, outline: "none", width: "100%",
+                }}
+              >
+                <option value="">Catégorie...</option>
+                {CATS.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+
+              <div style={{ display: "flex", gap: 6 }}>
+                <input
+                  type="number"
+                  defaultValue={p.sort_order}
+                  onBlur={e => updateField(p.id, "sort_order", parseInt(e.target.value) || 0)}
+                  style={{
+                    width: 50, background: s.ibg, border: "1px solid " + s.brd,
+                    borderRadius: 7, padding: "5px 7px",
+                    color: teal, fontSize: 12, outline: "none", textAlign: "center" as const,
+                  }}
+                />
+                <div style={{ flex: 1 }} />
+                {saving === p.id && <RefreshCw className="w-3 h-3 animate-spin" style={{ color: teal }} />}
+                <button
+                  onClick={() => toggleProject(p)}
+                  style={{
+                    background: p.is_active ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.08)",
+                    border: "1px solid " + (p.is_active ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.2)"),
+                    borderRadius: 6, padding: "4px 9px",
+                    color: p.is_active ? "#10b981" : "#f87171",
+                    fontSize: 11, fontWeight: 700, cursor: "pointer",
+                    display: "flex", alignItems: "center", gap: 3,
+                  }}
+                >
+                  {p.is_active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                  {p.is_active ? "Actif" : "Off"}
+                </button>
+                <button
+                  onClick={() => deleteProject(p.id)}
+                  style={{
+                    background: "rgba(239,68,68,0.08)",
+                    border: "1px solid rgba(239,68,68,0.2)",
+                    borderRadius: 6, padding: "4px 7px",
+                    color: "#f87171", cursor: "pointer",
+                    display: "flex", alignItems: "center",
+                  }}
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Add new */}
+      {adding ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            background: s.card,
+            border: "2px dashed rgba(13,148,136,0.4)",
+            borderRadius: 14, padding: 20,
+          }}
+        >
+          <div style={{ fontSize: 12, fontWeight: 700, color: teal, marginBottom: 14, display: "flex", alignItems: "center", gap: 6 }}>
+            <Plus className="w-4 h-4" /> Nouvelle réalisation
+          </div>
+
+          {/* Image upload */}
+          <input
+            ref={newImgRef} type="file" accept="image/*"
+            style={{ display: "none" }}
+            onChange={async e => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              setUploading(true);
+              const url = await uploadImg(file, "reussite-new");
+              setNewImg(url);
+              setUploading(false);
+            }}
+          />
+          {newImg ? (
+            <div style={{ position: "relative", marginBottom: 12, borderRadius: 10, overflow: "hidden" }}>
+              <img src={newImg} alt="" style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }} />
+              <button
+                onClick={() => setNewImg("")}
+                style={{
+                  position: "absolute", top: 8, right: 8,
+                  background: "rgba(239,68,68,0.9)", border: "none",
+                  borderRadius: 6, color: "#fff", padding: "4px 8px",
+                  cursor: "pointer", fontSize: 11, display: "flex", alignItems: "center", gap: 3,
+                }}
+              >
+                <X className="w-3 h-3" /> Changer
+              </button>
+            </div>
+          ) : (
+            <div
+              onClick={() => newImgRef.current?.click()}
+              style={{
+                border: "2px dashed rgba(13,148,136,0.3)", borderRadius: 10, height: 120,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                color: s.sub, fontSize: 13, cursor: "pointer",
+                flexDirection: "column" as const, gap: 6, marginBottom: 12,
+              }}
+            >
+              <ImageIcon className="w-6 h-6" />
+              {uploading ? "⏳ Upload..." : "📷 Choisir une image *"}
+            </div>
+          )}
+
+          <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+            <input
+              value={newTitle}
+              onChange={e => setNewTitle(e.target.value)}
+              placeholder="Titre (optionnel)"
+              style={{
+                flex: 1, background: s.ibg, border: "1px solid " + s.brd,
+                borderRadius: 8, padding: "9px 12px",
+                color: s.tx, fontSize: 13, outline: "none",
+              }}
+            />
+            <select
+              value={newCategory}
+              onChange={e => setNewCategory(e.target.value)}
+              style={{
+                background: s.ibg, border: "1px solid " + s.brd,
+                borderRadius: 8, padding: "9px 12px",
+                color: s.tx, fontSize: 13, outline: "none",
+              }}
+            >
+              <option value="">Catégorie...</option>
+              {CATS.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={addProject} disabled={saving === -1 || !newImg}
+              style={{
+                background: newImg ? tG : "rgba(51,65,85,0.3)",
+                border: "none", borderRadius: 9, padding: "10px 20px",
+                color: "#fff", fontSize: 14, fontWeight: 700,
+                cursor: (saving === -1 || !newImg) ? "not-allowed" : "pointer",
+                display: "flex", alignItems: "center", gap: 6,
+              }}
+            >
+              {saving === -1 ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              {saving === -1 ? "⏳" : "Ajouter"}
+            </button>
+            <button
+              onClick={() => { setAdding(false); setNewImg(""); setNewTitle(""); setNewCategory(""); }}
+              style={{
+                background: "transparent", border: "1px solid " + s.brd,
+                borderRadius: 9, padding: "10px 14px",
+                color: s.sub, fontSize: 13, cursor: "pointer",
+              }}
+            >
+              Annuler
+            </button>
+          </div>
+        </motion.div>
+      ) : (
+        <button
+          onClick={() => setAdding(true)}
+          style={{
+            border: "2px dashed rgba(13,148,136,0.3)", background: "transparent",
+            color: teal, borderRadius: 12, padding: 14, cursor: "pointer",
+            fontSize: 14, fontWeight: 600,
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+          }}
+        >
+          <Plus className="w-4 h-4" /> Ajouter une réalisation
+        </button>
+      )}
+    </div>
+  );
+}
+// ── ABOUT ────────────────────────────────────────────────────────────────────
+// Replace the existing AboutEd function in admin/page.tsx with this one
+function AboutEd({ data, onChange, dark }: { data: any; onChange: (d: any) => void; dark: boolean }) {
+  const s = ms(dark);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const f = (k: string, v: any) => onChange({ ...data, [k]: v });
+
+  const uploadImage = async (file: File) => {
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const fp = `about/image_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("site-images").upload(fp, file, { upsert: true });
+    if (error) { alert("Upload error: " + error.message); setUploading(false); return; }
+    const { data: urlData } = supabase.storage.from("site-images").getPublicUrl(fp);
+    f("image", urlData.publicUrl);
+    setUploading(false);
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+
+      {/* Info banner */}
       <div style={{
         background: dark ? "rgba(13,148,136,0.06)" : "rgba(13,148,136,0.04)",
         border: "1px solid rgba(13,148,136,0.2)",
@@ -641,68 +1031,170 @@ function AboutEd({ data, onChange, dark }: { data: any; onChange: (d: any) => vo
         fontSize: 13,
         color: dark ? "#94a3b8" : "#64748b",
         lineHeight: 1.7,
-        marginBottom: 8,
         display: "flex",
         alignItems: "center",
         gap: 8
       }}>
         <Award className="w-4 h-4" style={{ color: teal }} />
-        <span>Section À propos - Présentation de l'entreprise</span>
+        <span>Section À propos — Présentation de l'entreprise sur la page d'accueil</span>
       </div>
 
-      <Field label="Titre" value={data.title ?? ""} onChange={v => f("title", v)} dark={dark} />
-      <Field label="Description" value={data.description ?? ""} onChange={v => f("description", v)} multi dark={dark} />
-      <Field label="Mission" value={data.mission ?? ""} onChange={v => f("mission", v)} multi dark={dark} />
-      
+      {/* ── VISIBLE TOGGLE ── */}
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        background: data.visible
+          ? (dark ? "rgba(13,148,136,0.08)" : "rgba(13,148,136,0.04)")
+          : (dark ? "rgba(51,65,85,0.3)" : "rgba(226,232,240,0.5)"),
+        border: "1px solid " + (data.visible ? "rgba(13,148,136,0.3)" : s.brd),
+        borderRadius: 12,
+        padding: "14px 18px",
+      }}>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 14, color: s.tx }}>
+            {data.visible ? "✅ Section visible sur le site" : "🙈 Section masquée"}
+          </div>
+          <div style={{ fontSize: 12, color: s.sub, marginTop: 3 }}>
+            {data.visible
+              ? "La section «À propos» est affichée sur la page d'accueil"
+              : "La section est cachée — personne ne la voit"}
+          </div>
+        </div>
+        <button
+          onClick={() => f("visible", !data.visible)}
+          style={{
+            background: data.visible ? tG : (dark ? "rgba(51,65,85,0.5)" : "#e2e8f0"),
+            border: "none",
+            borderRadius: 8,
+            padding: "8px 18px",
+            color: data.visible ? "#fff" : s.sub,
+            fontSize: 13,
+            fontWeight: 700,
+            cursor: "pointer",
+            whiteSpace: "nowrap" as const,
+          }}
+        >
+          {data.visible ? "Masquer" : "Afficher"}
+        </button>
+      </div>
+
+      {/* ── TEXT FIELDS ── */}
+      <Field label="Titre" value={data.title ?? ""} onChange={v => f("title", v)} dark={dark} placeholder="Votre partenaire technologique de confiance" />
+      <Field label="Description" value={data.description ?? ""} onChange={v => f("description", v)} multi dark={dark} placeholder="MOD-TECHNOLOGIE est une entreprise..." />
+      <Field label="Mission" value={data.mission ?? ""} onChange={v => f("mission", v)} multi dark={dark} placeholder="Notre équipe d'experts qualifiés..." />
+
+      {/* ── STATS ── */}
       <div style={{ borderTop: "1px solid " + s.brd, paddingTop: 16 }}>
         <div style={{
           fontSize: 11,
           fontWeight: 700,
           color: s.mut,
-          textTransform: "uppercase",
+          textTransform: "uppercase" as const,
           letterSpacing: "0.1em",
           marginBottom: 14
         }}>
-          Statistiques
+          Statistiques (3 chiffres clés)
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
           {([
-            ["years", "Années"],
-            ["clients", "Clients"],
-            ["projects", "Projets"]
-          ] as [string, string][]).map(([k, l]) => (
-            <div key={k} style={{
+            { key: "years",    label: "Années",   placeholder: "5+" },
+            { key: "clients",  label: "Clients",  placeholder: "200+" },
+            { key: "projects", label: "Projets",  placeholder: "500+" },
+          ] as const).map(({ key, label, placeholder }) => (
+            <div key={key} style={{
               background: s.ci,
               border: "1px solid " + s.brd,
               borderRadius: 12,
               padding: 14,
-              textAlign: "center"
+              textAlign: "center" as const
             }}>
-              <div style={{ fontSize: 11, color: s.sub, marginBottom: 8, fontWeight: 600 }}>{l}</div>
+              <div style={{ fontSize: 11, color: s.sub, marginBottom: 8, fontWeight: 600 }}>{label}</div>
               <input
-                value={data[k] ?? ""}
-                onChange={e => f(k, e.target.value)}
+                value={data[key] ?? ""}
+                onChange={e => f(key, e.target.value)}
+                placeholder={placeholder}
                 style={{
                   background: "transparent",
                   border: "none",
                   borderBottom: "1px solid " + s.brd,
-                  width: 80,
-                  textAlign: "center",
+                  width: "100%",
+                  textAlign: "center" as const,
                   color: teal,
-                  fontSize: 20,
+                  fontSize: 22,
                   fontWeight: 800,
                   outline: "none",
-                  fontFamily: "inherit"
+                  fontFamily: "inherit",
+                  paddingBottom: 4,
                 }}
               />
             </div>
           ))}
         </div>
       </div>
+
+      {/* ── IMAGE (optional) ── */}
+      <div style={{ borderTop: "1px solid " + s.brd, paddingTop: 16 }}>
+        <div style={{
+          fontSize: 11,
+          fontWeight: 700,
+          color: s.mut,
+          textTransform: "uppercase" as const,
+          letterSpacing: "0.1em",
+          marginBottom: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 6
+        }}>
+          <ImageIcon className="w-4 h-4" />
+          Image (optionnelle)
+        </div>
+
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={e => { if (e.target.files?.[0]) uploadImage(e.target.files[0]); }}
+        />
+
+        {data.image ? (
+          <div style={{ position: "relative", display: "inline-block", width: "100%" }}>
+            <img
+              src={data.image}
+              alt="about"
+              style={{ width: "100%", maxHeight: 200, objectFit: "cover", borderRadius: 10, border: "1px solid " + s.brd, display: "block" }}
+            />
+            <button
+              onClick={() => f("image", "")}
+              style={{
+                position: "absolute", top: 8, right: 8,
+                background: "rgba(239,68,68,0.9)", border: "none", borderRadius: 6,
+                color: "#fff", padding: "4px 10px", cursor: "pointer",
+                fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 4
+              }}
+            >
+              <X className="w-3 h-3" /> Supprimer
+            </button>
+          </div>
+        ) : (
+          <div
+            onClick={() => fileRef.current?.click()}
+            style={{
+              border: "2px dashed rgba(13,148,136,0.3)", borderRadius: 10, height: 100,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              color: s.sub, fontSize: 13, cursor: "pointer",
+              flexDirection: "column" as const, gap: 6
+            }}
+          >
+            <ImageIcon className="w-6 h-6" />
+            {uploading ? "⏳ Upload en cours..." : "📷 Cliquer pour ajouter une image"}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
 // ── CONTACT ───────────────────────────────────────────────────────────────────
 function ContactEd({ data, onChange, dark }: { data: any; onChange: (d: any) => void; dark: boolean }) {
   const s = ms(dark);
@@ -3233,6 +3725,7 @@ const NAV = [
   { key: "slider", label: "Slider", icon: <ImageIcon className="w-5 h-5" />, desc: "Images du carrousel" },
   { key: "partners", label: "Partenaires", icon: <Users className="w-5 h-5" />, desc: "Logos des clients" },
   { key: "products", label: "Produits", icon: <ShoppingBag className="w-5 h-5" />, desc: "Catalogue du store" },
+  { key: "reussites", label: "Nos Réussites", icon: <Star className="w-5 h-5" />, desc: "Portfolio photos" },
   { key: "orders", label: "Commandes", icon: <ShoppingBag className="w-5 h-5" />, desc: "Gestion des commandes" },
   { key: "emails", label: "Emails", icon: <Mail className="w-5 h-5" />, desc: "Notifications email" },
 ];
@@ -3796,6 +4289,7 @@ export default function AdminPage() {
                 {active === "products" && <ProductsEd dark={dark} />}
                 {active === "orders" && <OrdersEd dark={dark} />}
                 {active === "emails" && <EmailEd dark={dark} />}
+                {active === "reussites" && <ReussitesEd dark={dark} />}
               </div>
             </div>
           )}

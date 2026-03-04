@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Shield, ArrowRight } from "lucide-react";
@@ -7,81 +8,108 @@ import { supabase } from "@/app/supabase";
 const DEFAULT = {
   title: "Sécurité & Innovation",
   titleHighlight: "Technologique",
-  subtitle: "Spécialistes en systèmes de sécurité, réseaux informatiques, domotique, contrôle d'accès et sonorisation. Nous protégeons et connectons votre environnement.",
+  subtitle:
+    "Spécialistes en systèmes de sécurité, réseaux informatiques, domotique, contrôle d'accès et sonorisation.",
   badge: "Solutions technologiques",
   btnPrimary: "Demander un devis",
   btnSecondary: "Découvrir nos services",
   bgImage: "",
 };
 
-const HeroSection = () => {
+export default function HeroSection() {
   const [data, setData] = useState(DEFAULT);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase
-      .from("site_content")
-      .select("content")
-      .eq("section", "hero")
-      .single()
-      .then(({ data: row }) => {
-        if (row?.content) setData({ ...DEFAULT, ...row.content });
-      });
+    let isMounted = true;
+
+    const fetchHeroContent = async () => {
+      const { data: row } = await supabase
+        .from("site_content")
+        .select("content")
+        .eq("section", "hero")
+        .single();
+
+      if (row?.content && isMounted) {
+        setData({ ...DEFAULT, ...row.content });
+      }
+
+      if (isMounted) setLoading(false);
+    };
+
+    fetchHeroContent();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // If admin uploaded an image via dashboard → use it
-  // Otherwise fall back to the local file in /public/assets/
-  const bgStyle = data.bgImage
-    ? { backgroundImage: `url(${data.bgImage})` }
-    : { backgroundImage: `url(/assets/hero-bg.jpg)` };
+  if (loading) {
+    return <section className="min-h-screen bg-gray-900" />;
+  }
 
   return (
-    <section id="accueil" className="relative min-h-screen flex items-center overflow-hidden">
-      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={bgStyle} />
-      <div className="absolute inset-0 " />
-      <div className="container mx-auto px-4 relative z-10 pt-20">
+    <section className="relative w-full min-h-screen flex items-center overflow-hidden">
+      
+      {/* Background */}
+      {data.bgImage && (
+        <div
+          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${data.bgImage})` }}
+        />
+      )}
+
+      {/* ❌ Overlay removed */}
+
+      <div className="w-full px-6 sm:container sm:mx-auto relative z-10 pt-20">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.8 }}
           className="max-w-3xl"
         >
+          {/* Badge */}
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-white/10 border border-white/20">
-              <Shield className="w-5 h-5 text-teal-400" />
+            <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm">
+              <Shield className="w-5 h-5 text-teal-500" />
             </div>
-            <span className="text-sm font-medium text-teal-400 tracking-wide uppercase">
+            <span className="text-sm text-teal-500 uppercase font-medium">
               {data.badge}
             </span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6 text-gray-600">
+          {/* Title */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-gray-600 leading-tight">
             {data.title}{" "}
-            <span className="text-teal-400">{data.titleHighlight}</span>
+            <span className="text-teal-400">
+              {data.titleHighlight}
+            </span>
           </h1>
 
-          <p className="text-lg text-gray-500 max-w-xl mb-10 leading-relaxed">
+          {/* Subtitle */}
+          <p className="text-gray-500 mb-10 drop-shadow-md">
             {data.subtitle}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          {/* Buttons */}
+          <div className="flex gap-3">
             <a
               href="#contact"
-              className="inline-flex items-center justify-center px-8 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-1"
+              className="flex-1 sm:flex-none text-center mb-2 px-2 py-2 text-[12px] sm:text-base bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-lg whitespace-nowrap transition-all duration-300 inline-flex items-center justify-center"
             >
               {data.btnPrimary}
-              <ArrowRight className="ml-2 w-4 h-4" />
+              <ArrowRight className="hidden sm:inline ml-2 w-4 h-4" />
             </a>
+
             <a
               href="#services"
-              className="inline-flex items-center justify-center px-8 py-3 border border-gray-500 hover:border-gray-300 text-gray-500 font-semibold rounded-xl transition-all duration-300 hover:bg-gray-200"
+              className="flex-1 sm:flex-none text-center mb-2 px-2 py-2 text-[12px] sm:text-base border border-gray-300 text-gray-500 font-semibold rounded-lg whitespace-nowrap hover:bg-gray-100 transition-all duration-300"
             >
               {data.btnSecondary}
             </a>
           </div>
+
         </motion.div>
       </div>
     </section>
   );
-};
-
-export default HeroSection;
+}

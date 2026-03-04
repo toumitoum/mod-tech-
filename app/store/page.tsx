@@ -306,72 +306,78 @@ export default function StorePage() {
 
   /* ================= SEND ORDER ================= */
   const sendOrder = async () => {
-    if (!form.name || !form.phone || !form.wilaya || !form.commune || !form.address) {
-      alert("Veuillez remplir tous les champs obligatoires");
-      return;
-    }
-    
-    if (cart.length === 0) {
-      alert("Votre panier est vide");
-      return;
-    }
-    
-    setSending(true);
-    
-    const items = cart.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      qty: item.qty,
-      color: item.selectedColor,
-      size: item.selectedSize
-    }));
-    
-    const notes = [
-      form.notes,
-      ...cart.map(item => {
-        const options = [];
-        if (item.selectedColor) options.push(`Couleur: ${item.selectedColor}`);
-        if (item.selectedSize) options.push(`Taille: ${item.selectedSize}`);
-        return options.length ? `${item.name} (${options.join(', ')})` : null;
-      }).filter(Boolean)
-    ].filter(Boolean).join(" | ");
-    
-    const orderData = {
-      customer_name: form.name,
-      customer_phone: form.phone,
-      customer_email: form.email,
-      customer_address: `${form.address}, ${form.commune}, ${form.wilaya}`,
-      notes,
-      items,
-      total: cartTotal,
-      status: "new",
-    };
-    
-    const { error } = await supabase.from("orders").insert([orderData]);
-    if (error) {
-      alert("Erreur: " + error.message);
-      setSending(false);
-      return;
-    }
-    
-    try {
-      await fetch("/api/send-order-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order: orderData })
-      });
-    } catch (e) {
-      console.log("Email skipped:", e);
-    }
-    
-    setCart([]);
-    setSending(false);
-    setSuccess(true);
-    setCartOpen(false);
-    setCheckout(false);
+  if (!form.name || !form.phone || !form.wilaya || !form.commune || !form.address) {
+    alert("Veuillez remplir tous les champs obligatoires");
+    return;
+  }
+
+  if (cart.length === 0) {
+    alert("Votre panier est vide");
+    return;
+  }
+
+  setSending(true);
+
+  const items = cart.map(item => ({
+    id: item.id,
+    name: item.name,
+    price: item.price,
+    qty: item.qty,
+    color: item.selectedColor,
+    size: item.selectedSize
+  }));
+
+  const notes = [
+    form.notes,
+    ...cart.map(item => {
+      const options = [];
+      if (item.selectedColor) options.push(`Couleur: ${item.selectedColor}`);
+      if (item.selectedSize) options.push(`Taille: ${item.selectedSize}`);
+      return options.length ? `${item.name} (${options.join(', ')})` : null;
+    }).filter(Boolean)
+  ].filter(Boolean).join(" | ");
+
+  const orderData = {
+    customer_name: form.name,
+    customer_phone: form.phone,
+    customer_email: form.email,
+    customer_address: `${form.address}, ${form.commune}, ${form.wilaya}`,
+    notes,
+    items,
+    total: cartTotal,
+    status: "new",
   };
 
+  /* ---------------- SAVE TO SUPABASE ---------------- */
+  const { error } = await supabase.from("orders").insert([orderData]);
+
+  if (error) {
+    alert("Erreur: " + error.message);
+    setSending(false);
+    return;
+  }
+
+  /* ---------------- SEND TO GOOGLE SHEET ---------------- */
+  
+
+  /* ---------------- SEND EMAIL ---------------- */
+  try {
+    await fetch("/api/send-order-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ order: orderData })
+    });
+  } catch (e) {
+    console.log("Email skipped:", e);
+  }
+
+  /* ---------------- SUCCESS ---------------- */
+  setCart([]);
+  setSending(false);
+  setSuccess(true);
+  setCartOpen(false);
+  setCheckout(false);
+};
   /* ================= LOADING ================= */
 
   if (!isMounted || loading)

@@ -3,6 +3,7 @@ import Navbar from "./Navbar";
 import HeroSection from "./HeroSection";
 import ServicesSection from "./ServicesSection";
 import AboutSection from "./AboutSection";
+import ReussitesSection from "./ReussitesSection";
 import Footer from "./Footer";
 import WhatsAppButton from "./WhatsAppButton";
 import dynamic from "next/dynamic";
@@ -23,9 +24,8 @@ export default function Home() {
       <ImageSlider />
       <ServicesSection />
       <AboutSection />
+      <ReussitesSection />
       <ContactSection />      
-
-
 
      <PartnersBar />
       <Footer />
