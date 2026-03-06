@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
   Menu, 
   X, 
@@ -18,7 +18,6 @@ import {
   Eye,
   EyeOff,
   Star,
-  Settings,
   ShoppingBag,
   Users,
   Mail,
@@ -27,13 +26,8 @@ import {
   Layers,
   Phone,
   Award,
-  Camera,
-  Wifi,
-  Lock,
-  Volume2,
-  Cpu,
-  MoreHorizontal,
-  Store
+  Store,
+  Icon
 } from "lucide-react";
 import { supabase } from "@/app/supabase";
 
@@ -969,7 +963,7 @@ function ReussitesEd({ dark }: { dark: boolean }) {
               }}
             >
               {saving === -1 ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-              {saving === -1 ? "⏳" : "Ajouter"}
+              {saving === -1 ? "" : "Ajouter"}
             </button>
             <button
               onClick={() => { setAdding(false); setNewImg(""); setNewTitle(""); setNewCategory(""); }}
@@ -1053,7 +1047,7 @@ function AboutEd({ data, onChange, dark }: { data: any; onChange: (d: any) => vo
       }}>
         <div>
           <div style={{ fontWeight: 700, fontSize: 14, color: s.tx }}>
-            {data.visible ? "✅ Section visible sur le site" : "🙈 Section masquée"}
+            {data.visible ? " Section visible sur le site" : " Section masquée"}
           </div>
           <div style={{ fontSize: 12, color: s.sub, marginTop: 3 }}>
             {data.visible
@@ -1188,7 +1182,7 @@ function AboutEd({ data, onChange, dark }: { data: any; onChange: (d: any) => vo
             }}
           >
             <ImageIcon className="w-6 h-6" />
-            {uploading ? "⏳ Upload en cours..." : "📷 Cliquer pour ajouter une image"}
+            {uploading ? " Upload en cours..." : " Cliquer pour ajouter une image"}
           </div>
         )}
       </div>
@@ -1686,7 +1680,7 @@ function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload: () =>
                 }}
               >
                 {saving === -1 ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                {saving === -1 ? "⏳" : "Ajouter"}
+                {saving === -1 ? "" : "Ajouter"}
               </button>
               <button
                 onClick={() => setAdding(false)}
@@ -2203,11 +2197,11 @@ function OrdersEd({ dark }: { dark: boolean }) {
   };
   
   const ST: Record<string, { label: string; color: string; bg: string }> = {
-    new: { label: "🆕 Nouveau", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
-    confirmed: { label: "✅ Confirmé", color: "#10b981", bg: "rgba(16,185,129,0.12)" },
-    shipped: { label: "🚚 Expédié", color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
-    delivered: { label: "📦 Livré", color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
-    cancelled: { label: "❌ Annulé", color: "#ef4444", bg: "rgba(239,68,68,0.12)" }
+    new: { label: " Nouveau", color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
+    confirmed: { label: " Confirmé", color: "#10b981", bg: "rgba(16,185,129,0.12)" },
+    shipped: { label: " Expédié", color: "#3b82f6", bg: "rgba(59,130,246,0.12)" },
+    delivered: { label: " Livré", color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
+    cancelled: { label: " Annulée", color: "#ef4444", bg: "rgba(239,68,68,0.12)" }
   };
   
   const filtered = filter === "all" ? orders : orders.filter(o => o.status === filter);
@@ -2233,7 +2227,7 @@ function OrdersEd({ dark }: { dark: boolean }) {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(110px,1fr))", gap: 8 }}>
-        {[["all", "📋 Tous", orders.length, "#64748b"], ...Object.entries(ST).map(([k, v]) => [k, v.label, counts[k] || 0, v.color])].map(([k, l, c, col]) => (
+        {[["all", " Tous", orders.length, "#64748b"], ...Object.entries(ST).map(([k, v]) => [k, v.label, counts[k] || 0, v.color])].map(([k, l, c, col]) => (
           <button
             key={k as string}
             onClick={() => setFilter(k as string)}
@@ -3008,7 +3002,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
                 <div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "flex", alignItems: "center", gap: 4 }}>
-                      <span>🎨</span> Couleurs disponibles
+                       Couleurs disponibles
                     </label>
                     <button
                       onClick={() => {
@@ -3071,7 +3065,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
                 <div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "flex", alignItems: "center", gap: 4 }}>
-                      <span>📏</span> Tailles / Dimensions
+                       Tailles / Dimensions
                     </label>
                     <button
                       onClick={() => {
@@ -3129,7 +3123,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
                 <div>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "flex", alignItems: "center", gap: 4 }}>
-                      <span>📋</span> Spécifications techniques
+                      Spécifications techniques
                     </label>
                     <button
                       onClick={() => {
@@ -3525,7 +3519,7 @@ function EmailEd({ dark }: { dark: boolean }) {
     const { error } = await supabase.from("email_settings").update({ notify_email: email, resend_key: key, updated_at: new Date().toISOString() }).eq("id", 1);
     setSaving(false);
     if (error) notify("❌ " + error.message, false);
-    else notify("✅ Sauvegardé !");
+    else notify(" Sauvegardé !");
   };
 
   const testEmail = async () => {
@@ -3549,8 +3543,8 @@ function EmailEd({ dark }: { dark: boolean }) {
         })
       });
       const data = await res.json();
-      if (data.ok) notify("✅ Email test envoyé à " + email);
-      else notify("❌ Échec: " + (data.result?.message || data.error || "Erreur"), false);
+      if (data.ok) notify(" Email test envoyé à " + email);
+      else notify(" Échec: " + (data.result?.message || data.error || "Erreur"), false);
     } catch (e: any) {
       notify("❌ " + e.message, false);
     }
@@ -3590,7 +3584,7 @@ function EmailEd({ dark }: { dark: boolean }) {
 
       <div>
         <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>
-          📬 Email de notification
+           Email de notification
         </label>
         <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="modtech.srv@gmail.com" style={inp} />
         <div style={{ fontSize: 11, color: s.sub, marginTop: 5 }}>Email qui reçoit les notifications de commande</div>
@@ -3598,7 +3592,7 @@ function EmailEd({ dark }: { dark: boolean }) {
 
       <div>
         <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>
-          🔑 Resend API Key
+           Resend API Key
         </label>
         <div style={{ position: "relative" }}>
           <input
@@ -3733,6 +3727,7 @@ const NAV = [
 const autoSave = ["slider", "partners", "products", "orders", "emails"];
 
 // ── MAIN ──────────────────────────────────────────────────────────────────────
+// ── MAIN ──────────────────────────────────────────────────────────────────────
 export default function AdminPage() {
   const router = useRouter();
   const [rows, setRows] = useState<Row[]>([]);
@@ -3743,28 +3738,18 @@ export default function AdminPage() {
   const [status, setStatus] = useState<Status>("loading");
   const [msg, setMsg] = useState("");
   const [mok, setMok] = useState(true);
-  const [dark, setDark] = useState(false); // Light mode by default
+  const [dark, setDark] = useState(false);
   const [open, setOpen] = useState(true);
   const [connOk, setConnOk] = useState<boolean | null>(null);
   const [userEmail, setUserEmail] = useState("");
+  const [authChecked, setAuthChecked] = useState(false);
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) router.push("/login");
-      else setUserEmail(data.session.user.email ?? "");
-    });
-    const t = localStorage.getItem("mt_theme");
-    if (t) setDark(t === "dark");
-    else setDark(false); // Default to light mode
-  }, [router]);
-
-  const s = ms(dark);
-  
+  // ← كل useCallback هنا قبل أي return
   const loadSlides = useCallback(async () => {
     const { data } = await supabase.from("slider_slides").select("*").order("sort_order");
     setSlides(data ?? []);
   }, []);
-  
+
   const loadPartners = useCallback(async () => {
     const { data } = await supabase.from("partners").select("*").order("sort_order");
     setPartners(data ?? []);
@@ -3784,7 +3769,45 @@ export default function AdminPage() {
     setStatus("idle");
   }, [loadSlides, loadPartners]);
 
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        router.push("/login");
+      } else {
+        setUserEmail(data.session.user.email ?? "");
+        setAuthChecked(true);
+      }
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) router.push("/login");
+    });
+    const t = localStorage.getItem("mt_theme");
+    if (t) setDark(t === "dark");
+    else setDark(false);
+    return () => listener.subscription.unsubscribe();
+  }, [router]);
+
   useEffect(() => { load(); }, [load]);
+
+  // ← الآن فقط return بعد كل الـ hooks
+  if (!authChecked) return (
+    <div style={{
+      height: "100vh", display: "flex", alignItems: "center",
+      justifyContent: "center", background: dark ? "#0f172a" : "#f8fafc",
+      flexDirection: "column", gap: 16, fontFamily: "'Inter', sans-serif"
+    }}>
+      <div style={{
+        width: 44, height: 44, borderRadius: 12,
+        background: "linear-gradient(135deg,#0d9488,#0f766e)",
+        display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22
+      }}></div>
+      <div style={{ color: "#0d9488", fontSize: 14, fontWeight: 600 }}>
+        Vérification en cours...
+      </div>
+    </div>
+  );
+
+  const s = ms(dark);
 
   const notify = (text: string, ok = true) => { setMsg(text); setMok(ok); setTimeout(() => setMsg(""), 3500); };
   
@@ -3792,7 +3815,7 @@ export default function AdminPage() {
     setStatus("saving");
     const { error } = await supabase.from("site_content").update({ content: drafts[active], updated_at: new Date().toISOString() }).eq("section", active);
     if (error) notify("❌ " + error.message, false);
-    else { notify("✅ Sauvegardé !"); await load(); }
+    else { notify(" Sauvegardé !"); await load(); }
     setStatus("idle");
   };
   
@@ -3894,7 +3917,7 @@ export default function AdminPage() {
             justifyContent: "center",
             fontSize: 17
           }}>
-            ⚙️
+            
           </div>
           <div>
             <div style={{ fontWeight: 800, fontSize: 15 }}>MOD-TECH Admin</div>
