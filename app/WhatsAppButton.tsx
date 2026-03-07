@@ -1,7 +1,7 @@
 "use client";
-import { MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { FaWhatsapp } from "react-icons/fa";
 
 const supabase = createClient(
   "https://djiosqlexflaqzrtuyqc.supabase.co",
@@ -23,7 +23,6 @@ export default function WhatsAppButton() {
         setPhone(data.content.whatsapp.replace(/\D/g, ""));
       }
     };
-
     load();
   }, []);
 
@@ -34,10 +33,10 @@ export default function WhatsAppButton() {
       href={`https://wa.me/${phone}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-[#25D366] text-white shadow-lg hover:scale-110 transition-transform duration-200 animate-pulse-glow"
-      aria-label="WhatsApp"
+      aria-label="Discuter sur WhatsApp"
+      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-5 z-50 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg shadow-[#25D366]/40 hover:bg-[#20c45e] transition-colors duration-200"
     >
-      <MessageCircle className="w-6 h-6" />
+      <FaWhatsapp className="w-5 h-5 sm:w-6 sm:h-6" />
     </a>
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Shield, ArrowRight } from "lucide-react";
+import { motion, easeInOut } from "framer-motion";
+import { Shield, ArrowRight, ChevronDown } from "lucide-react";
 import { supabase } from "@/app/supabase";
 
 const DEFAULT = {
@@ -16,100 +16,195 @@ const DEFAULT = {
   bgImage: "",
 };
 
+const DEFAULT_ABOUT = {
+  years: "5+",
+  clients: "200+",
+  projects: "500+",
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: easeInOut } },
+};
+
 export default function HeroSection() {
   const [data, setData] = useState(DEFAULT);
+  const [about, setAbout] = useState(DEFAULT_ABOUT);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
 
-    const fetchHeroContent = async () => {
-      const { data: row } = await supabase
-        .from("site_content")
-        .select("content")
-        .eq("section", "hero")
-        .single();
+    const fetchContent = async () => {
+      const [heroRes, aboutRes] = await Promise.all([
+        supabase.from("site_content").select("content").eq("section", "hero").single(),
+        supabase.from("site_content").select("content").eq("section", "about").single(),
+      ]);
 
-      if (row?.content && isMounted) {
-        setData({ ...DEFAULT, ...row.content });
+      if (isMounted) {
+        if (heroRes.data?.content) setData({ ...DEFAULT, ...heroRes.data.content });
+        if (aboutRes.data?.content) setAbout({ ...DEFAULT_ABOUT, ...aboutRes.data.content });
+        setLoading(false);
       }
-
-      if (isMounted) setLoading(false);
     };
 
-    fetchHeroContent();
-    return () => {
-      isMounted = false;
-    };
+    fetchContent();
+    return () => { isMounted = false; };
   }, []);
 
   if (loading) {
-    return <section className="min-h-screen bg-gray-900" />;
+    return (
+      <section className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
+      </section>
+    );
   }
 
   return (
-    <section className="relative w-full min-h-screen flex items-center overflow-hidden">
-      
-      {/* Background */}
-      {data.bgImage && (
+    <section className="relative w-full min-h-screen flex flex-col justify-center overflow-hidden bg-white">
+
+      {/* ── Layered Background ── */}
+      {data.bgImage ? (
         <div
           className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${data.bgImage})` }}
-        />
+        >
+          <div className="absolute inset-0 bg-white/70" />
+        </div>
+      ) : (
+        <>
+          {/* Subtle grid */}
+          <div
+            className="absolute inset-0 opacity-[0.06]"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(20,184,166,1) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,166,1) 1px, transparent 1px)",
+              backgroundSize: "60px 60px",
+            }}
+          />
+          {/* Radial glow — top-left */}
+          <div className="absolute -top-40 -left-40 w-[700px] h-[700px] rounded-full bg-teal-400/15 blur-[120px] pointer-events-none" />
+          {/* Radial glow — bottom-right */}
+          <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-teal-300/10 blur-[100px] pointer-events-none" />
+        </>
       )}
 
-      {/* ❌ Overlay removed */}
+      {/* ── Decorative vertical rule ── */}
+      <div className="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-teal-400/40 to-transparent hidden lg:block" />
 
-      <div className="w-full px-6 sm:container sm:mx-auto relative z-10 sm:pt-20">
+      {/* ── Main Content ── */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-10 lg:px-16 pt-24 sm:pt-28 pb-24 sm:pb-20">
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
           className="max-w-3xl"
         >
+
           {/* Badge */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm">
-              <Shield className="w-5 h-5 text-teal-500" />
+          <motion.div variants={itemVariants} className="flex items-center gap-3 mb-6 sm:mb-8">
+            <div className="flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border border-teal-500/30 bg-teal-500/10 backdrop-blur-sm">
+              <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-teal-500 shrink-0" />
+              <span className="text-[10px] sm:text-xs text-teal-600 uppercase tracking-widest font-semibold">
+                {data.badge}
+              </span>
             </div>
-            <span className="text-sm text-teal-500 uppercase font-medium">
-              {data.badge}
-            </span>
-          </div>
+          </motion.div>
 
           {/* Title */}
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-6 text-gray-600 leading-tight">
+          <motion.h1
+            variants={itemVariants}
+            className="text-[2rem] leading-[1.15] sm:text-5xl lg:text-[3.75rem] font-extrabold sm:leading-[1.1] tracking-tight mb-4 sm:mb-6 text-slate-900"
+          >
             {data.title}{" "}
-            <span className="text-teal-400">
-              {data.titleHighlight}
+            <span className="relative inline-block">
+              <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-teal-600">
+                {data.titleHighlight}
+              </span>
+              {/* Underline accent */}
+              <span className="absolute left-0 -bottom-1 w-full h-[3px] bg-gradient-to-r from-teal-400 to-teal-600 rounded-full" />
             </span>
-          </h1>
+          </motion.h1>
 
           {/* Subtitle */}
-          <p className="text-gray-500 mb-10 drop-shadow-md">
+          <motion.p
+            variants={itemVariants}
+            className="text-slate-500 text-sm sm:text-lg leading-relaxed max-w-xl mb-8 sm:mb-10"
+          >
             {data.subtitle}
-          </p>
+          </motion.p>
 
-          {/* Buttons */}
-          <div className="flex gap-3">
+          {/* CTA Buttons */}
+          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 mb-10 sm:mb-16">
             <a
               href="#contact"
-              className="flex-1 sm:flex-none text-center mb-2 px-2 py-2 text-[12px] sm:text-base bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-lg whitespace-nowrap transition-all duration-300 inline-flex items-center justify-center"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-3 bg-teal-500 hover:bg-teal-400 text-white text-sm font-bold rounded-xl transition-all duration-200 shadow-lg shadow-teal-500/25 hover:shadow-teal-400/30 active:scale-[0.98]"
             >
               {data.btnPrimary}
-              <ArrowRight className="hidden sm:inline ml-2 w-4 h-4" />
+              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
             </a>
 
             <a
               href="#services"
-              className="flex-1 sm:flex-none text-center mb-2 px-2 py-2 text-[12px] sm:text-base border border-gray-300 text-gray-500 font-semibold rounded-lg whitespace-nowrap hover:bg-gray-100 transition-all duration-300"
+              className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:py-3 border border-slate-200 hover:border-teal-300 bg-white hover:bg-teal-50 text-slate-600 hover:text-teal-700 text-sm font-semibold rounded-xl transition-all duration-200 active:scale-[0.98]"
             >
               {data.btnSecondary}
             </a>
-          </div>
+          </motion.div>
+
+          {/* Stats Row */}
+          <motion.div
+            variants={itemVariants}
+            className="grid grid-cols-3 gap-0 border border-slate-100 rounded-2xl overflow-hidden sm:flex sm:border-none sm:gap-8 sm:rounded-none"
+          >
+            {[
+              { value: about.years,    label: "Années d'expérience" },
+              { value: about.projects, label: "Projets réalisés" },
+              { value: about.clients,  label: "Clients satisfaits" },
+            ].map((stat, i, arr) => (
+              <div
+                key={i}
+                className={`flex flex-col items-center sm:items-start py-4 sm:py-0 px-2 sm:px-0 bg-white sm:bg-transparent ${
+                  i < arr.length - 1 ? "border-r border-slate-100 sm:border-none" : ""
+                }`}
+              >
+                <span className="text-xl sm:text-2xl font-extrabold text-teal-500 tabular-nums">
+                  {stat.value}
+                </span>
+                <span className="text-[10px] sm:text-xs text-slate-400 uppercase tracking-wider mt-0.5 text-center sm:text-left">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </motion.div>
 
         </motion.div>
       </div>
+
+      {/* ── Scroll indicator ── */}
+      <motion.div
+        className="absolute bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-slate-400 z-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.4, duration: 0.6 }}
+      >
+        <span className="text-[9px] sm:text-[10px] uppercase tracking-widest">Défiler</span>
+        <motion.div
+          animate={{ y: [0, 5, 0] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+        >
+          <ChevronDown className="w-4 h-4" />
+        </motion.div>
+      </motion.div>
+
     </section>
   );
 }

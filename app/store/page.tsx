@@ -4,26 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Facebook,
-  Instagram,
-  Linkedin,
-  ShoppingCart,
-  Search,
-  X,
-  Check,
-  Plus,
-  Minus,
-  Trash2,
-  Menu,
-  ChevronDown,
-  ChevronUp,
-  Truck,
-  Shield,
-  Clock
+  Facebook, Instagram, Linkedin, ShoppingCart, Search, X,
+  Check, Plus, Minus, Trash2, Menu, Truck, Shield, Clock,
+  ChevronLeft, ChevronRight, ArrowLeft, Package,
 } from "lucide-react";
 import { supabase } from "@/app/supabase";
 
-/* ================= TYPES ================= */
+/* ─────────────── TYPES ─────────────── */
 
 type Product = {
   id: number;
@@ -42,382 +29,215 @@ type Product = {
   sizes: string[];
 };
 
-type CartItem = Product & {
-  qty: number;
-  selectedColor?: string;
-  selectedSize?: string;
-};
+type CartItem = Product & { qty: number; selectedColor?: string; selectedSize?: string };
 
 type OrderForm = {
-  name: string;
-  phone: string;
-  email: string;
-  wilaya: string;
-  commune: string;
-  address: string;
-  notes: string;
+  name: string; phone: string; email: string;
+  wilaya: string; commune: string; address: string; notes: string;
 };
 
 type StoreHero = {
-  title: string;
-  subtitle: string;
-  badge: string;
-  bgImage: string;
-  btnPrimary: string;
-  btnSecondary: string;
+  title: string; subtitle: string; badge: string;
+  bgImage: string; btnPrimary: string; btnSecondary: string;
 };
 
 type Slide = {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  sort_order: number;
-  is_active: boolean;
+  id: number; title: string; description: string;
+  image: string; sort_order: number; is_active: boolean;
 };
+
+/* ─────────────── CONSTANTS ─────────────── */
 
 const CATS = ["Tous", "Caméras", "Réseau", "Accès", "Sonorisation", "Domotique", "Autre"];
 
-const WILAYAS = ["Adrar", "Chlef", "Laghouat", "Oum El Bouaghi", "Batna", "Béjaïa", "Biskra", "Béchar", "Blida", "Bouira", "Tamanrasset", "Tébessa", "Tlemcen", "Tiaret", "Tizi Ouzou", "Alger", "Djelfa", "Jijel", "Sétif", "Saïda", "Skikda", "Sidi Bel Abbès", "Annaba", "Guelma", "Constantine", "Médéa", "Mostaganem", "M'Sila", "Mascara", "Ouargla", "Oran", "El Bayadh", "Illizi", "Bordj Bou Arreridj", "Boumerdès", "El Tarf", "Tindouf", "Tissemsilt", "El Oued", "Khenchela", "Souk Ahras", "Tipaza", "Mila", "Aïn Defla", "Naâma", "Aïn Témouchent", "Ghardaïa", "Relizane", "Timimoun", "Bordj Badji Mokhtar", "Ouled Djellal", "Béni Abbès", "In Salah", "In Guezzam", "Touggourt", "Djanet", "El M'Ghair", "El Menia"];
-
-/* ================= DEFAULT HERO ================= */
+const WILAYAS = ["Adrar","Chlef","Laghouat","Oum El Bouaghi","Batna","Béjaïa","Biskra","Béchar","Blida","Bouira","Tamanrasset","Tébessa","Tlemcen","Tiaret","Tizi Ouzou","Alger","Djelfa","Jijel","Sétif","Saïda","Skikda","Sidi Bel Abbès","Annaba","Guelma","Constantine","Médéa","Mostaganem","M'Sila","Mascara","Ouargla","Oran","El Bayadh","Illizi","Bordj Bou Arreridj","Boumerdès","El Tarf","Tindouf","Tissemsilt","El Oued","Khenchela","Souk Ahras","Tipaza","Mila","Aïn Defla","Naâma","Aïn Témouchent","Ghardaïa","Relizane","Timimoun","Bordj Badji Mokhtar","Ouled Djellal","Béni Abbès","In Salah","In Guezzam","Touggourt","Djanet","El M'Ghair","El Menia"];
 
 const DEFAULT_STORE_HERO: StoreHero = {
   title: "Équipements Professionnels",
   subtitle: "Sécurité · Réseau · Domotique — Livraison dans toute l'Algérie",
   badge: "NOTRE CATALOGUE",
-  bgImage:
-    "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=2000&q=80",
+  bgImage: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=2000&q=80",
   btnPrimary: "Commander maintenant",
   btnSecondary: "Découvrir",
 };
 
-/* ================= STORAGE ================= */
-
-const CART_STORAGE_KEY = "modtech_cart";
-
-const loadCartFromStorage = (): CartItem[] => {
+const CART_KEY = "modtech_cart";
+const loadCart = (): CartItem[] => {
   if (typeof window === "undefined") return [];
-  try {
-    const saved = localStorage.getItem(CART_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : [];
-  } catch {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); } catch { return []; }
+};
+const saveCart = (cart: CartItem[]) => {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  window.dispatchEvent(new CustomEvent("cartUpdated", { detail: cart }));
 };
 
-const saveCartToStorage = (cart: CartItem[]) => {
-  localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
-  window.dispatchEvent(new CustomEvent('cartUpdated', { detail: cart }));
-};
+/* ─────────────── FIELD ─────────────── */
 
-/* ================= PAGE ================= */
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+const inputCls = "w-full bg-slate-50 border border-slate-200 focus:border-teal-400 focus:bg-white focus:ring-2 focus:ring-teal-100 rounded-xl px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-200 placeholder:text-slate-400";
+
+/* ─────────────── PAGE ─────────────── */
 
 export default function StorePage() {
   const router = useRouter();
-  const emblaRef = useRef<HTMLDivElement>(null);
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [slides, setSlides] = useState<Slide[]>([]);
-  const [heroData, setHeroData] = useState<StoreHero>(DEFAULT_STORE_HERO);
+  const [products, setProducts]               = useState<Product[]>([]);
+  const [slides, setSlides]                   = useState<Slide[]>([]);
+  const [heroData, setHeroData]               = useState<StoreHero>(DEFAULT_STORE_HERO);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [contact, setContact] = useState<any>({});
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  const [loading, setLoading] = useState(true);
-  const [cat, setCat] = useState("Tous");
-  const [search, setSearch] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [checkout, setCheckout] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [mobileMenu, setMobileMenu] = useState(false);
+  const [contact, setContact]                 = useState<any>({});
+  const [slideIdx, setSlideIdx]               = useState(0);
+  const [loading, setLoading]                 = useState(true);
+  const [cat, setCat]                         = useState("Tous");
+  const [search, setSearch]                   = useState("");
+  const [searchOpen, setSearchOpen]           = useState(false);
+  const [cart, setCart]                       = useState<CartItem[]>([]);
+  const [cartOpen, setCartOpen]               = useState(false);
+  const [checkout, setCheckout]               = useState(false);
+  const [sending, setSending]                 = useState(false);
+  const [success, setSuccess]                 = useState(false);
+  const [mobileMenu, setMobileMenu]           = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<Record<number, { color?: string; size?: string }>>({});
-  const [addedMessage, setAddedMessage] = useState("");
-  const [isMounted, setIsMounted] = useState(false);
+  const [addedMsg, setAddedMsg]               = useState("");
+  const [isMounted, setIsMounted]             = useState(false);
+  const [form, setForm]                       = useState<OrderForm>({ name:"", phone:"", email:"", wilaya:"", commune:"", address:"", notes:"" });
 
-  const [form, setForm] = useState<OrderForm>({
-    name: "",
-    phone: "",
-    email: "",
-    wilaya: "",
-    commune: "",
-    address: "",
-    notes: "",
-  });
+  /* mount */
+  useEffect(() => { setIsMounted(true); setCart(loadCart()); }, []);
+  useEffect(() => { if (isMounted) saveCart(cart); }, [cart, isMounted]);
 
-  /* ================= MOUNT FIX ================= */
-  useEffect(() => {
-    setIsMounted(true);
-    setCart(loadCartFromStorage());
-  }, []);
-
-  /* ================= SAVE CART ================= */
-  useEffect(() => {
-    if (isMounted) {
-      saveCartToStorage(cart);
-    }
-  }, [cart, isMounted]);
-
-  /* ================= LOAD DATA ================= */
+  /* data */
   useEffect(() => {
     const load = async () => {
-      const [productsRes, slidesRes, heroRes, contactRes] = await Promise.all([
-        supabase
-          .from("products")
-          .select("*")
-          .eq("is_active", true)
-          .order("sort_order"),
-
-        supabase
-          .from("slider_slides")
-          .select("*")
-          .eq("is_active", true)
-          .order("sort_order"),
-
-        supabase
-          .from("site_content")
-          .select("content")
-          .eq("section", "store-hero")
-          .single(),
-
-        supabase
-          .from("site_content")
-          .select("content")
-          .eq("section", "contact")
-          .single(),
+      const [prodRes, slideRes, heroRes, contactRes] = await Promise.all([
+        supabase.from("products").select("*").eq("is_active", true).order("sort_order"),
+        supabase.from("slider_slides").select("*").eq("is_active", true).order("sort_order"),
+        supabase.from("site_content").select("content").eq("section", "store-hero").single(),
+        supabase.from("site_content").select("content").eq("section", "contact").single(),
       ]);
-
-      setProducts(productsRes.data ?? []);
-      setFilteredProducts(productsRes.data ?? []);
-      setSlides(slidesRes.data ?? []);
-
-      if (heroRes.data?.content) {
-        setHeroData({ ...DEFAULT_STORE_HERO, ...heroRes.data.content });
-      }
-
-      if (contactRes.data?.content) {
-        setContact(contactRes.data.content);
-      }
-
+      setProducts(prodRes.data ?? []);
+      setFilteredProducts(prodRes.data ?? []);
+      setSlides(slideRes.data ?? []);
+      if (heroRes.data?.content) setHeroData({ ...DEFAULT_STORE_HERO, ...heroRes.data.content });
+      if (contactRes.data?.content) setContact(contactRes.data.content);
       setLoading(false);
     };
-
     load();
   }, []);
 
-  /* ================= AUTO SLIDE ================= */
+  /* auto-slide */
   useEffect(() => {
-    if (!slides || slides.length < 2) return;
+    if (slides.length < 2) return;
+    const t = setInterval(() => setSlideIdx(p => (p + 1) % slides.length), 5000);
+    return () => clearInterval(t);
+  }, [slides.length]);
 
-    const timer = setInterval(() => {
-      setSelectedIndex((prev) => (prev + 1) % slides.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, [slides]);
-
-  /* ================= FILTER PRODUCTS ================= */
+  /* filter */
   useEffect(() => {
-    let filtered = products;
-    
-    if (cat !== "Tous") {
-      filtered = filtered.filter(p => p.category === cat);
-    }
-    
-    if (search) {
-      filtered = filtered.filter(p => 
-        p.name.toLowerCase().includes(search.toLowerCase()) || 
-        p.description?.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-    
-    setFilteredProducts(filtered);
+    let f = products;
+    if (cat !== "Tous") f = f.filter(p => p.category === cat);
+    if (search) f = f.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase()));
+    setFilteredProducts(f);
   }, [cat, search, products]);
 
-  /* ================= CART FUNCTIONS ================= */
-  const addToCart = (product: Product) => {
-    const options = selectedOptions[product.id] || {};
-    
+  /* resize close menu */
+  useEffect(() => {
+    const fn = () => { if (window.innerWidth >= 1024) setMobileMenu(false); };
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  }, []);
+
+  /* cart helpers */
+  const addToCart = (p: Product) => {
+    const opts = selectedOptions[p.id] || {};
     setCart(prev => {
-      const existing = prev.find(item => 
-        item.id === product.id && 
-        item.selectedColor === options.color &&
-        item.selectedSize === options.size
-      );
-      
-      if (existing) {
-        return prev.map(item =>
-          item.id === product.id && 
-          item.selectedColor === options.color &&
-          item.selectedSize === options.size
-            ? { ...item, qty: item.qty + 1 }
-            : item
-        );
-      } else {
-        return [...prev, { 
-          ...product, 
-          qty: 1,
-          selectedColor: options.color,
-          selectedSize: options.size
-        }];
-      }
+      const ex = prev.find(i => i.id === p.id && i.selectedColor === opts.color && i.selectedSize === opts.size);
+      return ex
+        ? prev.map(i => i.id === p.id && i.selectedColor === opts.color && i.selectedSize === opts.size ? { ...i, qty: i.qty + 1 } : i)
+        : [...prev, { ...p, qty: 1, selectedColor: opts.color, selectedSize: opts.size }];
     });
-    
-    setAddedMessage(" Produit ajouté au panier!");
-    setTimeout(() => setAddedMessage(""), 3000);
+    setAddedMsg("Produit ajouté !");
+    setTimeout(() => setAddedMsg(""), 2500);
     setCartOpen(true);
   };
 
   const updateQty = (id: number, qty: number, color?: string, size?: string) => {
-    if (qty < 1) {
-      removeFromCart(id, color, size);
-      return;
-    }
-    
-    setCart(prev =>
-      prev.map(item =>
-        item.id === id && item.selectedColor === color && item.selectedSize === size
-          ? { ...item, qty }
-          : item
-      )
-    );
+    if (qty < 1) { removeFromCart(id, color, size); return; }
+    setCart(prev => prev.map(i => i.id === id && i.selectedColor === color && i.selectedSize === size ? { ...i, qty } : i));
   };
 
-  const removeFromCart = (id: number, color?: string, size?: string) => {
-    setCart(prev =>
-      prev.filter(item => 
-        !(item.id === id && item.selectedColor === color && item.selectedSize === size)
-      )
-    );
-  };
+  const removeFromCart = (id: number, color?: string, size?: string) =>
+    setCart(prev => prev.filter(i => !(i.id === id && i.selectedColor === color && i.selectedSize === size)));
 
-  const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
+  const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
 
-  const updateOption = (productId: number, type: 'color' | 'size', value: string) => {
-    setSelectedOptions(prev => ({
-      ...prev,
-      [productId]: { ...prev[productId], [type]: value }
-    }));
-  };
+  const updateOption = (pid: number, type: "color" | "size", val: string) =>
+    setSelectedOptions(prev => ({ ...prev, [pid]: { ...prev[pid], [type]: val } }));
 
-  /* ================= SEND ORDER ================= */
+  /* send order */
   const sendOrder = async () => {
-  if (!form.name || !form.phone || !form.wilaya || !form.commune || !form.address) {
-    alert("Veuillez remplir tous les champs obligatoires");
-    return;
-  }
+    if (!form.name || !form.phone || !form.wilaya || !form.commune || !form.address) {
+      alert("Veuillez remplir tous les champs obligatoires"); return;
+    }
+    if (!cart.length) { alert("Votre panier est vide"); return; }
+    setSending(true);
 
-  if (cart.length === 0) {
-    alert("Votre panier est vide");
-    return;
-  }
+    const notes = [form.notes, ...cart.map(item => {
+      const opts = [item.selectedColor && `Couleur: ${item.selectedColor}`, item.selectedSize && `Taille: ${item.selectedSize}`].filter(Boolean);
+      return opts.length ? `${item.name} (${opts.join(", ")})` : null;
+    }).filter(Boolean)].filter(Boolean).join(" | ");
 
-  setSending(true);
+    const orderData = {
+      customer_name: form.name, customer_phone: form.phone, customer_email: form.email,
+      customer_address: `${form.address}, ${form.commune}, ${form.wilaya}`,
+      notes, total: cartTotal, status: "new",
+      items: cart.map(i => ({ id: i.id, name: i.name, price: i.price, qty: i.qty, color: i.selectedColor, size: i.selectedSize })),
+    };
 
-  const items = cart.map(item => ({
-    id: item.id,
-    name: item.name,
-    price: item.price,
-    qty: item.qty,
-    color: item.selectedColor,
-    size: item.selectedSize
-  }));
+    const { error } = await supabase.from("orders").insert([orderData]);
+    if (error) { alert("Erreur: " + error.message); setSending(false); return; }
 
-  const notes = [
-    form.notes,
-    ...cart.map(item => {
-      const options = [];
-      if (item.selectedColor) options.push(`Couleur: ${item.selectedColor}`);
-      if (item.selectedSize) options.push(`Taille: ${item.selectedSize}`);
-      return options.length ? `${item.name} (${options.join(', ')})` : null;
-    }).filter(Boolean)
-  ].filter(Boolean).join(" | ");
+    try { await fetch("/api/send-order-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order: orderData }) }); }
+    catch (e) { console.log("Email skipped:", e); }
 
-  const orderData = {
-    customer_name: form.name,
-    customer_phone: form.phone,
-    customer_email: form.email,
-    customer_address: `${form.address}, ${form.commune}, ${form.wilaya}`,
-    notes,
-    items,
-    total: cartTotal,
-    status: "new",
+    setCart([]); setSending(false); setSuccess(true); setCartOpen(false); setCheckout(false);
   };
 
-  /* ---------------- SAVE TO SUPABASE ---------------- */
-  const { error } = await supabase.from("orders").insert([orderData]);
-
-  if (error) {
-    alert("Erreur: " + error.message);
-    setSending(false);
-    return;
-  }
-
-  /* ---------------- SEND TO GOOGLE SHEET ---------------- */
-  
-
-  /* ---------------- SEND EMAIL ---------------- */
-  try {
-    await fetch("/api/send-order-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ order: orderData })
-    });
-  } catch (e) {
-    console.log("Email skipped:", e);
-  }
-
-  /* ---------------- SUCCESS ---------------- */
-  setCart([]);
-  setSending(false);
-  setSuccess(true);
-  setCartOpen(false);
-  setCheckout(false);
-};
-  /* ================= LOADING ================= */
-
+  /* ─── LOADING ─── */
   if (!isMounted || loading)
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="w-10 h-10 border-2 border-teal-500/30 border-t-teal-500 rounded-full animate-spin" />
       </div>
     );
 
-  /* ================= SUCCESS ================= */
-
+  /* ─── SUCCESS ─── */
   if (success)
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white shadow-xl border rounded-2xl p-8 max-w-md w-full text-center"
+          className="bg-white rounded-3xl shadow-xl border border-slate-100 p-10 max-w-md w-full text-center"
         >
-          <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
+          <div className="w-16 h-16 bg-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-teal-500/25">
             <Check className="w-8 h-8 text-white" />
           </div>
-
-          <h2 className="text-2xl font-bold text-teal-600 mb-2">
-            Commande confirmée !
-          </h2>
-
-          <p className="text-slate-600 mb-2">
-            Nous contacterons le{" "}
-            <span className="font-semibold">{form.phone}</span>
-          </p>
-          
-          <p className="text-slate-500 text-sm mb-6"> Paiement à la livraison</p>
-
+          <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Commande confirmée !</h2>
+          <p className="text-slate-500 mb-1 text-sm">Nous vous contacterons au <span className="font-semibold text-slate-700">{form.phone}</span></p>
+          <p className="text-slate-400 text-xs mb-8">Paiement à la livraison · Livraison dans toute l'Algérie</p>
           <button
-            onClick={() => {
-              setSuccess(false);
-              setForm({ name: "", phone: "", email: "", wilaya: "", commune: "", address: "", notes: "" });
-            }}
-            className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-6 py-2 rounded-xl"
+            onClick={() => { setSuccess(false); setForm({ name:"", phone:"", email:"", wilaya:"", commune:"", address:"", notes:"" }); }}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-teal-500 hover:bg-teal-400 text-white font-bold rounded-xl text-sm transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98]"
           >
             Nouvelle commande
           </button>
@@ -425,85 +245,64 @@ export default function StorePage() {
       </div>
     );
 
-  /* ================= PAGE ================= */
-
+  /* ─── PAGE ─── */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white">
+    <div className="min-h-screen bg-slate-50">
 
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setMobileMenu(!mobileMenu)}
-                className="lg:hidden text-slate-500"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-              <a href="/" className="text-slate-500 hover:text-slate-700 text-sm">
-                ← Accueil
-              </a>
-              <span className="font-bold text-lg bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent hidden sm:inline">
-                MOD-TECH Store
-              </span>
-            </div>
+      {/* ── HEADER ── */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-100 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-15 sm:h-16">
 
-            <div className="flex items-center gap-4">
-              {/* Search */}
-              <div className="relative">
-                <button
-                  onClick={() => setSearchOpen(v => !v)}
-                  className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-lg transition"
-                >
-                  <Search className="w-5 h-5 text-slate-700" />
-                </button>
-              </div>
+          {/* Left */}
+          <div className="flex items-center gap-3">
+            <button onClick={() => setMobileMenu(!mobileMenu)} className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all">
+              <Menu className="w-4 h-4" />
+            </button>
+            <a href="/" className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-teal-600 transition-colors">
+              <ArrowLeft className="w-4 h-4" /> Accueil
+            </a>
+            <span className="hidden sm:inline text-slate-200">|</span>
+            <span className="hidden sm:inline text-sm font-bold text-slate-800">MOD-TECH <span className="text-teal-500">Store</span></span>
+          </div>
 
-              {/* Cart button */}
-              <button
-                onClick={() => setCartOpen(true)}
-                className="relative flex items-center justify-center w-10 h-10 hover:bg-slate-100 rounded-lg transition"
-              >
-                <ShoppingCart className="w-5 h-5 text-slate-700" />
-
-                {cart.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow">
-                    {cart.length}
-                  </span>
-                )}
-              </button>
-            </div>
+          {/* Right */}
+          <div className="flex items-center gap-2">
+            <button onClick={() => setSearchOpen(v => !v)} className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all">
+              <Search className="w-4 h-4" />
+            </button>
+            <button onClick={() => setCartOpen(true)} className="relative flex items-center gap-2 px-3 h-9 rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all text-sm font-medium">
+              <ShoppingCart className="w-4 h-4" />
+              <span className="hidden sm:inline">Panier</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-teal-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow">
+                  {cartCount}
+                </span>
+              )}
+            </button>
           </div>
         </div>
       </header>
 
-      {/* Search overlay */}
+      {/* ── SEARCH OVERLAY ── */}
       <AnimatePresence>
         {searchOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60]"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[60] bg-slate-900/20 backdrop-blur-sm"
             onClick={() => setSearchOpen(false)}
           >
             <motion.div
-              initial={{ y: -80 }}
-              animate={{ y: 0 }}
-              exit={{ y: -80 }}
-              transition={{ duration: 0.25 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-slate-50 p-4 shadow-lg"
+              initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-white border-b border-slate-100 px-4 py-4 shadow-lg"
             >
               <div className="relative max-w-xl mx-auto">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
-                  autoFocus
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Rechercher..."
-                  className="w-full bg-slate-100 rounded-xl pl-9 pr-4 py-3 text-sm outline-none focus:ring-2 focus:ring-teal-500"
+                  autoFocus value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Rechercher un produit..."
+                  className="w-full bg-slate-50 border border-slate-200 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none transition-all"
                 />
               </div>
             </motion.div>
@@ -511,567 +310,380 @@ export default function StorePage() {
         )}
       </AnimatePresence>
 
-      {/* Mobile menu */}
+      {/* ── MOBILE MENU ── */}
       <AnimatePresence>
         {mobileMenu && (
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="lg:hidden fixed top-16 left-0 right-0 bg-white border-b z-40 shadow-md"
+          <motion.div
+            initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+            className="lg:hidden fixed top-[61px] left-0 right-0 bg-white border-b border-slate-100 z-40 shadow-md overflow-hidden"
           >
-            <div className="container mx-auto px-4 py-4">
-              <a href="/" className="block py-2 text-slate-600 hover:text-teal-600">Accueil</a>
-              <a href="/store" className="block py-2 text-teal-600 font-medium">Store</a>
-              <button
-                onClick={() => {
-                  setCartOpen(true);
-                  setMobileMenu(false);
-                }}
-                className="block py-2 text-slate-600 hover:text-teal-600 w-full text-left"
-              >
+            <div className="px-4 py-3 space-y-1">
+              {[{ label: "Accueil", href: "/" }, { label: "Store", href: "/store" }].map(l => (
+                <a key={l.href} href={l.href} className="block px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-600 transition-all">{l.label}</a>
+              ))}
+              <button onClick={() => { setCartOpen(true); setMobileMenu(false); }} className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-600 transition-all">
                 Panier ({cartCount})
               </button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+      {mobileMenu && <div className="fixed inset-0 z-30" onClick={() => setMobileMenu(false)} />}
 
-      {/* Added to cart message */}
+      {/* ── ADDED TO CART TOAST ── */}
       <AnimatePresence>
-        {addedMessage && (
+        {addedMsg && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg z-50 text-sm font-medium"
+            initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-teal-500 text-white px-4 py-2.5 rounded-full shadow-lg text-sm font-semibold"
           >
-            {addedMessage}
+            <Check className="w-4 h-4" /> {addedMsg}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* SLIDER - Embla Carousel Style */}
-      {slides && slides.length > 0 ? (
-<section className="w-full bg-white pb-0 mb-0">  <div className="w-full">
-            <div className="relative  w-full overflow-hidden" ref={emblaRef}>
-              <div className="flex">
-                {slides.map((slide, i) => (
-                 <div
-  key={slide.id}
-  className="min-w-full relative"
-  style={{
-    transform: `translateX(-${selectedIndex * 100}%)`,
-    transition: "transform 0.5s ease",
-  }}
->
-  <img
-    src={slide.image}
-    alt={slide.title || "Slide"}
-              className="w-full  transition-transform h-[160px] md:h-[220px] lg:h-[260px] object-contain bg-white  transition-transform group-hover:scale-135"
-  />
-
-  {/* overlay */}
-  <div className="absolute inset-0 bg-black/7" />
-
-  {/* content */}
- 
-</div>
-                ))}
-              </div>
-
-              {/* Only show arrows and dots if there's more than one slide */}
-              {slides.length > 1 && (
-                <>
-                  {/* arrows */}
-                  <button
-                    onClick={() => setSelectedIndex((prev) => (prev - 1 + slides.length) % slides.length)}
-                    aria-label="Previous slide"
-                    className="absolute text-gray-400 left-1 top-1/2 -translate-y-1/2 text-xl p-2 md:left-4 md:text-3xl md:p-3 rounded-full hover:bg-black/20 transition-colors"
-                  >
-                    ‹
-                  </button>
-
-                  <button
-                    onClick={() => setSelectedIndex((prev) => (prev + 1) % slides.length)}
-                    aria-label="Next slide"
-                    className="absolute text-gray-400 right-1 top-1/2 -translate-y-1/2 text-xl p-2 md:right-4 md:text-3xl md:p-3 rounded-full hover:bg-black/20 transition-colors"
-                  >
-                    ›
-                  </button>
-
-                 
-                </>
-              )}
+      {/* ── SLIDER ── */}
+      {slides.length > 0 ? (
+        <section className="w-full bg-white border-b border-slate-100">
+          <div className="relative w-full overflow-hidden group">
+            <div
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{ transform: `translateX(-${slideIdx * 100}%)` }}
+            >
+              {slides.map(slide => (
+                <div key={slide.id} className="min-w-full relative">
+                  <img
+                    src={slide.image} alt={slide.title || "Slide"}
+                    className="w-full h-[180px] md:h-[260px] lg:h-[320px] object-contain bg-white"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  {slide.title && (
+                    <div className="absolute bottom-8 left-0 right-0 text-center px-6">
+                      <h3 className="text-white font-bold text-base md:text-xl drop-shadow">{slide.title}</h3>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
+
+            {slides.length > 1 && (
+              <>
+                <button onClick={() => setSlideIdx(p => (p - 1 + slides.length) % slides.length)}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm border border-white/30 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button onClick={() => setSlideIdx(p => (p + 1) % slides.length)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm border border-white/30 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                <div className="absolute bottom-3 right-4 flex gap-1.5">
+                  {slides.map((_, i) => (
+                    <button key={i} onClick={() => setSlideIdx(i)}
+                      className={`rounded-full transition-all duration-300 ${i === slideIdx ? "w-5 h-1.5 bg-teal-400" : "w-1.5 h-1.5 bg-white/50"}`} />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </section>
       ) : (
-        /* Fallback Hero if no slides */
-        <section className="relative overflow-hidden h-[260px] w-full flex items-center bg-slate-900">
-          <div className="absolute inset-0">
-            <img
-              src={heroData.bgImage}
-              alt="Hero"
-              className="w-full h-full object-cover opacity-60"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
-          </div>
-          <div className="container mx-auto px-4 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="max-w-2xl text-white"
-            >
-              <span className="inline-block text-sm bg-teal-500/20 border border-teal-400/30 text-teal-300 px-4 py-1 rounded-full mb-4">
-                {heroData.badge}
-              </span>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4">
-                {heroData.title}
-              </h1>
-              <p className="text-sm md:text-base text-slate-200 mb-6">
-                {heroData.subtitle}
-              </p>
+        <section className="relative h-[260px] w-full flex items-center overflow-hidden bg-slate-900">
+          <img src={heroData.bgImage} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+          <div className="relative z-10 max-w-7xl mx-auto px-6">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <span className="inline-block text-xs bg-teal-500/20 border border-teal-400/30 text-teal-300 px-3 py-1 rounded-full mb-4 uppercase tracking-widest font-semibold">{heroData.badge}</span>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3">{heroData.title}</h1>
+              <p className="text-sm text-slate-300">{heroData.subtitle}</p>
             </motion.div>
           </div>
         </section>
       )}
 
-      {/* Categories */}
-      <div className="container mx-auto px-3 py-6 md:py-8">
-        <div className="flex flex-wrap gap-2 justify-center">
+      {/* ── CATEGORIES ── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-8">
+        <div className="flex flex-wrap items-center gap-2">
           {CATS.map(c => (
-            <button
-              key={c}
-              onClick={() => setCat(c)}
-              className={`px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium transition ${
+            <button key={c} onClick={() => setCat(c)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
                 cat === c
-                  ? 'bg-gradient-to-r from-teal-600 to-emerald-600 text-white shadow-lg'
-                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                  ? "bg-teal-500 text-white shadow-md shadow-teal-500/20"
+                  : "bg-white text-slate-600 border border-slate-200 hover:border-teal-300 hover:text-teal-600"
               }`}
-            >
-              {c}
-            </button>
+            >{c}</button>
           ))}
-          <span className="ml-auto text-xs md:text-sm text-slate-500 self-center">
-            {filteredProducts.length} produit{filteredProducts.length !== 1 ? 's' : ''}
+          <span className="ml-auto text-xs text-slate-400 font-medium">
+            {filteredProducts.length} produit{filteredProducts.length !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
 
-      {/* PRODUCTS */}
-      {filteredProducts.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="text-5xl mb-4">📦</div>
-          <p className="text-lg text-slate-600">Aucun produit trouvé</p>
-        </div>
-      ) : (
-        <section className="container mx-auto px-4 pb-14 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-          {filteredProducts.map((p) => {
-            const disc = p.discount_percent || 0;
-            const productOptions = selectedOptions[p.id] || {};
-
-            return (
-              <motion.div
-                key={p.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="border border-slate-200 rounded-xl transition-all p-3 flex flex-col hover:shadow-md"
-              >
-                <div
-                  className="relative h-36 md:h-40 overflow-hidden rounded-lg mb-3 cursor-pointer bg-white"
-                  onClick={() => router.push(`/store/${p.id}`)}
+      {/* ── PRODUCTS ── */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+        {filteredProducts.length === 0 ? (
+          <div className="text-center py-24 flex flex-col items-center gap-4">
+            <Package className="w-12 h-12 text-slate-300" />
+            <p className="text-slate-500 font-medium">Aucun produit trouvé</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
+            {filteredProducts.map((p, i) => {
+              const disc = p.discount_percent || 0;
+              const opts = selectedOptions[p.id] || {};
+              return (
+                <motion.div
+                  key={p.id}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04, duration: 0.4 }}
+                  className="bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-lg hover:shadow-slate-200/60 hover:border-teal-200 transition-all duration-300 flex flex-col group"
                 >
-                  <img
-                    src={p.image}
-                    className="w-full h-full object-contain p-2"
-                    alt={p.name}
-                  />
-                  
-                  {/* Badges */}
-                  {disc > 0 && (
-                    <span className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                      -{disc}%
-                    </span>
-                  )}
-                  
-                  {!p.in_stock && (
-                    <span className="absolute top-2 left-2 bg-slate-600 text-white text-xs font-bold px-2 py-1 rounded-full">
-                      Épuisé
-                    </span>
-                  )}
-                </div>
-
-                <h3 className="font-semibold text-sm md:text-base mb-2 break-words leading-snug">
-                  {p.name}
-                </h3>
-
-                {/* Colors */}
-                {p.colors && p.colors.length > 0 && (
-                  <div className="mb-2">
-                    <div className="text-xs text-slate-500 mb-1">Couleurs:</div>
-                    <div className="flex gap-1 flex-wrap">
-                      {p.colors.map(c => (
-                        <button
-                          key={c.name}
-                          onClick={() => updateOption(p.id, 'color', c.name)}
-                          className={`w-4 h-4 md:w-5 md:h-5 rounded-full border-2 transition ${
-                            productOptions.color === c.name ? 'border-teal-500 scale-110' : 'border-transparent'
-                          }`}
-                          style={{ backgroundColor: c.hex }}
-                          title={c.name}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Sizes */}
-                {p.sizes && p.sizes.length > 0 && (
-                  <div className="mb-3">
-                    <div className="text-xs text-slate-500 mb-1">Tailles:</div>
-                    <div className="flex gap-1 flex-wrap">
-                      {p.sizes.map(s => (
-                        <button
-                          key={s}
-                          onClick={() => updateOption(p.id, 'size', s)}
-                          className={`text-xs px-2 py-0.5 rounded border ${
-                            productOptions.size === s
-                              ? 'bg-teal-600 text-white border-teal-600'
-                              : 'bg-white text-slate-600 border hover:bg-slate-50'
-                          }`}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between mt-2">
-                  <div>
-                    <p className="text-teal-600 font-bold text-base md:text-lg">
-                      {p.price.toLocaleString()} DA
-                    </p>
-                    {disc > 0 && p.original_price > 0 && (
-                      <p className="text-xs text-slate-400 line-through">
-                        {p.original_price.toLocaleString()} DA
-                      </p>
+                  {/* Image */}
+                  <div
+                    className="relative h-36 md:h-44 bg-white overflow-hidden cursor-pointer"
+                    onClick={() => router.push(`/store/${p.id}`)}
+                  >
+                    <img src={p.image} alt={p.name} className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500" />
+                    {disc > 0 && (
+                      <span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-{disc}%</span>
+                    )}
+                    {!p.in_stock && (
+                      <span className="absolute top-2 left-2 bg-slate-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Épuisé</span>
                     )}
                   </div>
 
-                  <button
-                    onClick={() => addToCart(p)}
-                    disabled={!p.in_stock}
-                    className={`p-2 rounded-lg ${
-                      p.in_stock
-                        ? 'bg-teal-600 hover:bg-teal-700 text-white'
-                        : 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                    }`}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-              </motion.div>
-            );
-          })}
-        </section>
-      )}
+                  {/* Body */}
+                  <div className="p-3 flex flex-col flex-1 gap-2">
+                    <h3 className="text-xs md:text-sm font-semibold text-slate-800 leading-snug line-clamp-2">{p.name}</h3>
 
-      {/* Trust badges */}
-      <div className="bg-white border-t py-6 md:py-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 items-center">
+                    {/* Colors */}
+                    {p.colors?.length > 0 && (
+                      <div className="flex gap-1 flex-wrap">
+                        {p.colors.map(c => (
+                          <button key={c.name} onClick={() => updateOption(p.id, "color", c.name)}
+                            style={{ backgroundColor: c.hex }}
+                            title={c.name}
+                            className={`w-4 h-4 rounded-full border-2 transition-transform ${opts.color === c.name ? "border-teal-500 scale-110" : "border-transparent"}`}
+                          />
+                        ))}
+                      </div>
+                    )}
 
-            {/* LOGO + CONTACT */}
-            <div className="flex items-center gap-3">
-              <img
-                src="/lovable-uploads/5c0baea8-dfe7-4330-a35f-643db8adb0b0.png"
-                className="h-10"
-                alt="logo"
-              />
-              <div className="text-sm">
-                <div className="font-semibold text-slate-800">
-                  MOD-TECH
-                </div>
-                {contact?.phone1 && (
-                  <div className="text-slate-500 text-xs">
-                    {contact.phone1}
+                    {/* Sizes */}
+                    {p.sizes?.length > 0 && (
+                      <div className="flex gap-1 flex-wrap">
+                        {p.sizes.map(s => (
+                          <button key={s} onClick={() => updateOption(p.id, "size", s)}
+                            className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${opts.size === s ? "bg-teal-500 text-white border-teal-500" : "bg-white text-slate-600 border-slate-200 hover:border-teal-300"}`}>
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Price + Add */}
+                    <div className="flex items-end justify-between mt-auto pt-2 border-t border-slate-50">
+                      <div>
+                        <p className="text-teal-600 font-bold text-sm md:text-base leading-none">{p.price.toLocaleString()} <span className="text-xs font-medium">DA</span></p>
+                        {disc > 0 && p.original_price > 0 && (
+                          <p className="text-[10px] text-slate-400 line-through mt-0.5">{p.original_price.toLocaleString()} DA</p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => addToCart(p)}
+                        disabled={!p.in_stock}
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                          p.in_stock ? "bg-teal-500 hover:bg-teal-400 text-white shadow-sm shadow-teal-500/20 active:scale-95" : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                        }`}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                )}
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </main>
+
+      {/* ── TRUST BAR ── */}
+      <div className="bg-white border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center">
+            <div className="flex items-center gap-3 col-span-2 md:col-span-1">
+              <img src="/lovable-uploads/5c0baea8-dfe7-4330-a35f-643db8adb0b0.png" className="h-9 w-auto" alt="logo" />
+              <div>
+                <p className="text-sm font-bold text-slate-800">MOD-TECH</p>
+                {contact?.phone1 && <p className="text-xs text-slate-400">{contact.phone1}</p>}
               </div>
             </div>
-
-            {/* TRUST BADGES */}
             {[
-              { icon: Truck, text: "Livraison rapide", sub: "Toute l'Algérie" },
-              { icon: Shield, text: "Paiement sécurisé", sub: "À la livraison" },
-              { icon: Clock, text: "Support 24/7", sub: "Réponse rapide" }
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3 justify-start md:justify-center">
-                <div className="w-10 h-10 rounded-lg border bg-slate-50 flex items-center justify-center">
-                  <item.icon className="w-5 h-5 text-teal-600" />
+              { icon: Truck,  title: "Livraison rapide",   sub: "Toute l'Algérie" },
+              { icon: Shield, title: "Paiement sécurisé",  sub: "À la livraison"  },
+              { icon: Clock,  title: "Support 7j/7",       sub: "Réponse rapide"  },
+            ].map(({ icon: Icon, title, sub }, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center shrink-0">
+                  <Icon className="w-4 h-4 text-teal-600" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-slate-800">
-                    {item.text}
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    {item.sub}
-                  </div>
+                  <p className="text-xs font-semibold text-slate-800">{title}</p>
+                  <p className="text-[10px] text-slate-400">{sub}</p>
                 </div>
               </div>
             ))}
-
-            {/* SOCIAL */}
-            <div className="flex gap-2 md:justify-end">
-              {contact?.facebook && (
-                <a
-                  href={contact.facebook}
-                  target="_blank"
-                  className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-blue-50 hover:text-blue-600 transition"
-                >
-                  <Facebook size={16} />
-                </a>
-              )}
-              {contact?.instagram && (
-                <a
-                  href={contact.instagram}
-                  target="_blank"
-                  className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-pink-50 hover:text-pink-600 transition"
-                >
-                  <Instagram size={16} />
-                </a>
-              )}
-              {contact?.linkedin && (
-                <a
-                  href={contact.linkedin}
-                  target="_blank"
-                  className="w-9 h-9 rounded-lg border flex items-center justify-center hover:bg-sky-50 hover:text-sky-600 transition"
-                >
-                  <Linkedin size={16} />
-                </a>
-              )}
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Shopping Cart Drawer */}
+      {/* ── CART DRAWER ── */}
       <AnimatePresence>
         {cartOpen && (
           <div className="fixed inset-0 z-50">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
               onClick={() => { setCartOpen(false); setCheckout(false); }}
             />
             <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'tween', duration: 0.3 }}
-              className="absolute top-0 right-0 bottom-0 w-full md:w-[500px] bg-white shadow-xl flex flex-col"
+              initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
+              transition={{ type: "tween", duration: 0.28 }}
+              className="absolute top-0 right-0 bottom-0 w-full md:w-[480px] bg-white shadow-2xl flex flex-col"
             >
-              {/* Header */}
-              <div className="p-4 md:p-6 border-b flex justify-between items-center">
-                <h2 className="text-lg md:text-xl font-bold">
-                  {checkout ? 'Finaliser la commande' : `Panier (${cartCount})`}
+              {/* Drawer header */}
+              <div className="px-5 md:px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+                {checkout && (
+                  <button onClick={() => setCheckout(false)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 mr-2 transition-colors">
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+                )}
+                <h2 className="text-base font-bold text-slate-900 flex-1">
+                  {checkout ? "Finaliser la commande" : `Panier (${cartCount})`}
                 </h2>
-                <button
-                  onClick={() => { setCartOpen(false); setCheckout(false); }}
-                  className="p-2 hover:bg-slate-100 rounded-lg"
-                >
-                  <X className="w-5 h-5" />
+                <button onClick={() => { setCartOpen(false); setCheckout(false); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {cart.length === 0 && !checkout ? (
-                <div className="flex-1 flex flex-col items-center justify-center p-6">
-                  <ShoppingCart className="w-16 h-16 text-slate-300 mb-4" />
-                  <p className="text-slate-600 mb-4">Votre panier est vide</p>
-                  <button
-                    onClick={() => setCartOpen(false)}
-                    className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-6 py-2 rounded-lg"
-                  >
-                    Continuer vos achats
+              {/* Empty */}
+              {!cart.length && !checkout ? (
+                <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
+                    <ShoppingCart className="w-7 h-7 text-slate-400" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-700 mb-1">Votre panier est vide</p>
+                    <p className="text-sm text-slate-400">Ajoutez des produits pour commencer</p>
+                  </div>
+                  <button onClick={() => setCartOpen(false)} className="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-bold rounded-xl transition-all duration-200 active:scale-[0.98]">
+                    Continuer les achats
                   </button>
                 </div>
+
               ) : !checkout ? (
                 <>
                   {/* Cart items */}
-                  <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-                    {cart.map((item, index) => (
-                      <div
-                        key={`${item.id}-${item.selectedColor}-${item.selectedSize}-${index}`}
-                        className="bg-slate-50 border rounded-lg p-4"
-                      >
-                        <div className="flex gap-4">
-                          <div className="w-16 h-16 bg-white border rounded-lg overflow-hidden flex-shrink-0">
-                            <img src={item.image} alt="" className="w-full h-full object-cover" />
-                          </div>
-                          
-                          <div className="flex-1">
-                            <h4 className="font-medium mb-1">{item.name}</h4>
-                            
-                            {(item.selectedColor || item.selectedSize) && (
-                              <div className="text-xs text-slate-500 mb-2">
-                                {item.selectedColor && <span>Couleur: {item.selectedColor}</span>}
-                                {item.selectedColor && item.selectedSize && <span> · </span>}
-                                {item.selectedSize && <span>Taille: {item.selectedSize}</span>}
-                              </div>
-                            )}
-
-                            <div className="flex items-center justify-between">
-                              <div className="text-teal-600 font-bold">
-                                {(item.price * item.qty).toLocaleString()} DA
-                              </div>
-                              
-                              <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => updateQty(item.id, item.qty - 1, item.selectedColor, item.selectedSize)}
-                                  className="p-1 hover:bg-white rounded"
-                                >
-                                  <Minus className="w-4 h-4" />
-                                </button>
-                                <span className="w-8 text-center">{item.qty}</span>
-                                <button
-                                  onClick={() => updateQty(item.id, item.qty + 1, item.selectedColor, item.selectedSize)}
-                                  className="p-1 hover:bg-white rounded"
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </button>
-                                <button
-                                  onClick={() => removeFromCart(item.id, item.selectedColor, item.selectedSize)}
-                                  className="p-1 hover:bg-red-50 text-red-500 rounded ml-2"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
+                  <div className="flex-1 overflow-y-auto px-5 md:px-6 py-4 space-y-3">
+                    {cart.map((item, idx) => (
+                      <div key={`${item.id}-${item.selectedColor}-${item.selectedSize}-${idx}`}
+                        className="flex gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div className="w-14 h-14 rounded-xl bg-white border border-slate-100 overflow-hidden shrink-0">
+                          <img src={item.image} alt="" className="w-full h-full object-contain p-1" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-slate-800 leading-snug truncate">{item.name}</p>
+                          {(item.selectedColor || item.selectedSize) && (
+                            <p className="text-[10px] text-slate-400 mt-0.5">
+                              {[item.selectedColor && `Couleur: ${item.selectedColor}`, item.selectedSize && `Taille: ${item.selectedSize}`].filter(Boolean).join(" · ")}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="text-sm font-bold text-teal-600">{(item.price * item.qty).toLocaleString()} DA</span>
+                            <div className="flex items-center gap-1">
+                              <button onClick={() => updateQty(item.id, item.qty - 1, item.selectedColor, item.selectedSize)}
+                                className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:border-teal-300 transition-colors">
+                                <Minus className="w-3 h-3" />
+                              </button>
+                              <span className="w-6 text-center text-xs font-semibold">{item.qty}</span>
+                              <button onClick={() => updateQty(item.id, item.qty + 1, item.selectedColor, item.selectedSize)}
+                                className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:border-teal-300 transition-colors">
+                                <Plus className="w-3 h-3" />
+                              </button>
+                              <button onClick={() => removeFromCart(item.id, item.selectedColor, item.selectedSize)}
+                                className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:border-red-200 hover:text-red-500 transition-all ml-1">
+                                <Trash2 className="w-3 h-3" />
+                              </button>
                             </div>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-
-                  {/* Footer */}
-                  <div className="p-4 md:p-6 border-t bg-white">
-                    <div className="flex justify-between text-lg mb-4">
-                      <span className="text-slate-600">Total</span>
-                      <span className="font-bold text-teal-600">{cartTotal.toLocaleString()} DA</span>
+                  {/* Cart footer */}
+                  <div className="px-5 md:px-6 py-4 border-t border-slate-100 bg-white shrink-0">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-sm text-slate-500">Total</span>
+                      <span className="text-lg font-extrabold text-teal-600">{cartTotal.toLocaleString()} DA</span>
                     </div>
-                    <button
-                      onClick={() => setCheckout(true)}
-                      className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold py-3 rounded-lg"
-                    >
-                      Commander ({cartCount} produit{cartCount > 1 ? 's' : ''})
+                    <button onClick={() => setCheckout(true)}
+                      className="w-full py-3 bg-teal-500 hover:bg-teal-400 text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98]">
+                      Commander ({cartCount} produit{cartCount > 1 ? "s" : ""})
                     </button>
                   </div>
                 </>
+
               ) : (
-                // Checkout form
                 <>
-                  <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-                    {/* Order summary */}
-                    <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                      <h3 className="font-medium text-teal-800 mb-2">Récapitulatif</h3>
+                  {/* Checkout form */}
+                  <div className="flex-1 overflow-y-auto px-5 md:px-6 py-4 space-y-4">
+                    {/* Summary */}
+                    <div className="bg-teal-50 border border-teal-100 rounded-2xl p-4">
+                      <p className="text-xs font-semibold text-teal-700 uppercase tracking-wider mb-3">Récapitulatif</p>
                       {cart.map((item, idx) => (
-                        <div key={idx} className="flex justify-between text-sm text-slate-600 mb-1">
-                          <span>
-                            {item.name} x{item.qty}
-                            {item.selectedColor && ` (${item.selectedColor})`}
-                            {item.selectedSize && `, ${item.selectedSize}`}
-                          </span>
-                          <span className="text-teal-600 font-medium">
-                            {(item.price * item.qty).toLocaleString()} DA
-                          </span>
+                        <div key={idx} className="flex justify-between text-xs text-slate-600 mb-1.5">
+                          <span className="truncate mr-2">{item.name} ×{item.qty}{item.selectedColor && ` · ${item.selectedColor}`}{item.selectedSize && ` · ${item.selectedSize}`}</span>
+                          <span className="font-semibold text-teal-600 shrink-0">{(item.price * item.qty).toLocaleString()} DA</span>
                         </div>
                       ))}
-                      <div className="flex justify-between font-bold mt-3 pt-3 border-t border-teal-200">
+                      <div className="flex justify-between font-bold text-sm pt-3 mt-2 border-t border-teal-200">
                         <span>Total</span>
                         <span className="text-teal-600">{cartTotal.toLocaleString()} DA</span>
                       </div>
                     </div>
 
-                    {/* Form fields */}
-                    {[
-                      { k: 'name', l: 'Nom complet *', p: 'Nom complet' },
-                      { k: 'phone', l: 'Téléphone *', p: '06**' },
-                      { k: 'email', l: 'Email', p: 'email@exemple.com' },
-                    ].map(({ k, l, p }) => (
-                      <div key={k}>
-                        <label className="text-xs font-medium text-slate-500 uppercase mb-1 block">{l}</label>
-                        <input
-                          type={k === 'email' ? 'email' : 'text'}
-                          placeholder={p}
-                          value={form[k as keyof OrderForm]}
-                          onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
-                          className="w-full bg-white border rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-teal-500/50"
-                        />
-                      </div>
-                    ))}
-
-                    {/* Wilaya */}
-                    <div>
-                      <label className="text-xs font-medium text-slate-500 uppercase mb-1 block">Wilaya *</label>
-                      <select
-                        value={form.wilaya}
-                        onChange={e => setForm(f => ({ ...f, wilaya: e.target.value }))}
-                        className="w-full bg-white border rounded-lg px-4 py-2 text-sm"
-                      >
+                    {/* Fields */}
+                    <Field label="Nom complet *">
+                      <input  value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={inputCls} />
+                    </Field>
+                    <Field label="Téléphone *">
+                      <input type="tel" placeholder="ex. 06 XX XX XX XX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className={inputCls} />
+                    </Field>
+                    <Field label="Email">
+                      <input type="email" placeholder="ex@email.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} className={inputCls} />
+                    </Field>
+                    <Field label="Wilaya *">
+                      <select value={form.wilaya} onChange={e => setForm(f => ({ ...f, wilaya: e.target.value }))} className={inputCls}>
                         <option value="">Sélectionnez une wilaya</option>
                         {WILAYAS.map(w => <option key={w} value={w}>{w}</option>)}
                       </select>
-                    </div>
-
-                    {/* Commune and Address */}
-                    {[
-                      { k: 'commune', l: 'Commune *', p: 'Commune' },
-                      { k: 'address', l: 'Adresse complète *', p: 'Rue, numéro, cité...' },
-                    ].map(({ k, l, p }) => (
-                      <div key={k}>
-                        <label className="text-xs font-medium text-slate-500 uppercase mb-1 block">{l}</label>
-                        <input
-                          type="text"
-                          placeholder={p}
-                          value={form[k as keyof OrderForm]}
-                          onChange={e => setForm(f => ({ ...f, [k]: e.target.value }))}
-                          className="w-full bg-white border rounded-lg px-4 py-2 text-sm"
-                        />
-                      </div>
-                    ))}
-
-                    {/* Notes */}
-                    <div>
-                      <label className="text-xs font-medium text-slate-500 uppercase mb-1 block">Notes</label>
-                      <textarea
-                        placeholder="Instructions particulières..."
-                        value={form.notes}
-                        onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                        rows={3}
-                        className="w-full bg-white border rounded-lg px-4 py-2 text-sm resize-none"
-                      />
-                    </div>
+                    </Field>
+                    <Field label="Commune *">
+                      <input placeholder="Commune" value={form.commune} onChange={e => setForm(f => ({ ...f, commune: e.target.value }))} className={inputCls} />
+                    </Field>
+                    <Field label="Adresse complète *">
+                      <input placeholder="Rue, numéro, cité..." value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} className={inputCls} />
+                    </Field>
+                    <Field label="Notes">
+                      <textarea placeholder="Instructions particulières..." value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} rows={3} className={`${inputCls} resize-none`} />
+                    </Field>
                   </div>
 
                   {/* Checkout footer */}
-                  <div className="p-4 md:p-6 border-t bg-white space-y-2">
-                    <button
-                      onClick={sendOrder}
-                      disabled={sending}
-                      className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold py-3 rounded-lg disabled:opacity-50"
-                    >
-                      {sending ? ' Envoi...' : ' Confirmer la commande'}
-                    </button>
-                    <button
-                      onClick={() => setCheckout(false)}
-                      className="w-full bg-transparent border hover:bg-slate-50 text-slate-600 font-semibold py-3 rounded-lg"
-                    >
-                      ← Retour au panier
+                  <div className="px-5 md:px-6 py-4 border-t border-slate-100 bg-white shrink-0 space-y-2">
+                    <button onClick={sendOrder} disabled={sending}
+                      className="w-full py-3 bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98] flex items-center justify-center gap-2">
+                      {sending ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Envoi...</> : "Confirmer la commande"}
                     </button>
                   </div>
                 </>
@@ -1080,6 +692,7 @@ export default function StorePage() {
           </div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }
