@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://fv5-2.files.fm/thumb_show.php?i=nr7m54tgfe&view&v=1&PHPSESSID=1548229dd89828d397f0329fc169f4714310ffd6",
+    url: "/og-image.jpeg",
         width: 1200,
         height: 630,
         alt: "MOD-TECHNOLOGIE",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: "MOD-TECHNOLOGIE | Sécurité & Innovation Technologique",
     description:
       "Spécialistes en systèmes de sécurité, réseaux informatiques, domotique et sonorisation en Algérie.",
-    images: ["https://fv5-2.files.fm/thumb_show.php?i=nr7m54tgfe&view&v=1&PHPSESSID=1548229dd89828d397f0329fc169f4714310ffd6"],
+    images: ["/og-image.jpeg"],
   },
   robots: {
     index: true,
