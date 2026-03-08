@@ -1,16 +1,13 @@
 "use client";
 import useEmblaCarousel from "embla-carousel-react";
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "./supabase";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 
 
 
-const supabase = createClient(
-  "https://djiosqlexflaqzrtuyqc.supabase.co",
-  "sb_publishable_JMN6dsJOA2lUpSLYQcKD8A_3xBlz3bV"
-);
+
 
 type Slide = {
   id: number;

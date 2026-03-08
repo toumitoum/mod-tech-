@@ -1,12 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "./supabase";
 import { FaWhatsapp } from "react-icons/fa";
 
-const supabase = createClient(
-  "https://djiosqlexflaqzrtuyqc.supabase.co",
-  "sb_publishable_JMN6dsJOA2lUpSLYQcKD8A_3xBlz3bV"
-);
+
 
 export default function WhatsAppButton() {
   const [phone, setPhone] = useState<string | null>(null);
