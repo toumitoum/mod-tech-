@@ -26,17 +26,18 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "MOD-TECHNOLOGIE" }],
   creator: "MOD-TECHNOLOGIE",
-  metadataBase: new URL("https://mod-technologie.com"),
+  metadataBase: new URL("https://mod-tech.vercel.app"),
   openGraph: {
     title: "MOD-TECHNOLOGIE | Sécurité, Réseaux & Domotique",
     description:
       "Solutions professionnelles en sécurité, réseaux, domotique et sonorisation. Livraison et installation dans toute l'Algérie.",
+    url: "https://mod-tech.vercel.app",
     siteName: "MOD-TECHNOLOGIE",
     locale: "fr_DZ",
     type: "website",
     images: [
       {
-        url: "https://fv5-2.files.fm/thumb_show.php?i=9ytmgdrgwp&view&v=1&PHPSESSID=1548229dd89828d397f0329fc169f4714310ffd6",
+        url: "https://fv5-2.files.fm/thumb_show.php?i=nr7m54tgfe&view&v=1&PHPSESSID=1548229dd89828d397f0329fc169f4714310ffd6",
         width: 1200,
         height: 630,
         alt: "MOD-TECHNOLOGIE",
@@ -48,11 +49,14 @@ export const metadata: Metadata = {
     title: "MOD-TECHNOLOGIE | Sécurité & Innovation Technologique",
     description:
       "Spécialistes en systèmes de sécurité, réseaux informatiques, domotique et sonorisation en Algérie.",
-    images: ["https://fv5-2.files.fm/thumb_show.php?i=9ytmgdrgwp&view&v=1&PHPSESSID=1548229dd89828d397f0329fc169f4714310ffd6"],
+    images: ["https://fv5-2.files.fm/thumb_show.php?i=nr7m54tgfe&view&v=1&PHPSESSID=1548229dd89828d397f0329fc169f4714310ffd6"],
   },
   robots: {
     index: true,
     follow: true,
+  },
+  verification: {
+    google: "googleeaf32633afd323c8",
   },
 };
 
