@@ -2314,9 +2314,12 @@ function OrdersEd({ dark }: { dark: boolean }) {
                     
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 13 }}>
                       {[
-                        ["📍", order.customer_address],
-                        ["📧", order.customer_email || "—"],
-                        ["📝", order.notes || "—"]
+                        ["address", order.customer_address],
+                        ["email", order.customer_email || "—"],
+                        ["phone", order.customer_phone || "—"],
+                        ["notes", order.notes || "—"]
+
+
                       ].map(([l, v]) => (
                         <div key={l as string} style={{ background: s.ci, borderRadius: 8, padding: "8px 12px" }}>
                           <div style={{ fontSize: 10, color: s.sub, marginBottom: 3, fontWeight: 600 }}>{l}</div>
