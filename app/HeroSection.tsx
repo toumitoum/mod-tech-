@@ -56,10 +56,16 @@ const HeroSkeleton = () => (
 function Background({ bgImage }: { bgImage?: string }) {
   if (bgImage) {
     return (
-      <div className="absolute inset-0">
-        <img src={bgImage} className="w-full h-full object-cover" alt="" />
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px]" />
-      </div>
+     <div className="absolute inset-0">
+  <img
+    src={bgImage}
+    alt=""
+    className="w-full h-full object-cover"
+  />
+
+  {/* Bottom blur */}
+  <div className="absolute bottom-0 left-0 right-0 h-10 -md bg-gradient-to-t from-teal-100/90 to-transparent" />
+</div>
     );
   }
 
@@ -69,7 +75,7 @@ function Background({ bgImage }: { bgImage?: string }) {
         className="absolute inset-0 opacity-[0.04]"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(20,184,166,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,166,0.5) 1px, transparent 1px)",
+            "linear-gradient(hsla(173, 80%, 40%, 0.50) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,166,0.5) 1px, transparent 1px)",
           backgroundSize: "60px 60px",
         }}
       />
