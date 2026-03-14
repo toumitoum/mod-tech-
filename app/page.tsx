@@ -24,11 +24,11 @@ export default function Home() {
 
    
 
-      {/* Image Slider */}
-      <ImageSlider />
+    
+<ImageSlider />
+<ServicesSection />
 
-      {/* Services */}
-      <ServicesSection />
+   
 
       {/* About */}
       <AboutSection />
