@@ -3782,43 +3782,7 @@ function SecurityEd({ dark }: { dark: boolean }) {
 }
 // ─── ALLOWED EMAILS — same list as login page ─────────────────────────────
 
-const login = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!email || !pw) return;
-  setLoading(true);
-  setError("");
 
-  try {
-    // ── تحقق من قاعدة البيانات ──
-    const { data: allowed } = await supabase
-      .from("admin_users")
-      .select("email")
-      .eq("email", Mail.toLowerCase().trim())
-      .single();
-
-    if (!allowed) {
-      setError("ليس لديك صلاحية الوصول إلى هذه اللوحة.");
-      setLoading(false);
-      return;
-    }
-
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email: email.toLowerCase().trim(),
-      password: pw,
-    });
-
-    if (authError) {
-      if (authError.message.includes("Invalid login credentials")) setError("كلمة المرور غير صحيحة");
-      else setError("حدث خطأ: " + authError.message);
-    } else {
-      router.push("/admin");
-    }
-  } catch (err: any) {
-    setError("خطأ في الاتصال: " + err.message);
-  } finally {
-    setLoading(false);
-  }
-};
 
 function UsersEd({ dark }: { dark: boolean }) {
   const s = ms(dark);
