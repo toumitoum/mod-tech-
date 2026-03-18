@@ -27,9 +27,12 @@ import {
   Phone,
   Award,
   Store,
+  Shield, 
+
   Icon
 } from "lucide-react";
 import { supabase } from "@/app/supabase";
+import router from "next/router";
 
 // Types
 type Row = { id: number; section: string; content: any; updated_at: string };
@@ -3711,9 +3714,263 @@ function EmailEd({ dark }: { dark: boolean }) {
     </div>
   );
 }
+///----updat password-----
+function SecurityEd({ dark }: { dark: boolean }) {
+  const s = ms(dark);
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [show, setShow] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [msgOk, setMsgOk] = useState(true);
 
+  const notify = (text: string, ok = true) => {
+    setMsg(text); setMsgOk(ok);
+    setTimeout(() => setMsg(""), 4000);
+  };
+
+  const changePassword = async () => {
+    if (!newPw || !confirmPw) { notify("❌ Remplissez tous les champs", false); return; }
+    if (newPw.length < 6) { notify("❌ Mot de passe trop court (min 6)", false); return; }
+    if (newPw !== confirmPw) { notify("❌ Les mots de passe ne correspondent pas", false); return; }
+    setSaving(true);
+    const { error } = await supabase.auth.updateUser({ password: newPw });
+    setSaving(false);
+    if (error) { notify("❌ " + error.message, false); }
+    else { notify("✅ Mot de passe modifié !"); setNewPw(""); setConfirmPw(""); }
+  };
+
+  const inp: React.CSSProperties = {
+    width: "100%", background: s.ibg, border: "1px solid " + s.brd,
+    borderRadius: 10, padding: "11px 14px", color: s.tx,
+    fontSize: 14, outline: "none", fontFamily: "inherit", boxSizing: "border-box",
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ background: dark ? "rgba(13,148,136,0.06)" : "rgba(13,148,136,0.04)", border: "1px solid rgba(13,148,136,0.2)", borderRadius: 12, padding: "14px 18px", fontSize: 13, color: s.sub, display: "flex", alignItems: "center", gap: 8 }}>
+        <Shield className="w-4 h-4" style={{ color: teal }} />
+        <span>Changer le mot de passe de votre compte admin.</span>
+      </div>
+
+      <div>
+        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>Nouveau mot de passe</label>
+        <div style={{ position: "relative" }}>
+          <input type={show ? "text" : "password"} value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="••••••••" style={{ ...inp, paddingRight: 80 }} />
+          <button onClick={() => setShow(!show)} type="button" style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "transparent", border: `1px solid ${s.brd}`, cursor: "pointer", color: s.sub, fontSize: 12, padding: "3px 10px", borderRadius: 999 }}>
+            {show ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+          </button>
+        </div>
+        {newPw && <div style={{ fontSize: 11, color: s.sub, marginTop: 4 }}>{newPw.length < 6 ? "❌ Trop court" : newPw.length < 10 ? "⚠️ Moyen" : "✅ Fort"}</div>}
+      </div>
+
+      <div>
+        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>Confirmer le mot de passe</label>
+        <input type={show ? "text" : "password"} value={confirmPw} onChange={e => setConfirmPw(e.target.value)} placeholder="••••••••" style={{ ...inp, borderColor: confirmPw ? (confirmPw === newPw ? "#10b981" : "#ef4444") : s.brd }} />
+        {confirmPw && <div style={{ fontSize: 11, marginTop: 4, color: confirmPw === newPw ? "#10b981" : "#ef4444" }}>{confirmPw === newPw ? "✅ Identiques" : "❌ Ne correspondent pas"}</div>}
+      </div>
+
+      {msg && <div style={{ background: msgOk ? "rgba(52,211,153,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${msgOk ? "rgba(52,211,153,0.25)" : "rgba(239,68,68,0.25)"}`, borderRadius: 10, padding: "10px 16px", fontSize: 13, fontWeight: 600, color: msgOk ? "#34d399" : "#f87171" }}>{msg}</div>}
+
+      <button onClick={changePassword} disabled={saving || !newPw || !confirmPw || newPw !== confirmPw || newPw.length < 6}
+        style={{ background: (newPw && confirmPw && newPw === confirmPw && newPw.length >= 6) ? tG : "rgba(51,65,85,0.3)", border: "none", borderRadius: 10, padding: "12px 24px", color: "#fff", fontSize: 14, fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6, opacity: saving ? 0.7 : 1 }}>
+        {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+        {saving ? "Modification..." : "Changer le mot de passe"}
+      </button>
+    </div>
+  );
+}
+// ─── ALLOWED EMAILS — same list as login page ─────────────────────────────
+
+const login = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!email || !pw) return;
+  setLoading(true);
+  setError("");
+
+  try {
+    // ── تحقق من قاعدة البيانات ──
+    const { data: allowed } = await supabase
+      .from("admin_users")
+      .select("email")
+      .eq("email", Mail.toLowerCase().trim())
+      .single();
+
+    if (!allowed) {
+      setError("ليس لديك صلاحية الوصول إلى هذه اللوحة.");
+      setLoading(false);
+      return;
+    }
+
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: email.toLowerCase().trim(),
+      password: pw,
+    });
+
+    if (authError) {
+      if (authError.message.includes("Invalid login credentials")) setError("كلمة المرور غير صحيحة");
+      else setError("حدث خطأ: " + authError.message);
+    } else {
+      router.push("/admin");
+    }
+  } catch (err: any) {
+    setError("خطأ في الاتصال: " + err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
+function UsersEd({ dark }: { dark: boolean }) {
+  const s = ms(dark);
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
+  const [show, setShow] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [msgOk, setMsgOk] = useState(true);
+  const [users, setUsers] = useState<{ id: number; email: string; created_at: string }[]>([]);
+  const [deleting, setDeleting] = useState<number | null>(null);
+
+  const load = async () => {
+    const { data } = await supabase.from("admin_users").select("*").order("created_at");
+    setUsers(data ?? []);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const notify = (text: string, ok = true) => {
+    setMsg(text); setMsgOk(ok);
+    setTimeout(() => setMsg(""), 5000);
+  };
+
+  const createUser = async () => {
+    if (!email) { notify("❌ Email obligatoire", false); return; }
+    if (!pw || pw.length < 6) { notify("❌ Mot de passe min 6 caractères", false); return; }
+
+    setSaving(true);
+
+    // 1 — إنشاء الحساب في Supabase Auth
+    const { error: authError } = await supabase.auth.signUp({
+      email: email.trim().toLowerCase(),
+      password: pw,
+    });
+
+    if (authError && !authError.message.includes("already registered")) {
+      notify("❌ " + authError.message, false);
+      setSaving(false);
+      return;
+    }
+
+    // 2 — إضافة في جدول admin_users تلقائياً
+    const { error: dbError } = await supabase
+      .from("admin_users")
+      .insert([{ email: email.trim().toLowerCase() }]);
+
+    setSaving(false);
+
+    if (dbError) {
+      if (dbError.message.includes("duplicate")) notify("⚠️ Cet email est déjà autorisé", false);
+      else notify("❌ " + dbError.message, false);
+    } else {
+      notify(`✅ Compte créé et autorisé : ${email}`);
+      setEmail(""); setPw("");
+      load(); // refresh list
+    }
+  };
+
+  const deleteUser = async (id: number, userEmail: string) => {
+    if (!confirm(`Supprimer l'accès de ${userEmail} ?`)) return;
+    setDeleting(id);
+    await supabase.from("admin_users").delete().eq("id", id);
+    setDeleting(null);
+    load();
+  };
+
+  const inp: React.CSSProperties = {
+    width: "100%", background: s.ibg, border: "1px solid " + s.brd,
+    borderRadius: 10, padding: "11px 14px", color: s.tx,
+    fontSize: 14, outline: "none", fontFamily: "inherit", boxSizing: "border-box",
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+      {/* Info */}
+      <div style={{ background: dark ? "rgba(13,148,136,0.06)" : "rgba(13,148,136,0.04)", border: "1px solid rgba(13,148,136,0.2)", borderRadius: 12, padding: "14px 18px", fontSize: 13, color: s.sub, lineHeight: 1.7 }}>
+        <div style={{ color: teal, fontWeight: 700, marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
+          <Users className="w-4 h-4" /> Gestion des comptes admin
+        </div>
+        Les comptes créés ici sont automatiquement autorisés à accéder au panneau d'administration. Aucune modification manuelle du code nécessaire.
+      </div>
+
+      {/* Existing users */}
+      <div>
+        <div style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, fontFamily: "monospace" }}>
+          Comptes autorisés ({users.length})
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {users.map((u) => (
+            <div key={u.id} style={{ display: "flex", alignItems: "center", gap: 10, background: s.ci, border: "1px solid " + s.brd, borderRadius: 10, padding: "10px 14px" }}>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", background: tG, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
+                {u.email[0].toUpperCase()}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, color: s.tx, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{u.email}</div>
+                <div style={{ fontSize: 11, color: s.sub }}>{new Date(u.created_at).toLocaleDateString("fr-DZ")}</div>
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: "#10b981", background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.2)", borderRadius: 20, padding: "2px 8px", whiteSpace: "nowrap" }}>
+                Autorisé ✓
+              </div>
+              <button
+                onClick={() => deleteUser(u.id, u.email)}
+                disabled={deleting === u.id}
+                style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 7, padding: "5px 8px", color: "#f87171", cursor: "pointer", display: "flex", alignItems: "center", flexShrink: 0 }}
+              >
+                {deleting === u.id ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ borderTop: "1px solid " + s.brd }} />
+
+      {/* Create form */}
+      <div style={{ fontSize: 13, fontWeight: 700, color: s.tx }}>➕ Créer un nouveau compte</div>
+
+      <div>
+        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>Email</label>
+        <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="nouveau@admin.dz" style={inp} />
+      </div>
+
+      <div>
+        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>Mot de passe</label>
+        <div style={{ position: "relative" }}>
+          <input type={show ? "text" : "password"} value={pw} onChange={e => setPw(e.target.value)} placeholder="••••••••" style={{ ...inp, paddingRight: 80 }} />
+          <button onClick={() => setShow(!show)} type="button" style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "transparent", border: `1px solid ${s.brd}`, cursor: "pointer", color: s.sub, fontSize: 12, padding: "3px 10px", borderRadius: 999 }}>
+            {show ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+          </button>
+        </div>
+        {pw && <div style={{ fontSize: 11, color: s.sub, marginTop: 4 }}>{pw.length < 6 ? "❌ Trop court" : pw.length < 10 ? "⚠️ Moyen" : "✅ Fort"}</div>}
+      </div>
+
+      {msg && (
+        <div style={{ background: msgOk ? "rgba(52,211,153,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${msgOk ? "rgba(52,211,153,0.25)" : "rgba(239,68,68,0.25)"}`, borderRadius: 10, padding: "10px 16px", fontSize: 13, fontWeight: 600, color: msgOk ? "#34d399" : "#f87171", lineHeight: 1.6 }}>
+          {msg}
+        </div>
+      )}
+
+      <button onClick={createUser} disabled={saving || !email || pw.length < 6}
+        style={{ background: (email && pw.length >= 6) ? tG : "rgba(51,65,85,0.3)", border: "none", borderRadius: 10, padding: "12px 24px", color: "#fff", fontSize: 14, fontWeight: 700, cursor: (saving || !email || pw.length < 6) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6, opacity: saving ? 0.7 : 1 }}>
+        {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+        {saving ? "Création..." : "Créer et autoriser"}
+      </button>
+    </div>
+  );
+}
 // ── NAV ───────────────────────────────────────────────────────────────────────
 const NAV = [
+  { key: "users", label: "Utilisateurs", icon: <Users className="w-5 h-5" />, desc: "Comptes admin" },
   { key: "hero", label: "Hero - Accueil", icon: <Home className="w-5 h-5" />, desc: "Page d'accueil" },
   { key: "store-hero", label: "Hero - Store", icon: <Store className="w-5 h-5" />, desc: "Page du catalogue" },
   { key: "services", label: "Services", icon: <Layers className="w-5 h-5" />, desc: "Cartes + photos" },
@@ -3725,9 +3982,10 @@ const NAV = [
   { key: "reussites", label: "Nos Réussites", icon: <Star className="w-5 h-5" />, desc: "Portfolio photos" },
   { key: "orders", label: "Commandes", icon: <ShoppingBag className="w-5 h-5" />, desc: "Gestion des commandes" },
   { key: "emails", label: "Emails", icon: <Mail className="w-5 h-5" />, desc: "Notifications email" },
+  { key: "security", label: "Sécurité", icon: <Shield className="w-5 h-5" />, desc: "Mot de passe" },
 ];
 
-const autoSave = ["slider", "partners", "products", "orders", "emails"];
+const autoSave = ["slider", "partners", "products", "orders", "emails", "security", "users"];
 
 // ── MAIN ──────────────────────────────────────────────────────────────────────
 // ── MAIN ──────────────────────────────────────────────────────────────────────
@@ -4305,6 +4563,8 @@ export default function AdminPage() {
                 borderRadius: 16,
                 padding: isAuto ? 0 : 26
               }}>
+                {active === "users" && <UsersEd dark={dark} />}
+                {active === "security" && <SecurityEd dark={dark} />}
                 {active === "hero" && drafts.hero && <HomeHeroEd data={drafts.hero} onChange={setD} dark={dark} />}
                 {active === "store-hero" && drafts["store-hero"] && <StoreHeroEd data={drafts["store-hero"]} onChange={setD} dark={dark} />}
                 {active === "services" && drafts.services && <ServicesEd data={drafts.services} onChange={setD} dark={dark} />}
@@ -4324,3 +4584,11 @@ export default function AdminPage() {
     </div>
   );
 }
+
+function setError(arg0: string) {
+  throw new Error("Function not implemented.");
+}
+function setLoading(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}
+
