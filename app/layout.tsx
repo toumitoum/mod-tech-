@@ -73,8 +73,13 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon: "/favicon.ico",
-  },
+  icon: [
+    { url: "/favicon.ico", sizes: "any" },
+    { url: "/logo.png", sizes: "512x512", type: "image/png" },
+  ],
+  shortcut: "/favicon.ico",
+  apple: "/logo.png",
+},
 };
 
 export default function RootLayout({
