@@ -49,6 +49,7 @@ type Product = {
   name: string;
   description: string;
   price: number;
+  private_note: string;
   original_price: number;
   discount_percent: number;
   image: string;
@@ -3200,6 +3201,46 @@ function ProductsEd({ dark }: { dark: boolean }) {
                     ))}
                   </div>
                 </div>
+                {/* ── Private Note ── */}
+<div>
+  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+    <div style={{
+      fontSize: 11, fontWeight: 700, color: "#f59e0b",
+      textTransform: "uppercase" as const, letterSpacing: "0.1em",
+      display: "flex", alignItems: "center", gap: 6
+    }}>
+      Note privée (visible uniquement par l'admin)
+    </div>
+  </div>
+  <textarea
+    key={`note-${p.id}`}
+    defaultValue={p.private_note || ""}
+    onBlur={e => {
+      updateField(p.id, "private_note", e.target.value);
+      e.currentTarget.style.borderColor = "#f59e0b";
+      e.currentTarget.style.boxShadow = "none";
+    }}
+    rows={3}
+    placeholder="Note interne sur ce produit — prix fournisseur, remarques, stock réel..."
+    style={{
+      width: "100%",
+      background: dark ? "#1a1a2e" : "#fffbeb",
+      border: "1.5px dashed #f59e0b",
+      borderRadius: 10,
+      padding: "10px 14px",
+      color: dark ? "#fde68a" : "#92400e",
+      fontSize: 13,
+      outline: "none",
+      fontFamily: "inherit",
+      resize: "vertical" as const,
+      boxSizing: "border-box" as const,
+      lineHeight: 1.6,
+    }}
+    onFocus={e => { e.currentTarget.style.borderColor = "#f59e0b"; e.currentTarget.style.boxShadow = "0 0 0 3px rgba(245,158,11,0.15)"; }}
+  />
+  <div style={{ fontSize: 11, color: "#f59e0b", marginTop: 5, display: "flex", alignItems: "center", gap: 4 }}>
+  </div>
+</div>
               </motion.div>
             )}
           </motion.div>
