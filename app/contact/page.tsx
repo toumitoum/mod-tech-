@@ -170,6 +170,35 @@ export default function ContactPage() {
           </div>
         ) : (
           <div className="space-y-2 sm:space-y-4">
+
+            {/* ✅ WhatsApp as normal link */}
+            {whatsappPhone && (
+              <motion.a
+                href={`https://api.whatsapp.com/send?phone=${whatsappPhone}`}
+                target="_blank"
+                rel="noreferrer"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white shadow-sm sm:shadow-md hover:shadow-lg transition"
+              >
+                <div className="w-8 h-8 sm:w-11 sm:h-11 flex items-center justify-center bg-green-100 rounded-lg">
+                  <FaWhatsapp className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+                </div>
+
+                <div className="flex-1">
+                  <div className="text-xs sm:text-sm font-semibold text-gray-900">
+                    WhatsApp
+                  </div>
+                  <div className="text-[10px] sm:text-xs text-gray-500">
+                    Discuter avec nous
+                  </div>
+                </div>
+
+                <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+              </motion.a>
+            )}
+
+            {/* Other links */}
             {links.map((link, i) => {
               const { icon: Icon, color } = getIcon(link.title);
 
@@ -209,18 +238,6 @@ export default function ContactPage() {
           MOD-TECHNOLOGIE © {new Date().getFullYear()}
         </div>
       </div>
-
-      {/* 💬 WHATSAPP FLOAT BUTTON */}
-      {whatsappPhone && (
-        <a
-          href={`https://wa.me/${whatsappPhone}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg shadow-green-500/40 hover:bg-[#20c45e] active:scale-95 transition-all duration-200"
-        >
-          <FaWhatsapp className="w-5 h-5 sm:w-6 sm:h-6" />
-        </a>
-      )}
     </div>
   );
 }
