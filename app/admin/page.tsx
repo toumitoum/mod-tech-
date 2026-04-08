@@ -183,14 +183,13 @@ function Field({ label, value, onChange, multi, dark, type = "text", placeholder
   };
   
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "130px 1fr", gap: 12, alignItems: "start" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <label style={{
         fontSize: 11,
         fontWeight: 700,
         color: s.mut,
         textTransform: "uppercase",
         letterSpacing: "0.08em",
-        paddingTop: 12,
         fontFamily: "monospace"
       }}>
         {label}
@@ -258,14 +257,13 @@ function ImgUpload({ label, cur, path, onDone, dark, height = 100 }: {
   };
   
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "130px 1fr", gap: 12, alignItems: "start" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <label style={{
         fontSize: 11,
         fontWeight: 700,
         color: s.mut,
         textTransform: "uppercase",
         letterSpacing: "0.08em",
-        paddingTop: 12,
         fontFamily: "monospace"
       }}>
         {label}
@@ -625,7 +623,6 @@ function ServicesEd({ data, onChange, dark }: { data: any[]; onChange: (d: any[]
   );
 }
 
-// ── ABOUT ────────────────────────────────────────────────────────────────────
 // ── REUSSITES ─────────────────────────────────────────────────────────────────
 function ReussitesEd({ dark }: { dark: boolean }) {
   const s = ms(dark);
@@ -725,7 +722,11 @@ function ReussitesEd({ dark }: { dark: boolean }) {
 
       {/* Section toggle */}
       <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: 12,
         background: sectionVisible
           ? (dark ? "rgba(13,148,136,0.08)" : "rgba(13,148,136,0.04)")
           : (dark ? "rgba(51,65,85,0.3)" : "rgba(226,232,240,0.5)"),
@@ -755,7 +756,7 @@ function ReussitesEd({ dark }: { dark: boolean }) {
       </div>
 
       {/* Projects grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
         {projects.map(p => (
           <motion.div
             key={p.id}
@@ -828,7 +829,7 @@ function ReussitesEd({ dark }: { dark: boolean }) {
                 {CATS.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
 
-              <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 <input
                   type="number"
                   defaultValue={p.sort_order}
@@ -931,13 +932,13 @@ function ReussitesEd({ dark }: { dark: boolean }) {
             </div>
           )}
 
-          <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 10 }}>
             <input
               value={newTitle}
               onChange={e => setNewTitle(e.target.value)}
               placeholder="Titre (optionnel)"
               style={{
-                flex: 1, background: s.ibg, border: "1px solid " + s.brd,
+                width: "100%", background: s.ibg, border: "1px solid " + s.brd,
                 borderRadius: 8, padding: "9px 12px",
                 color: s.tx, fontSize: 13, outline: "none",
               }}
@@ -946,7 +947,7 @@ function ReussitesEd({ dark }: { dark: boolean }) {
               value={newCategory}
               onChange={e => setNewCategory(e.target.value)}
               style={{
-                background: s.ibg, border: "1px solid " + s.brd,
+                width: "100%", background: s.ibg, border: "1px solid " + s.brd,
                 borderRadius: 8, padding: "9px 12px",
                 color: s.tx, fontSize: 13, outline: "none",
               }}
@@ -956,7 +957,7 @@ function ReussitesEd({ dark }: { dark: boolean }) {
             </select>
           </div>
 
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             <button
               onClick={addProject} disabled={saving === -1 || !newImg}
               style={{
@@ -1043,6 +1044,8 @@ function AboutEd({ data, onChange, dark }: { data: any; onChange: (d: any) => vo
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: 12,
         background: data.visible
           ? (dark ? "rgba(13,148,136,0.08)" : "rgba(13,148,136,0.04)")
           : (dark ? "rgba(51,65,85,0.3)" : "rgba(226,232,240,0.5)"),
@@ -1052,7 +1055,7 @@ function AboutEd({ data, onChange, dark }: { data: any; onChange: (d: any) => vo
       }}>
         <div>
           <div style={{ fontWeight: 700, fontSize: 14, color: s.tx }}>
-            {data.visible ? " Section visible sur le site" : " Section masquée"}
+            {data.visible ? "✅ Section visible sur le site" : "🙈 Section masquée"}
           </div>
           <div style={{ fontSize: 12, color: s.sub, marginTop: 3 }}>
             {data.visible
@@ -1095,7 +1098,7 @@ function AboutEd({ data, onChange, dark }: { data: any; onChange: (d: any) => vo
         }}>
           Statistiques (3 chiffres clés)
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: 12 }}>
           {([
             { key: "years",    label: "Années",   placeholder: "5+" },
             { key: "clients",  label: "Clients",  placeholder: "200+" },
@@ -1187,7 +1190,7 @@ function AboutEd({ data, onChange, dark }: { data: any; onChange: (d: any) => vo
             }}
           >
             <ImageIcon className="w-6 h-6" />
-            {uploading ? " Upload en cours..." : " Cliquer pour ajouter une image"}
+            {uploading ? "⏳ Upload en cours..." : "📷 Cliquer pour ajouter une image"}
           </div>
         )}
       </div>
@@ -1243,7 +1246,7 @@ function ContactEd({ data, onChange, dark }: { data: any; onChange: (d: any) => 
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           {socialFields.map(({ key, label, placeholder, color, icon }) => (
-            <div key={key} style={{ display: "grid", gridTemplateColumns: "130px 1fr", gap: 12, alignItems: "center" }}>
+            <div key={key} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <div style={{
                   width: 28,
@@ -1554,7 +1557,7 @@ function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload: () =>
                 resize: "vertical"
               }}
             />
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
               <input
                 type="number"
                 defaultValue={slide.sort_order}
@@ -1666,7 +1669,7 @@ function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload: () =>
                 resize: "vertical"
               }}
             />
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button
                 onClick={addSlide}
                 disabled={saving === -1}
@@ -1959,7 +1962,7 @@ function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; onReloa
             opacity: p.is_active ? 1 : 0.55
           }}
         >
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
             <LogoImg cur={p.logo} pid={p.id} />
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 7 }}>
               <input
@@ -1996,7 +1999,7 @@ function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; onReloa
                   boxSizing: "border-box"
                 }}
               />
-              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
                 <input
                   type="number"
                   defaultValue={p.sort_order}
@@ -2107,7 +2110,7 @@ function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; onReloa
                 boxSizing: "border-box"
               }}
             />
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button
                 onClick={addP}
                 disabled={saving === -1}
@@ -2231,7 +2234,7 @@ function OrdersEd({ dark }: { dark: boolean }) {
         </span>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(110px,1fr))", gap: 8 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: 8 }}>
         {[["all", " Tous", orders.length, "#64748b"], ...Object.entries(ST).map(([k, v]) => [k, v.label, counts[k] || 0, v.color])].map(([k, l, c, col]) => (
           <button
             key={k as string}
@@ -2317,7 +2320,7 @@ function OrdersEd({ dark }: { dark: boolean }) {
                       </div>
                     </div>
                     
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, fontSize: 13 }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, fontSize: 13 }}>
                       {[
                         ["address", order.customer_address],
                         ["email", order.customer_email || "—"],
@@ -2583,7 +2586,8 @@ function ProductsEd({ dark }: { dark: boolean }) {
                 gap: 12,
                 background: dark ? "rgba(13,148,136,0.02)" : "rgba(13,148,136,0.02)",
                 borderBottom: isEditing ? "1px solid " + s.brd : "none",
-                cursor: "pointer"
+                cursor: "pointer",
+                flexWrap: "wrap"
               }}
               onClick={() => setEditingProduct(isEditing ? null : p.id)}
             >
@@ -2623,7 +2627,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
               </div>
 
               {/* Actions */}
-              <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                 {saving === p.id && <RefreshCw className="w-4 h-4 animate-spin" style={{ color: teal }} />}
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleActive(p); }}
@@ -2684,7 +2688,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
                   {/* Main image */}
                   <div style={{ marginBottom: 16 }}>
                     <div style={{ fontSize: 12, color: s.sub, marginBottom: 8 }}>Image principale</div>
-                    <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                    <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
                       <div style={{
                         width: 100,
                         height: 100,
@@ -2825,7 +2829,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
                 </div>
 
                 {/* Basic info grid */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
                   <div>
                     <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "block", marginBottom: 4 }}>Nom *</label>
                     <input
@@ -2884,7 +2888,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
                 </div>
 
                 {/* Price and promotion */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
                   <div>
                     <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "block", marginBottom: 4 }}>Prix actuel (DA) *</label>
                     <input
@@ -2960,7 +2964,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
                 </div>
 
                 {/* Category and stock */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
                   <div>
                     <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "block", marginBottom: 4 }}>Catégorie</label>
                     <select
@@ -3008,9 +3012,9 @@ function ProductsEd({ dark }: { dark: boolean }) {
 
                 {/* Colors */}
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "flex", alignItems: "center", gap: 4 }}>
-                       Couleurs disponibles
+                      🎨 Couleurs disponibles
                     </label>
                     <button
                       onClick={() => {
@@ -3071,9 +3075,9 @@ function ProductsEd({ dark }: { dark: boolean }) {
 
                 {/* Sizes */}
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "flex", alignItems: "center", gap: 4 }}>
-                       Tailles / Dimensions
+                      📏 Tailles / Dimensions
                     </label>
                     <button
                       onClick={() => {
@@ -3103,7 +3107,6 @@ function ProductsEd({ dark }: { dark: boolean }) {
                         display: "flex",
                         alignItems: "center",
                         gap: 6,
-
                         borderRadius: 20,
                         padding: "4px 10px 4px 10px"
                       }}>
@@ -3129,9 +3132,9 @@ function ProductsEd({ dark }: { dark: boolean }) {
 
                 {/* Specifications */}
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
                     <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "flex", alignItems: "center", gap: 4 }}>
-                      Spécifications techniques
+                      ⚙️ Spécifications techniques
                     </label>
                     <button
                       onClick={() => {
@@ -3167,7 +3170,8 @@ function ProductsEd({ dark }: { dark: boolean }) {
                         background: s.ci,
                         border: "1px solid " + s.brd,
                         borderRadius: 8,
-                        padding: "6px 12px"
+                        padding: "6px 12px",
+                        flexWrap: "wrap"
                       }}>
                         <span style={{ fontSize: 12, fontWeight: 600, color: s.tx, minWidth: 100 }}>{key}</span>
                         <input
@@ -3210,7 +3214,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
       textTransform: "uppercase" as const, letterSpacing: "0.1em",
       display: "flex", alignItems: "center", gap: 6
     }}>
-      Note privée (visible uniquement par l'admin)
+      📝 Note privée (visible uniquement par l'admin)
     </div>
   </div>
   <textarea
@@ -3269,20 +3273,22 @@ function ProductsEd({ dark }: { dark: boolean }) {
             {/* Main image */}
             <div>
               <div style={{ fontSize: 11, fontWeight: 700, color: s.mut, marginBottom: 8 }}>Image principale *</div>
-              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
                 {newP.image ? (
-                  <div style={{ width: 80, height: 80, borderRadius: 8, overflow: "hidden", border: "1px solid " + s.brd }}>
+                  <div style={{ width: 80, height: 80, borderRadius: 8, overflow: "hidden", border: "1px solid " + s.brd, position: "relative" }}>
                     <img src={newP.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     <button
                       onClick={() => setNewP({ ...newP, image: "" })}
                       style={{
+                        position: "absolute",
+                        top: 2,
+                        right: 2,
                         background: "rgba(239,68,68,0.9)",
                         color: "#fff",
                         border: "none",
                         borderRadius: 4,
                         fontSize: 10,
                         padding: "2px 4px",
-                        marginTop: 4,
                         cursor: "pointer"
                       }}
                     >
@@ -3327,7 +3333,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
             </div>
 
             {/* Basic fields */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "block", marginBottom: 4 }}>Nom *</label>
                 <input
@@ -3380,7 +3386,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
               />
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "block", marginBottom: 4 }}>Prix (DA) *</label>
                 <input
@@ -3434,7 +3440,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
               <div>
                 <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, display: "block", marginBottom: 4 }}>Catégorie</label>
                 <select
@@ -3472,7 +3478,7 @@ function ProductsEd({ dark }: { dark: boolean }) {
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button
                 onClick={add}
                 disabled={saving === -1}
@@ -3567,7 +3573,7 @@ function EmailEd({ dark }: { dark: boolean }) {
     const { error } = await supabase.from("email_settings").update({ notify_email: email, resend_key: key, updated_at: new Date().toISOString() }).eq("id", 1);
     setSaving(false);
     if (error) notify("❌ " + error.message, false);
-    else notify(" Sauvegardé !");
+    else notify("✅ Sauvegardé !");
   };
 
   const testEmail = async () => {
@@ -3591,8 +3597,8 @@ function EmailEd({ dark }: { dark: boolean }) {
         })
       });
       const data = await res.json();
-      if (data.ok) notify(" Email test envoyé à " + email);
-      else notify(" Échec: " + (data.result?.message || data.error || "Erreur"), false);
+      if (data.ok) notify("✅ Email test envoyé à " + email);
+      else notify("❌ Échec: " + (data.result?.message || data.error || "Erreur"), false);
     } catch (e: any) {
       notify("❌ " + e.message, false);
     }
@@ -3632,7 +3638,7 @@ function EmailEd({ dark }: { dark: boolean }) {
 
       <div>
         <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>
-           Email de notification
+          📧 Email de notification
         </label>
         <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="modtech.srv@gmail.com" style={inp} />
         <div style={{ fontSize: 11, color: s.sub, marginTop: 5 }}>Email qui reçoit les notifications de commande</div>
@@ -3640,7 +3646,7 @@ function EmailEd({ dark }: { dark: boolean }) {
 
       <div>
         <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>
-           Resend API Key
+          🔑 Resend API Key
         </label>
         <div style={{ position: "relative" }}>
           <input
@@ -3796,7 +3802,7 @@ function SecurityEd({ dark }: { dark: boolean }) {
       </div>
 
       <div>
-        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>Nouveau mot de passe</label>
+        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>🔒 Nouveau mot de passe</label>
         <div style={{ position: "relative" }}>
           <input type={show ? "text" : "password"} value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="••••••••" style={{ ...inp, paddingRight: 80 }} />
           <button onClick={() => setShow(!show)} type="button" style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "transparent", border: `1px solid ${s.brd}`, cursor: "pointer", color: s.sub, fontSize: 12, padding: "3px 10px", borderRadius: 999 }}>
@@ -3807,7 +3813,7 @@ function SecurityEd({ dark }: { dark: boolean }) {
       </div>
 
       <div>
-        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>Confirmer le mot de passe</label>
+        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>🔄 Confirmer le mot de passe</label>
         <input type={show ? "text" : "password"} value={confirmPw} onChange={e => setConfirmPw(e.target.value)} placeholder="••••••••" style={{ ...inp, borderColor: confirmPw ? (confirmPw === newPw ? "#10b981" : "#ef4444") : s.brd }} />
         {confirmPw && <div style={{ fontSize: 11, marginTop: 4, color: confirmPw === newPw ? "#10b981" : "#ef4444" }}>{confirmPw === newPw ? "✅ Identiques" : "❌ Ne correspondent pas"}</div>}
       </div>
@@ -3916,7 +3922,7 @@ function UsersEd({ dark }: { dark: boolean }) {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {users.map((u) => (
-            <div key={u.id} style={{ display: "flex", alignItems: "center", gap: 10, background: s.ci, border: "1px solid " + s.brd, borderRadius: 10, padding: "10px 14px" }}>
+            <div key={u.id} style={{ display: "flex", alignItems: "center", gap: 10, background: s.ci, border: "1px solid " + s.brd, borderRadius: 10, padding: "10px 14px", flexWrap: "wrap" }}>
               <div style={{ width: 32, height: 32, borderRadius: "50%", background: tG, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>
                 {u.email[0].toUpperCase()}
               </div>
@@ -3945,12 +3951,12 @@ function UsersEd({ dark }: { dark: boolean }) {
       <div style={{ fontSize: 13, fontWeight: 700, color: s.tx }}>➕ Créer un nouveau compte</div>
 
       <div>
-        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>Email</label>
+        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>📧 Email</label>
         <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="nouveau@admin.dz" style={inp} />
       </div>
 
       <div>
-        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>Mot de passe</label>
+        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>🔒 Mot de passe</label>
         <div style={{ position: "relative" }}>
           <input type={show ? "text" : "password"} value={pw} onChange={e => setPw(e.target.value)} placeholder="••••••••" style={{ ...inp, paddingRight: 80 }} />
           <button onClick={() => setShow(!show)} type="button" style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "transparent", border: `1px solid ${s.brd}`, cursor: "pointer", color: s.sub, fontSize: 12, padding: "3px 10px", borderRadius: 999 }}>
@@ -4052,7 +4058,7 @@ function LinksEd({ dark }: { dark: boolean }) {
       </div>
 
       {/* Stats */}
-      <div style={{ display: "flex", gap: 12 }}>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
         <div style={{ background: `${teal}12`, border: `1px solid ${teal}30`, borderRadius: 10, padding: "8px 16px", display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 18, fontWeight: 800, color: teal }}>{links.length}</span>
           <span style={{ fontSize: 12, color: s.sub }}>Total</span>
@@ -4075,7 +4081,7 @@ function LinksEd({ dark }: { dark: boolean }) {
             boxShadow: dark ? "none" : "0 2px 8px rgba(0,0,0,0.04)",
           }}
         >
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
             {/* Icon */}
             <div style={{ width: 44, height: 44, borderRadius: 12, background: dark ? "rgba(255,255,255,0.05)" : "#f8fafc", border: "1px solid " + s.brd, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
               {link.icon}
@@ -4083,7 +4089,7 @@ function LinksEd({ dark }: { dark: boolean }) {
 
             {/* Fields */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 7 }}>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 {/* Emoji */}
                 <input
                   defaultValue={link.icon}
@@ -4095,7 +4101,7 @@ function LinksEd({ dark }: { dark: boolean }) {
                 <input
                   defaultValue={link.title}
                   onBlur={e => updateField(link.id, "title", e.target.value)}
-                  style={{ ...inp, fontWeight: 600 }}
+                  style={{ ...inp, fontWeight: 600, flex: 1 }}
                   placeholder="Titre"
                 />
               </div>
@@ -4108,7 +4114,7 @@ function LinksEd({ dark }: { dark: boolean }) {
               />
 
               {/* Controls */}
-              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap" }}>
                 <input
                   type="number"
                   defaultValue={link.sort_order}
@@ -4154,7 +4160,7 @@ function LinksEd({ dark }: { dark: boolean }) {
             <Plus className="w-4 h-4" /> Nouveau lien
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <input
                 value={newLink.icon}
                 onChange={e => setNewLink(n => ({ ...n, icon: e.target.value }))}
@@ -4165,7 +4171,7 @@ function LinksEd({ dark }: { dark: boolean }) {
                 value={newLink.title}
                 onChange={e => setNewLink(n => ({ ...n, title: e.target.value }))}
                 placeholder="Titre *"
-                style={{ ...inp, fontWeight: 600 }}
+                style={{ ...inp, fontWeight: 600, flex: 1 }}
               />
             </div>
             <input
@@ -4174,7 +4180,7 @@ function LinksEd({ dark }: { dark: boolean }) {
               placeholder="https://... *"
               style={{ ...inp, fontSize: 12 }}
             />
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <button
                 onClick={addLink}
                 disabled={saving === -1}
@@ -4312,7 +4318,7 @@ export default function AdminPage() {
     setStatus("saving");
     const { error } = await supabase.from("site_content").update({ content: drafts[active], updated_at: new Date().toISOString() }).eq("section", active);
     if (error) notify("❌ " + error.message, false);
-    else { notify(" Sauvegardé !"); await load(); }
+    else { notify("✅ Sauvegardé !"); await load(); }
     setStatus("idle");
   };
   
@@ -4372,6 +4378,32 @@ export default function AdminPage() {
         ::-webkit-scrollbar-thumb:hover {
           background: ${dark ? '#6b7280' : '#94a3b8'};
         }
+
+        .hide-sm {
+          display: none;
+        }
+
+        @media (min-width: 768px) {
+          .hide-sm {
+            display: flex;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .admin-content {
+            padding: 16px !important;
+          }
+          .admin-card {
+            padding: 16px !important;
+          }
+          button, .btn {
+            font-size: 12px !important;
+            padding: 8px 12px !important;
+          }
+          input, textarea, select {
+            font-size: 14px !important;
+          }
+        }
       `}</style>
 
       {/* Topbar */}
@@ -4382,13 +4414,14 @@ export default function AdminPage() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 24px",
+        padding: "0 16px",
         position: "sticky",
         top: 0,
         zIndex: 100,
-        backdropFilter: "blur(12px)"
+        backdropFilter: "blur(12px)",
+        gap: 8
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, flex: 1 }}>
           <button
             onClick={() => setOpen(!open)}
             style={{
@@ -4416,7 +4449,7 @@ export default function AdminPage() {
           }}>
             
           </div>
-          <div>
+          <div className="hide-sm" style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 800, fontSize: 15 }}>MOD-TECH Admin</div>
             <div style={{ fontSize: 11, color: s.sub }}>Panneau d'administration</div>
           </div>
@@ -4425,56 +4458,61 @@ export default function AdminPage() {
               background: "rgba(245,158,11,0.15)",
               border: "1px solid rgba(245,158,11,0.3)",
               borderRadius: 20,
-              padding: "3px 10px",
-              fontSize: 12,
+              padding: "3px 8px",
+              fontSize: 11,
               color: "#f59e0b",
               fontWeight: 700,
               display: "flex",
               alignItems: "center",
-              gap: 4
+              gap: 4,
+              whiteSpace: "nowrap"
             }}>
               <span>{nDirty} modif.</span>
             </div>
           )}
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {msg && (
-            <div style={{
-              fontSize: 13,
-              fontWeight: 600,
-              padding: "7px 16px",
-              borderRadius: 9,
-              background: mok ? "rgba(52,211,153,0.12)" : "rgba(239,68,68,0.12)",
-              color: mok ? "#34d399" : "#f87171",
-              border: "1px solid " + (mok ? "rgba(52,211,153,0.25)" : "rgba(239,68,68,0.25)"),
-              display: "flex",
-              alignItems: "center",
-              gap: 4
-            }}>
+            <div
+              className="hide-sm"
+              style={{
+                fontSize: 12,
+                fontWeight: 600,
+                padding: "5px 12px",
+                borderRadius: 9,
+                background: mok ? "rgba(52,211,153,0.12)" : "rgba(239,68,68,0.12)",
+                color: mok ? "#34d399" : "#f87171",
+                border: "1px solid " + (mok ? "rgba(52,211,153,0.25)" : "rgba(239,68,68,0.25)"),
+                alignItems: "center",
+                gap: 4,
+                whiteSpace: "nowrap"
+              }}
+            >
               {msg}
             </div>
           )}
           
           {userEmail && (
-            <div style={{
-              fontSize: 12,
-              color: s.sub,
-              background: s.ci,
-              border: "1px solid " + s.brd,
-              borderRadius: 8,
-              padding: "5px 12px",
-              maxWidth: 180,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              display: "flex",
-              alignItems: "center",
-              gap: 6
-            }}>
-              <Users className="w-3 h-3" />
-              {userEmail}
-            </div>
+            <div
+              className="hide-sm"
+              style={{
+                fontSize: 11,
+                color: s.sub,
+                background: s.ci,
+                border: "1px solid " + s.brd,
+                borderRadius: 8,
+                padding: "4px 10px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                alignItems: "center",
+                gap: 6
+              }}
+            >
+                <Users className="w-3 h-3" />
+                {userEmail}
+              </div>
           )}
           
           <button
@@ -4483,7 +4521,7 @@ export default function AdminPage() {
               background: dark ? "rgba(51,65,85,0.4)" : "rgba(226,232,240,0.8)",
               border: "1px solid " + s.brd,
               borderRadius: 9,
-              padding: "7px 12px",
+              padding: "7px 10px",
               cursor: "pointer",
               color: s.tx,
               fontSize: 17,
@@ -4500,10 +4538,10 @@ export default function AdminPage() {
               background: "rgba(239,68,68,0.08)",
               border: "1px solid rgba(239,68,68,0.2)",
               borderRadius: 9,
-              padding: "7px 14px",
+              padding: "7px 12px",
               cursor: "pointer",
               color: "#f87171",
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: 600,
               display: "flex",
               alignItems: "center",
@@ -4511,7 +4549,7 @@ export default function AdminPage() {
             }}
           >
             <LogOut className="w-4 h-4" />
-            Déconnexion
+            <span style={{ display: "none" }}>Déconnexion</span>
           </button>
         </div>
       </div>
@@ -4520,14 +4558,16 @@ export default function AdminPage() {
       <div style={{ display: "flex", minHeight: "calc(100vh - 62px)" }}>
         {/* Sidebar */}
         <div style={{
-          width: open ? 252 : 0,
+          width: open ? 280 : 0,
           overflow: "hidden",
           transition: "width 0.25s",
           background: s.sb,
           borderRight: "1px solid " + s.brd,
           display: "flex",
           flexDirection: "column",
-          flexShrink: 0
+          flexShrink: 0,
+          position: "relative",
+          zIndex: 90
         }}>
           <div style={{
             padding: "16px 12px",
@@ -4646,7 +4686,7 @@ export default function AdminPage() {
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: 28 }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "20px 16px" }} className="admin-content">
           {status === "loading" ? (
             <div style={{
               display: "flex",
@@ -4693,7 +4733,7 @@ export default function AdminPage() {
               </button>
             </div>
           ) : (
-            <div style={{ maxWidth: 900, margin: "0 auto" }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto" }}>
               {/* Section header */}
               <div style={{
                 display: "flex",
@@ -4701,10 +4741,12 @@ export default function AdminPage() {
                 justifyContent: "space-between",
                 marginBottom: 24,
                 paddingBottom: 18,
-                borderBottom: "1px solid " + s.brd
+                borderBottom: "1px solid " + s.brd,
+                flexWrap: "wrap",
+                gap: 16
               }}>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4, flexWrap: "wrap" }}>
                     <span style={{ fontSize: 24, display: "flex", alignItems: "center" }}>{activeNav?.icon}</span>
                     <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800 }}>{activeNav?.label}</h1>
                     {dirty && (
@@ -4798,7 +4840,7 @@ export default function AdminPage() {
                 border: isAuto ? "none" : "1px solid " + s.brd,
                 borderRadius: 16,
                 padding: isAuto ? 0 : 26
-              }}>
+              }} className="admin-card">
                 {active === "users" && <UsersEd dark={dark} />}
                 {active === "links" && <LinksEd dark={dark} />}
                 {active === "security" && <SecurityEd dark={dark} />}
@@ -4828,4 +4870,3 @@ function setError(arg0: string) {
 function setLoading(arg0: boolean) {
   throw new Error("Function not implemented.");
 }
-
