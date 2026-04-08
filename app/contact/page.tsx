@@ -31,7 +31,6 @@ type ContactInfo = {
   phone1?: string;
   phone2?: string;
   email?: string;
-  address?: string;
 };
 
 // 🎨 ICON SYSTEM
@@ -74,6 +73,16 @@ export default function ContactPage() {
     });
   }, []);
 
+  // 📱 WhatsApp formatter
+  const formatPhoneForWhatsApp = (phone?: string) => {
+    if (!phone) return "";
+    let clean = phone.replace(/\s+/g, "");
+    if (clean.startsWith("0")) clean = "213" + clean.substring(1);
+    return clean;
+  };
+
+  const whatsappPhone = formatPhoneForWhatsApp(contact.phone1 || contact.phone2);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex flex-col items-center py-8 sm:py-12 px-3 sm:px-4">
       <div className="w-full max-w-md">
@@ -85,7 +94,7 @@ export default function ContactPage() {
           className="flex flex-col items-center mb-8 sm:mb-10"
         >
           <img
-            className="h-20 w-20 sm:h-24 sm:w-24 object-contain rounded-2xl "
+            className="h-20 w-20 sm:h-24 sm:w-24 object-contain rounded-2xl bg-white p-2 shadow"
             src="/lovable-uploads/5c0baea8-dfe7-4330-a35f-643db8adb0b0.png"
             alt="logo"
           />
@@ -95,8 +104,7 @@ export default function ContactPage() {
           </h1>
 
           <p className="text-xs sm:text-sm text-gray-500">
-            Sécurité · Réseaux · Domotique...
-
+            Sécurité · Réseaux · Domotique
           </p>
 
           <div className="flex items-center gap-1 text-gray-400 text-[10px] sm:text-xs mt-1">
@@ -106,52 +114,36 @@ export default function ContactPage() {
         </motion.div>
 
         {/* CONTACT */}
-        <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-5 sm:mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mb-5 sm:mb-6">
 
-          {contact.phone1 && (
-            <a
-              href={`tel:${contact.phone1}`}
-              className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white shadow-sm sm:shadow-md hover:shadow-lg transition flex items-center gap-2 sm:gap-3"
-            >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-gray-100 rounded-lg">
-                <Phone className="w-4 h-4 text-gray-600" />
-              </div>
+          {[contact.phone1, contact.phone2].map(
+            (phone, i) =>
+              phone && (
+                <a
+                  key={i}
+                  href={`tel:${phone}`}
+                  className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white shadow-sm sm:shadow-md hover:shadow-lg transition flex items-center gap-2 sm:gap-3"
+                >
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-gray-100 rounded-lg">
+                    <Phone className="w-4 h-4 text-gray-600" />
+                  </div>
 
-              <div className="flex flex-col">
-                <span className="text-[10px] sm:text-xs text-gray-500">
-                  Téléphone
-                </span>
-                <span className="text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
-  {contact.phone1}
-</span>
-              </div>
-            </a>
-          )}
-
-          {contact.phone2 && (
-            <a
-              href={`tel:${contact.phone2}`}
-              className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white shadow-sm sm:shadow-md hover:shadow-lg transition flex items-center gap-2 sm:gap-3"
-            >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-gray-100 rounded-lg">
-                <Phone className="w-4 h-4 text-gray-600" />
-              </div>
-
-              <div className="flex flex-col">
-                <span className="text-[10px] sm:text-xs text-gray-500">
-                  Mobile
-                </span>
-               <span className="text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
-  {contact.phone2}
-</span>
-              </div>
-            </a>
+                  <div className="flex flex-col">
+                    <span className="text-[10px] sm:text-xs text-gray-500">
+                      {i === 0 ? "Téléphone" : "Mobile"}
+                    </span>
+                    <span className="text-xs sm:text-sm font-medium text-gray-900 whitespace-nowrap">
+                      {phone}
+                    </span>
+                  </div>
+                </a>
+              )
           )}
 
           {contact.email && (
             <a
               href={`mailto:${contact.email}`}
-              className="col-span-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white shadow-sm sm:shadow-md hover:shadow-lg transition flex items-center gap-2 sm:gap-3"
+              className="col-span-1 sm:col-span-2 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white shadow-sm sm:shadow-md hover:shadow-lg transition flex items-center gap-2 sm:gap-3"
             >
               <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-gray-100 rounded-lg">
                 <Mail className="w-4 h-4 text-gray-600" />
@@ -189,7 +181,7 @@ export default function ContactPage() {
                   rel="noreferrer"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.06 }}
+                  transition={{ delay: i * 0.05 }}
                   className="flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white shadow-sm sm:shadow-md hover:shadow-lg transition"
                 >
                   <div className="w-8 h-8 sm:w-11 sm:h-11 flex items-center justify-center bg-gray-100 rounded-lg">
@@ -217,6 +209,18 @@ export default function ContactPage() {
           MOD-TECHNOLOGIE © {new Date().getFullYear()}
         </div>
       </div>
+
+      {/* 💬 WHATSAPP FLOAT BUTTON */}
+      {whatsappPhone && (
+        <a
+          href={`https://wa.me/${whatsappPhone}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg shadow-green-500/40 hover:bg-[#20c45e] active:scale-95 transition-all duration-200"
+        >
+          <FaWhatsapp className="w-5 h-5 sm:w-6 sm:h-6" />
+        </a>
+      )}
     </div>
   );
 }
