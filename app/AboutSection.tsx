@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { CheckCircle2, ArrowUpRight } from "lucide-react";
 import { supabase } from "@/app/supabase";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
+import { motion } from "framer-motion";
+import { ArrowUpRight,CheckCircle2 } from "lucide-react";
+import { useEffect,useState } from "react";
 
 const strengths = [
   "Expertise technique certifiée",
@@ -189,9 +189,9 @@ const AboutSection = () => {
 
             {/* Decorative quote block */}
             <div className="relative rounded-2xl border border-teal-100 bg-teal-50/60 px-6 py-5">
-              <span className="absolute -top-3 left-5 text-teal-300 text-5xl leading-none font-serif select-none">"</span>
+              <span className="absolute -top-3 left-5 text-teal-300 text-5xl leading-none font-serif select-none">&quot;</span>
               <p className="text-sm text-teal-800 leading-relaxed pt-2 font-medium italic">
-                La sécurité n'est pas un luxe — c'est une nécessité que nous rendons accessible à tous.
+                La sécurité n&apos;est pas un luxe — c&apos;est une nécessité que nous rendons accessible à tous.
               </p>
             </div>
           </motion.div>

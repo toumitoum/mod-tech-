@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
 import { supabase } from "@/app/supabase";
+import { useEffect,useState } from "react";
 
 type Partner = {
   id: number;

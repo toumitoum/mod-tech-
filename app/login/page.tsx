@@ -1,7 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/app/supabase";
+import { useRouter } from "next/navigation";
+import { useEffect,useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -34,25 +34,6 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push("/admin");
-    }
-  };
-
-  // CREATE ACCOUNT
-  const signup = async () => {
-    setLoading(true);
-    setError("");
-
-    const { error } = await supabase.auth.signUp({
-      email: email,
-      password: pw,
-    });
-
-    if (error) {
-      setError(error.message);
-      setLoading(false);
-    } else {
-      alert("Account created successfully");
       router.push("/admin");
     }
   };

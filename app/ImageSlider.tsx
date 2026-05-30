@@ -1,11 +1,11 @@
 "use client";
 
 import useEmblaCarousel from "embla-carousel-react";
-import { useEffect, useState, useCallback } from "react";
-import { supabase } from "./supabase";
-import Link from "next/link";
-import { ShoppingBag, ChevronLeft, ChevronRight, ArrowRight, StoreIcon } from "lucide-react";
 import { motion } from "framer-motion";
+import { ArrowRight,ChevronLeft,ChevronRight,StoreIcon } from "lucide-react";
+import Link from "next/link";
+import { useCallback,useEffect,useState } from "react";
+import { supabase } from "./supabase";
 
 type Slide = {
   id: number;

@@ -1,14 +1,26 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Facebook, Instagram, Linkedin, ShoppingCart, Search, X,
-  Check, Plus, Minus, Trash2, Menu, Truck, Shield, Clock,
-  ChevronLeft, ChevronRight, ArrowLeft, Package,
-} from "lucide-react";
 import { supabase } from "@/app/supabase";
+import { AnimatePresence,motion } from "framer-motion";
+import {
+ArrowLeft,
+Check,
+ChevronLeft,ChevronRight,
+Clock,
+Menu,
+Minus,
+Package,
+Plus,
+Search,
+Shield,
+ShoppingCart,
+Trash2,
+Truck,
+X
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect,useMemo,useState } from "react";
 
 /* ─────────────── TYPES ─────────────── */
 
@@ -39,6 +51,10 @@ type OrderForm = {
 type StoreHero = {
   title: string; subtitle: string; badge: string;
   bgImage: string; btnPrimary: string; btnSecondary: string;
+};
+
+type ContactInfo = {
+  phone1?: string;
 };
 
 type Slide = {
@@ -92,14 +108,13 @@ export default function StorePage() {
   const [products, setProducts]               = useState<Product[]>([]);
   const [slides, setSlides]                   = useState<Slide[]>([]);
   const [heroData, setHeroData]               = useState<StoreHero>(DEFAULT_STORE_HERO);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [contact, setContact]                 = useState<any>({});
+  const [contact, setContact]                 = useState<ContactInfo>({});
   const [slideIdx, setSlideIdx]               = useState(0);
   const [loading, setLoading]                 = useState(true);
   const [cat, setCat]                         = useState("Tous");
   const [search, setSearch]                   = useState("");
   const [searchOpen, setSearchOpen]           = useState(false);
-  const [cart, setCart]                       = useState<CartItem[]>([]);
+  const [cart, setCart]                       = useState<CartItem[]>(() => (typeof window === "undefined" ? [] : loadCart()));
   const [cartOpen, setCartOpen]               = useState(false);
   const [checkout, setCheckout]               = useState(false);
   const [sending, setSending]                 = useState(false);
@@ -107,12 +122,10 @@ export default function StorePage() {
   const [mobileMenu, setMobileMenu]           = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<Record<number, { color?: string; size?: string }>>({});
   const [addedMsg, setAddedMsg]               = useState("");
-  const [isMounted, setIsMounted]             = useState(false);
   const [form, setForm]                       = useState<OrderForm>({ name:"", phone:"", email:"", wilaya:"", commune:"", address:"", notes:"" });
 
   /* mount */
-  useEffect(() => { setIsMounted(true); setCart(loadCart()); }, []);
-  useEffect(() => { if (isMounted) saveCart(cart); }, [cart, isMounted]);
+  useEffect(() => { saveCart(cart); }, [cart]);
 
   /* data */
   useEffect(() => {
@@ -124,7 +137,6 @@ export default function StorePage() {
         supabase.from("site_content").select("content").eq("section", "contact").single(),
       ]);
       setProducts(prodRes.data ?? []);
-      setFilteredProducts(prodRes.data ?? []);
       setSlides(slideRes.data ?? []);
       if (heroRes.data?.content) setHeroData({ ...DEFAULT_STORE_HERO, ...heroRes.data.content });
       if (contactRes.data?.content) setContact(contactRes.data.content);
@@ -141,11 +153,11 @@ export default function StorePage() {
   }, [slides.length]);
 
   /* filter */
-  useEffect(() => {
+  const filteredProducts = useMemo(() => {
     let f = products;
     if (cat !== "Tous") f = f.filter(p => p.category === cat);
     if (search) f = f.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.description?.toLowerCase().includes(search.toLowerCase()));
-    setFilteredProducts(f);
+    return f;
   }, [cat, search, products]);
 
   /* resize close menu */
@@ -213,7 +225,7 @@ export default function StorePage() {
   };
 
   /* ─── LOADING ─── */
-  if (!isMounted || loading)
+  if (loading)
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="w-10 h-10 border-2 border-teal-500/30 border-t-teal-500 rounded-full animate-spin" />
@@ -234,7 +246,7 @@ export default function StorePage() {
           </div>
           <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Commande confirmée !</h2>
           <p className="text-slate-500 mb-1 text-sm">Nous vous contacterons au <span className="font-semibold text-slate-700">{form.phone}</span></p>
-          <p className="text-slate-400 text-xs mb-8">Paiement à la livraison · Livraison dans toute l'Algérie</p>
+          <p className="text-slate-400 text-xs mb-8">Paiement à la livraison · Livraison dans toute l&apos;Algérie</p>
           <button
             onClick={() => { setSuccess(false); setForm({ name:"", phone:"", email:"", wilaya:"", commune:"", address:"", notes:"" }); }}
             className="inline-flex items-center gap-2 px-6 py-3 bg-teal-500 hover:bg-teal-400 text-white font-bold rounded-xl text-sm transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98]"
@@ -258,9 +270,9 @@ export default function StorePage() {
             <button onClick={() => setMobileMenu(!mobileMenu)} className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all">
               <Menu className="w-4 h-4" />
             </button>
-            <a href="/" className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-teal-600 transition-colors">
+            <Link href="/" className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-teal-600 transition-colors">
               <ArrowLeft className="w-4 h-4" /> Accueil
-            </a>
+            </Link>
             <span className="hidden sm:inline text-slate-200">|</span>
             <span className="hidden sm:inline text-sm font-bold text-slate-800">MOD-TECH <span className="text-teal-500">Store</span></span>
           </div>

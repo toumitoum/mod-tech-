@@ -1,16 +1,21 @@
 "use client";
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Shield, Network, Home, Lock, Volume2,
-  X, Phone, Mail, MessageCircle, MoveUpRight
-} from "lucide-react";
-import serviceSecurite from "@/assets/service-securite.jpg";
-import serviceReseaux from "@/assets/service-reseaux.jpg";
-import serviceDomotique from "@/assets/service-domotique.jpg";
-import serviceAcces from "@/assets/service-acces.jpg";
-import serviceSonorisation from "@/assets/service-sonorisation.jpg";
 import { supabase } from "@/app/supabase";
+import serviceAcces from "@/assets/service-acces.jpg";
+import serviceDomotique from "@/assets/service-domotique.jpg";
+import serviceReseaux from "@/assets/service-reseaux.jpg";
+import serviceSecurite from "@/assets/service-securite.jpg";
+import serviceSonorisation from "@/assets/service-sonorisation.jpg";
+import { AnimatePresence,motion } from "framer-motion";
+import {
+Home,Lock,
+Mail,MessageCircle,MoveUpRight,
+Network,
+Phone,
+Shield,
+Volume2,
+X
+} from "lucide-react";
+import { useEffect,useState } from "react";
 
 const STATIC = [
   { icon: Shield,  fallback: serviceSecurite },
@@ -32,10 +37,9 @@ type Service = typeof DEFAULT_SERVICES[0];
 type ContactInfo = { phone1?: string; phone2?: string; email?: string; whatsapp?: string };
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
-function ServiceModal({ service, staticData, index, onClose, contact }: {
+function ServiceModal({ service, staticData, onClose, contact }: {
   service: Service;
   staticData: typeof STATIC[0];
-  index: number;
   onClose: () => void;
   contact: ContactInfo;
 }) {
@@ -78,6 +82,7 @@ function ServiceModal({ service, staticData, index, onClose, contact }: {
         {/* Close */}
         <button
           onClick={onClose}
+          title="Close dialog"
           className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/85 backdrop-blur border border-slate-200 flex items-center justify-center hover:bg-white transition-colors shadow-sm"
         >
           <X className="w-3.5 h-3.5 text-slate-500" strokeWidth={2.5} />
@@ -241,7 +246,7 @@ const ServicesSection = () => {
                 </span>
               </h2>
               <p className="text-slate-500 text-[15px] leading-relaxed max-w-sm sm:text-right">
-                De la conception à l'installation,<br className="hidden sm:block" />
+                De la conception à l&apos;installation,<br className="hidden sm:block" />
                 des solutions sur mesure adaptées à chaque besoin.
               </p>
             </div>
@@ -338,7 +343,6 @@ Plus de détails                        <MoveUpRight className="w-3 h-3 transiti
           <ServiceModal
             service={selected.service}
             staticData={STATIC[selected.index] ?? STATIC[0]}
-            index={selected.index}
             onClose={() => setSelected(null)}
             contact={contact}
           />

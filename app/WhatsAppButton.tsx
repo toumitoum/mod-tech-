@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useState } from "react";
-import { supabase } from "./supabase";
+import { useEffect,useState } from "react";
 import { FaWhatsapp } from "react-icons/fa";
+import { supabase } from "./supabase";
 
 
 

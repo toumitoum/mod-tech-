@@ -1,9 +1,9 @@
 "use client";
 
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaWhatsapp } from "react-icons/fa";
-import { useEffect, useState } from "react";
 import { supabase } from "@/app/supabase";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail,MapPin,Phone } from "lucide-react";
+import { useEffect,useState } from "react";
+import { FaFacebookF,FaInstagram,FaLinkedinIn,FaWhatsapp } from "react-icons/fa";
 
 interface ContactData {
   email?: string;

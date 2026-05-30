@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { Phone, Mail, MapPin, Send, MessageCircle } from "lucide-react";
 import { supabase } from "@/app/supabase";
+import { motion } from "framer-motion";
+import { Mail,MapPin,MessageCircle,Phone,Send } from "lucide-react";
+import { useEffect,useState } from "react";
 
 const DEFAULT = {
   phone1: "06 57 84 14 23",

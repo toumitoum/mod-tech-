@@ -60,7 +60,7 @@ const ChartContainer = React.forwardRef<
 ChartContainer.displayName = "Chart";
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
-  const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
+  const colorConfig = Object.entries(config).filter(([, itemConfig]) => itemConfig.theme || itemConfig.color);
   if (!colorConfig.length) return null;
   return (
     <style
@@ -86,15 +86,23 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip;
 
+type ChartPayloadItem = {
+  name?: string;
+  dataKey?: string;
+  value?: string | number;
+  color?: string;
+  payload?: Record<string, unknown>;
+};
+
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
     active?: boolean;
-    payload?: any[];
+    payload?: ChartPayloadItem[];
     label?: string;
-    labelFormatter?: (value: any, payload: any[]) => React.ReactNode;
+    labelFormatter?: (value: string | number | React.ReactNode, payload: ChartPayloadItem[]) => React.ReactNode;
     labelClassName?: string;
-    formatter?: (value: any, name: any, item: any, index: number, payload: any) => React.ReactNode;
+    formatter?: (value: string | number, name: string, item: ChartPayloadItem, index: number, payload?: Record<string, unknown>) => React.ReactNode;
     color?: string;
     hideLabel?: boolean;
     hideIndicator?: boolean;
@@ -156,7 +164,7 @@ const ChartTooltipContent = React.forwardRef<
           {payload.map((item, index) => {
             const key = `${nameKey || item.name || item.dataKey || "value"}`;
             const itemConfig = getPayloadConfigFromPayload(config, item, key);
-            const indicatorColor = color || item.payload.fill || item.color;
+            const indicatorColor = color || (typeof item.payload?.fill === "string" ? item.payload.fill : undefined) || item.color;
             return (
               <div
                 key={item.dataKey}
@@ -222,7 +230,7 @@ const ChartLegend = RechartsPrimitive.Legend;
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> &
-    { payload?: any[]; verticalAlign?: "top" | "bottom" | "middle" } & {
+    { payload?: ChartPayloadItem[]; verticalAlign?: "top" | "bottom" | "middle" } & {
       hideIcon?: boolean;
       nameKey?: string;
     }
@@ -275,4 +283,4 @@ function getPayloadConfigFromPayload(config: ChartConfig, payload: unknown, key:
   return configLabelKey in config ? config[configLabelKey] : config[key as keyof typeof config];
 }
 
-export { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartStyle };
+export { ChartContainer,ChartLegend,ChartLegendContent,ChartStyle,ChartTooltip,ChartTooltipContent };

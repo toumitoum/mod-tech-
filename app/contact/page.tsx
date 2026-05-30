@@ -1,22 +1,22 @@
 "use client";
-import { useEffect, useState } from "react";
 import { supabase } from "@/app/supabase";
 import { motion } from "framer-motion";
 import {
-  ExternalLink,
-  MapPin,
-  Phone,
-  Mail,
-  Globe,
+ExternalLink,
+Globe,
+Mail,
+MapPin,
+Phone,
 } from "lucide-react";
+import { useEffect,useState } from "react";
 
 import {
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-  FaWhatsapp,
-  FaTiktok,
-  FaYoutube,
+FaFacebookF,
+FaInstagram,
+FaLinkedinIn,
+FaTiktok,
+FaWhatsapp,
+FaYoutube,
 } from "react-icons/fa";
 
 type Link = {

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { NextRequest,NextResponse } from "next/server";
 
 async function createClient() {
   const cookieStore = await cookies();
@@ -26,9 +26,25 @@ async function createClient() {
   );
 }
 
+type OrderEmailItem = {
+  name: string;
+  price: number;
+  qty: number;
+};
+
+type OrderEmailPayload = {
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string;
+  customer_email?: string;
+  notes?: string;
+  items: OrderEmailItem[];
+  total: number;
+};
+
 export async function POST(req: NextRequest) {
   try {
-    const { order } = await req.json();
+    const { order } = await req.json() as { order: OrderEmailPayload };
 
     // ✅ Create client INSIDE the handler
     const supabase = await createClient();
@@ -69,7 +85,7 @@ export async function POST(req: NextRequest) {
 
     const itemsHtml = order.items
       .map(
-        (i: any) =>
+        (i: OrderEmailItem) =>
           `<tr>
         <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;font-size:14px;color:#1e293b">${i.name}</td>
         <td style="padding:10px 14px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:14px;color:#1e293b">${i.qty}</td>
@@ -165,7 +181,7 @@ export async function POST(req: NextRequest) {
 
     // ✅ Safe JSON parsing — Resend may return HTML on auth errors
     const contentType = resendRes.headers.get("content-type") || "";
-    let result: any;
+    let result: unknown;
     if (contentType.includes("application/json")) {
       result = await resendRes.json();
     } else {
@@ -200,8 +216,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ ok: true, result });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("API error:", err);
-    return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ ok: false, error: err instanceof Error ? err.message : String(err) }, { status: 500 });
   }
 }

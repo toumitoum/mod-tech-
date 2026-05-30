@@ -1,15 +1,15 @@
 
 
-import Navbar from "./Navbar";
-import HeroSection from "./HeroSection";
-import ServicesSection from "./ServicesSection";
-import AboutSection from "./AboutSection";
-import ReussitesSection from "./ReussitesSection";
-import Footer from "./Footer";
-import WhatsAppButton from "./WhatsAppButton";
 import PartnersBar from "@/app/PartnersBar";
-import ImageSlider from "./ImageSlider";
+import AboutSection from "./AboutSection";
 import ContactSection from "./ContactSection";
+import Footer from "./Footer";
+import HeroSection from "./HeroSection";
+import ImageSlider from "./ImageSlider";
+import Navbar from "./Navbar";
+import ReussitesSection from "./ReussitesSection";
+import ServicesSection from "./ServicesSection";
+import WhatsAppButton from "./WhatsAppButton";
 
 
 export default function Home() {

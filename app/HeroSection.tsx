@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { motion, easeInOut } from "framer-motion";
-import { ArrowRight, ChevronDown, Sparkles } from "lucide-react";
 import { supabase } from "@/app/supabase";
-import Image from "next/image";
+import { easeInOut,motion } from "framer-motion";
+import { ArrowRight,ChevronDown,Sparkles } from "lucide-react";
+import { useCallback,useEffect,useState } from "react";
 
 interface HeroData {
   title: string;

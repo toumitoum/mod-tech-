@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/app/supabase";
-import { X, ZoomIn } from "lucide-react";
+import { AnimatePresence,motion } from "framer-motion";
+import { X,ZoomIn } from "lucide-react";
+import { useEffect,useState } from "react";
 
 type Project = {
   id: number;
@@ -17,8 +17,8 @@ type Project = {
 export default function ReussitesSection() {
   const [visible, setVisible]           = useState(true);
   const [projects, setProjects]         = useState<Project[]>([]);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [selectedIdx, setSelectedIdx]   = useState<number>(0);
+  const [selectedIdx, setSelectedIdx]   = useState<number | null>(null);
+  const selectedImage = selectedIdx === null ? null : projects[selectedIdx]?.image ?? null;
 
   useEffect(() => {
     const load = async () => {
@@ -35,23 +35,17 @@ export default function ReussitesSection() {
   // Close lightbox on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelectedImage(null);
-      if (e.key === "ArrowRight") setSelectedIdx(i => (i + 1) % projects.length);
-      if (e.key === "ArrowLeft")  setSelectedIdx(i => (i - 1 + projects.length) % projects.length);
+      if (e.key === "Escape") setSelectedIdx(null);
+      if (selectedIdx === null || projects.length === 0) return;
+      if (e.key === "ArrowRight") setSelectedIdx((selectedIdx + 1) % projects.length);
+      if (e.key === "ArrowLeft")  setSelectedIdx((selectedIdx - 1 + projects.length) % projects.length);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [projects.length]);
-
-  useEffect(() => {
-    if (selectedImage !== null) {
-      setSelectedImage(projects[selectedIdx]?.image ?? null);
-    }
-  }, [selectedIdx]);
+  }, [projects.length, selectedIdx]);
 
   const openLightbox = (idx: number) => {
     setSelectedIdx(idx);
-    setSelectedImage(projects[idx].image);
   };
 
   if (!visible || projects.length === 0) return null;
@@ -148,12 +142,12 @@ export default function ReussitesSection() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            onClick={() => setSelectedImage(null)}
+            onClick={() => setSelectedIdx(null)}
             className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
           >
             {/* Close */}
             <button
-              onClick={() => setSelectedImage(null)}
+              onClick={() => setSelectedIdx(null)}
               className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-colors z-10"
             >
               <X className="w-4 h-4" />
@@ -162,7 +156,7 @@ export default function ReussitesSection() {
             {/* Prev */}
             {projects.length > 1 && (
               <button
-                onClick={e => { e.stopPropagation(); setSelectedIdx(i => (i - 1 + projects.length) % projects.length); }}
+                onClick={e => { e.stopPropagation(); setSelectedIdx(i => (((i ?? 0) - 1 + projects.length) % projects.length)); }}
                 className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center text-xl transition-colors z-10"
               >
                 ‹
@@ -185,7 +179,7 @@ export default function ReussitesSection() {
             {/* Next */}
             {projects.length > 1 && (
               <button
-                onClick={e => { e.stopPropagation(); setSelectedIdx(i => (i + 1) % projects.length); }}
+                onClick={e => { e.stopPropagation(); setSelectedIdx(i => ((i ?? 0) + 1) % projects.length); }}
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center text-xl transition-colors z-10"
               >
                 ›
@@ -194,7 +188,7 @@ export default function ReussitesSection() {
 
             {/* Counter */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-xs text-white/60 font-medium">
-              {selectedIdx + 1} / {projects.length}
+              {(selectedIdx ?? 0) + 1} / {projects.length}
             </div>
           </motion.div>
         )}

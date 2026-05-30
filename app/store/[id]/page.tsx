@@ -1,14 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  ShoppingCart, ChevronLeft, ChevronRight, X, Check,
-  Plus, Minus, Trash2, ArrowLeft, Package, Truck,
-  Shield, Clock, Tag,
-} from "lucide-react";
 import { supabase } from "@/app/supabase";
+import { AnimatePresence,motion } from "framer-motion";
+import {
+ArrowLeft,
+Check,
+ChevronLeft,ChevronRight,
+Clock,
+Minus,
+Package,
+Plus,
+Shield,
+ShoppingCart,
+Tag,
+Trash2,
+Truck,
+X,
+} from "lucide-react";
+import { useParams,useRouter } from "next/navigation";
+import { useEffect,useState } from "react";
 
 /* ─────────────── TYPES ─────────────── */
 
@@ -59,13 +69,12 @@ export default function ProductPage() {
   const [selColor, setSelColor]   = useState("");
   const [selSize, setSelSize]     = useState("");
   const [qty, setQty]             = useState(1);
-  const [cart, setCart]           = useState<CartItem[]>([]);
+  const [cart, setCart]           = useState<CartItem[]>(() => (typeof window === "undefined" ? [] : loadCart()));
   const [cartOpen, setCartOpen]   = useState(false);
   const [checkout, setCheckout]   = useState(false);
   const [sending, setSending]     = useState(false);
   const [success, setSuccess]     = useState(false);
   const [addedMsg, setAddedMsg]   = useState("");
-  const [isInit, setIsInit]       = useState(false);
   const [form, setForm]           = useState<OrderForm>({ name:"", phone:"", email:"", wilaya:"", commune:"", address:"", notes:"" });
 
   /* load product */
@@ -75,19 +84,12 @@ export default function ProductPage() {
   }, [id]);
 
   /* cart init */
-  useEffect(() => { setCart(loadCart()); setIsInit(true); }, []);
-  useEffect(() => { if (isInit) saveCart(cart); }, [cart, isInit]);
+  useEffect(() => { saveCart(cart); }, [cart]);
   useEffect(() => {
     const fn = (e: CustomEvent) => setCart(e.detail);
     window.addEventListener("cartUpdated", fn as EventListener);
     return () => window.removeEventListener("cartUpdated", fn as EventListener);
   }, []);
-
-  if (!product && !loading) {
-    const allImgs: string[] = [];
-    const discPct = 0;
-    const finalPrice = 0;
-  }
 
   const allImgs   = product ? [product.image, ...(product.images || [])].filter(Boolean) : [];
   const discPct   = product?.discount_percent || 0;
@@ -171,7 +173,7 @@ export default function ProductPage() {
         </div>
         <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Commande confirmée !</h2>
         <p className="text-slate-500 text-sm mb-1">Nous vous contacterons au <span className="font-semibold text-slate-700">{form.phone}</span></p>
-        <p className="text-slate-400 text-xs mb-8">Paiement à la livraison · Livraison dans toute l'Algérie</p>
+        <p className="text-slate-400 text-xs mb-8">Paiement à la livraison · Livraison dans toute l&apos;Algérie</p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button onClick={() => router.push("/store")}
             className="px-6 py-2.5 bg-teal-500 hover:bg-teal-400 text-white font-bold rounded-xl text-sm transition-all active:scale-[0.98]">
