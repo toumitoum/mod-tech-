@@ -130,14 +130,15 @@ export function ReussitesEd({ dark }: { dark: boolean }) {
         borderRadius: 12, padding: "14px 18px",
       }}>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 14, color: s.tx }}>
-            {sectionVisible ? "✅ Section visible sur le site" : "🙈 Section masquée"}
+          <div style={{ fontWeight: 700, fontSize: 14, color: s.tx, display: "flex", alignItems: "center", gap: 7 }}>
+            {sectionVisible ? <Eye className="w-4 h-4" style={{ color: teal }} /> : <EyeOff className="w-4 h-4" style={{ color: s.sub }} />}
+            {sectionVisible ? "Section visible sur le site" : "Section masquée"}
           </div>
           <div style={{ fontSize: 12, color: s.sub, marginTop: 3 }}>
             {sectionVisible ? "La section «Nos Réussites» est affichée" : "La section est cachée pour les visiteurs"}
           </div>
         </div>
-        <button
+        <button type="button"
           onClick={toggleSection}
           disabled={toggling}
           style={{
@@ -155,6 +156,7 @@ export function ReussitesEd({ dark }: { dark: boolean }) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
         {projects.map(p => (
           <motion.div
+            className="admin-list-item"
             key={p.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -238,7 +240,7 @@ export function ReussitesEd({ dark }: { dark: boolean }) {
                 />
                 <div style={{ flex: 1 }} />
                 {saving === p.id && <RefreshCw className="w-3 h-3 animate-spin" style={{ color: teal }} />}
-                <button
+                <button type="button"
                   onClick={() => toggleProject(p)}
                   style={{
                     background: p.is_active ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.08)",
@@ -252,7 +254,7 @@ export function ReussitesEd({ dark }: { dark: boolean }) {
                   {p.is_active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                   {p.is_active ? "Actif" : "Off"}
                 </button>
-                <button
+                <button type="button"
                   onClick={() => deleteProject(p.id)}
                   style={{
                     background: "rgba(239,68,68,0.08)",
@@ -301,7 +303,7 @@ export function ReussitesEd({ dark }: { dark: boolean }) {
           {newImg ? (
             <div style={{ position: "relative", marginBottom: 12, borderRadius: 10, overflow: "hidden" }}>
               <img src={newImg} alt="" style={{ width: "100%", height: 160, objectFit: "cover", display: "block" }} />
-              <button
+              <button type="button"
                 onClick={() => setNewImg("")}
                 style={{
                   position: "absolute", top: 8, right: 8,
@@ -323,8 +325,8 @@ export function ReussitesEd({ dark }: { dark: boolean }) {
                 flexDirection: "column" as const, gap: 6, marginBottom: 12,
               }}
             >
-              <ImageIcon className="w-6 h-6" />
-              {uploading ? "⏳ Upload..." : "📷 Choisir une image *"}
+              {uploading ? <RefreshCw className="w-6 h-6 animate-spin" /> : <ImageIcon className="w-6 h-6" />}
+              {uploading ? "Upload..." : "Choisir une image *"}
             </div>
           )}
 
@@ -354,7 +356,7 @@ export function ReussitesEd({ dark }: { dark: boolean }) {
           </div>
 
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button
+            <button type="button"
               onClick={addProject} disabled={saving === -1 || !newImg}
               style={{
                 background: newImg ? tG : "rgba(51,65,85,0.3)",
@@ -367,7 +369,7 @@ export function ReussitesEd({ dark }: { dark: boolean }) {
               {saving === -1 ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               {saving === -1 ? "" : "Ajouter"}
             </button>
-            <button
+            <button type="button"
               onClick={() => { setAdding(false); setNewImg(""); setNewTitle(""); setNewCategory(""); }}
               style={{
                 background: "transparent", border: "1px solid " + s.brd,
@@ -380,7 +382,7 @@ export function ReussitesEd({ dark }: { dark: boolean }) {
           </div>
         </motion.div>
       ) : (
-        <button
+        <button type="button"
           onClick={() => setAdding(true)}
           style={{
             border: "2px dashed rgba(13,148,136,0.3)", background: "transparent",

@@ -2,7 +2,7 @@
 
 import { supabase } from "@/app/supabase";
 import { easeInOut,motion } from "framer-motion";
-import { ArrowRight,ChevronDown,Sparkles } from "lucide-react";
+import { ArrowRight,ChevronDown } from "lucide-react";
 import { useCallback,useEffect,useState } from "react";
 
 interface HeroData {
@@ -130,7 +130,7 @@ export default function HeroSection() {
   }, []);
 
   useEffect(() => {
-    fetchContent();
+    void Promise.resolve().then(fetchContent);
   }, [fetchContent]);
 
   if (loading) return <HeroSkeleton />;
@@ -146,13 +146,7 @@ export default function HeroSection() {
           animate="visible"
           className="w-full max-w-none lg:max-w-4xl"
         >
-          {/* Badge */}
-          <motion.div variants={itemVariants} className="mb-6">
-            <span className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-50 border border-teal-100 text-teal-700 text-sm font-semibold rounded-full">
-              <Sparkles className="w-4 h-4" />
-              {data.badge}
-            </span>
-          </motion.div>
+         
 
           {/* Title */}
           <motion.h1

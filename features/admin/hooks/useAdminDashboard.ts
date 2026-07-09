@@ -12,7 +12,11 @@ export function useAdminDashboard() {
   const [rows, setSiteContentRows] = useState<SiteContentRow[]>([]);
   const [slides, setSlides] = useState<Slide[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
-  const [active, setActive] = useState("hero");
+  const [active, setActiveState] = useState(() => {
+    if (typeof window === "undefined") return "hero";
+    const stored = localStorage.getItem("mt_admin_active_section");
+    return ADMIN_NAV.some((item) => item.key === stored) ? stored as string : "hero";
+  });
   const [drafts, setDrafts] = useState<AdminDrafts>({});
   const [status, setStatus] = useState<Status>("loading");
   const [msg, setMsg] = useState("");
@@ -88,9 +92,9 @@ export function useAdminDashboard() {
   const save = useCallback(async () => {
     setStatus("saving");
     const { error } = await updateSiteContent(active, drafts[active]);
-    if (error) notify("❌ " + error.message, false);
+    if (error) notify(error.message, false);
     else {
-      notify("✅ Sauvegardé !");
+      notify("Sauvegardé !");
       await load();
     }
     setStatus("idle");
@@ -107,6 +111,13 @@ export function useAdminDashboard() {
       localStorage.setItem("mt_theme", next ? "dark" : "light");
       return next;
     });
+  }, []);
+
+  const setActive = useCallback((section: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("mt_admin_active_section", section);
+    }
+    setActiveState(section);
   }, []);
 
   const isAuto = AUTO_SAVE_SECTIONS.includes(active);

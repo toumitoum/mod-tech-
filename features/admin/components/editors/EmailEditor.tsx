@@ -41,13 +41,13 @@ export function EmailEd({ dark }: { dark: boolean }) {
     setSaving(true);
     const { error } = await supabase.from("email_settings").update({ notify_email: email, resend_key: key, updated_at: new Date().toISOString() }).eq("id", 1);
     setSaving(false);
-    if (error) notify("❌ " + error.message, false);
-    else notify("✅ Sauvegardé !");
+    if (error) notify(error.message, false);
+    else notify("Sauvegardé !");
   };
 
   const testEmail = async () => {
-    if (!key) { notify("❌ Ajoutez la clé API Resend d'abord", false); return; }
-    if (!email) { notify("❌ Ajoutez l'email de notification", false); return; }
+    if (!key) { notify("Ajoutez la clé API Resend d'abord", false); return; }
+    if (!email) { notify("Ajoutez l'email de notification", false); return; }
     setTesting(true);
     try {
       const res = await fetch("/api/send-order-email", {
@@ -66,10 +66,10 @@ export function EmailEd({ dark }: { dark: boolean }) {
         })
       });
       const data = await res.json();
-      if (data.ok) notify("✅ Email test envoyé à " + email);
-      else notify("❌ Échec: " + (data.result?.message || data.error || "Erreur"), false);
+      if (data.ok) notify("Email test envoyé à " + email);
+      else notify("Échec: " + (data.result?.message || data.error || "Erreur"), false);
     } catch (e: unknown) {
-      notify("❌ " + (e instanceof Error ? e.message : String(e)), false);
+      notify(e instanceof Error ? e.message : String(e), false);
     }
     setTesting(false);
   };
@@ -107,7 +107,7 @@ export function EmailEd({ dark }: { dark: boolean }) {
 
       <div>
         <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>
-          📧 Email de notification
+          Email de notification
         </label>
         <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="modtech.srv@gmail.com" style={inp} />
         <div style={{ fontSize: 11, color: s.sub, marginTop: 5 }}>Email qui reçoit les notifications de commande</div>
@@ -115,7 +115,7 @@ export function EmailEd({ dark }: { dark: boolean }) {
 
       <div>
         <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>
-          🔑 Resend API Key
+          Resend API Key
         </label>
         <div style={{ position: "relative" }}>
           <input
@@ -125,7 +125,7 @@ export function EmailEd({ dark }: { dark: boolean }) {
             placeholder="re_xxxxxxxxxxxx"
             style={{ ...inp, paddingLeft: 44 }}
           />
-          <button
+          <button type="button"
             onClick={() => setShowKey(!showKey)}
             style={{
               position: "absolute",
@@ -180,7 +180,7 @@ export function EmailEd({ dark }: { dark: boolean }) {
       )}
 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <button
+        <button type="button"
           onClick={save}
           disabled={saving}
           style={{
@@ -201,7 +201,7 @@ export function EmailEd({ dark }: { dark: boolean }) {
           {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           {saving ? "Sauvegarde..." : "Sauvegarder"}
         </button>
-        <button
+        <button type="button"
           onClick={testEmail}
           disabled={testing || !key}
           style={{

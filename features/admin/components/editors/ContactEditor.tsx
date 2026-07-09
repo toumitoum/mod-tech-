@@ -1,6 +1,9 @@
 "use client";
 
 import {
+Facebook,
+Instagram,
+Linkedin,
 Phone
 } from "lucide-react";
 import { ms,teal } from "../../styles";
@@ -13,9 +16,9 @@ export function ContactEd({ data, onChange, dark }: { data: ContactDraft; onChan
   const f = (k: string, v: string) => onChange({ ...data, [k]: v });
   
   const socialFields = [
-    { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/...", color: "#1877f2", icon: "f" },
-    { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/...", color: "#e1306c", icon: "📷" },
-    { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/...", color: "#0077b5", icon: "in" },
+    { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/...", color: "#1877f2", icon: <Facebook className="w-3.5 h-3.5" /> },
+    { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/...", color: "#e1306c", icon: <Instagram className="w-3.5 h-3.5" /> },
+    { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/...", color: "#0077b5", icon: <Linkedin className="w-3.5 h-3.5" /> },
   ];
   
   return (

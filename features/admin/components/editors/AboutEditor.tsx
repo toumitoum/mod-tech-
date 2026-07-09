@@ -2,12 +2,16 @@
 
 import {
 Award,
+Eye,
+EyeOff,
 Image as ImageIcon,
+RefreshCw,
 X
 } from "lucide-react";
 import { useRef,useState } from "react";
 import { uploadSiteImage } from "../../services/storage.service";
 import { ms,teal,tG } from "../../styles";
+import { AdminIconButton } from "../shared/AdminIconButton";
 import { Field } from "../shared/Field";
 
 type AboutDraft = {
@@ -74,8 +78,9 @@ export function AboutEd({ data, onChange, dark }: { data: AboutDraft; onChange: 
         padding: "14px 18px",
       }}>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 14, color: s.tx }}>
-            {data.visible ? "✅ Section visible sur le site" : "🙈 Section masquée"}
+          <div style={{ fontWeight: 700, fontSize: 14, color: s.tx, display: "flex", alignItems: "center", gap: 7 }}>
+            {data.visible ? <Eye className="w-4 h-4" style={{ color: teal }} /> : <EyeOff className="w-4 h-4" style={{ color: s.sub }} />}
+            {data.visible ? "Section visible sur le site" : "Section masquée"}
           </div>
           <div style={{ fontSize: 12, color: s.sub, marginTop: 3 }}>
             {data.visible
@@ -83,7 +88,7 @@ export function AboutEd({ data, onChange, dark }: { data: AboutDraft; onChange: 
               : "La section est cachée — personne ne la voit"}
           </div>
         </div>
-        <button
+        <button type="button"
           onClick={() => f("visible", !data.visible)}
           style={{
             background: data.visible ? tG : (dark ? "rgba(51,65,85,0.5)" : "#e2e8f0"),
@@ -187,17 +192,20 @@ export function AboutEd({ data, onChange, dark }: { data: AboutDraft; onChange: 
               alt="about"
               style={{ width: "100%", maxHeight: 200, objectFit: "cover", borderRadius: 10, border: "1px solid " + s.brd, display: "block" }}
             />
-            <button
+            <AdminIconButton
+              dark={dark}
+              label="Supprimer"
               onClick={() => f("image", "")}
+              tone="danger"
               style={{
                 position: "absolute", top: 8, right: 8,
-                background: "rgba(239,68,68,0.9)", border: "none", borderRadius: 6,
-                color: "#fff", padding: "4px 10px", cursor: "pointer",
-                fontSize: 12, fontWeight: 700, display: "flex", alignItems: "center", gap: 4
+                width: 32,
+                height: 32,
+                borderRadius: 9,
               }}
             >
-              <X className="w-3 h-3" /> Supprimer
-            </button>
+              <X className="w-3.5 h-3.5" />
+            </AdminIconButton>
           </div>
         ) : (
           <div
@@ -209,8 +217,8 @@ export function AboutEd({ data, onChange, dark }: { data: AboutDraft; onChange: 
               flexDirection: "column" as const, gap: 6
             }}
           >
-            <ImageIcon className="w-6 h-6" />
-            {uploading ? "⏳ Upload en cours..." : "📷 Cliquer pour ajouter une image"}
+            {uploading ? <RefreshCw className="w-6 h-6 animate-spin" /> : <ImageIcon className="w-6 h-6" />}
+            {uploading ? "Upload en cours..." : "Cliquer pour ajouter une image"}
           </div>
         )}
       </div>

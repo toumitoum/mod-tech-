@@ -3,7 +3,7 @@
 import { Image as ImageIcon,RefreshCw,X } from "lucide-react";
 import { useEffect,useRef,useState } from "react";
 import { uploadSiteImage } from "../../services/storage.service";
-import { ms,teal } from "../../styles";
+import { ms } from "../../styles";
 
 export function ImgUpload({ label, cur, path, onDone, dark, height = 100 }: {
   label: string;
@@ -15,31 +15,32 @@ export function ImgUpload({ label, cur, path, onDone, dark, height = 100 }: {
 }) {
   const s = ms(dark);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [preview, setPreview] = useState(cur);
   const ref = useRef<HTMLInputElement>(null);
   
-  useEffect(() => { setPreview(cur); }, [cur]);
+  useEffect(() => {
+    void Promise.resolve().then(() => setPreview(cur));
+  }, [cur]);
   
   const upload = async (file: File) => {
     setUploading(true);
     try {
       const publicUrl = await uploadSiteImage(file, path);
+      setUploadError("");
       setPreview(publicUrl); onDone(publicUrl);
     } catch (error) {
-      alert("Upload error: " + (error instanceof Error ? error.message : String(error)));
+      setUploadError("Upload error: " + (error instanceof Error ? error.message : String(error)));
     }
     setUploading(false);
   };
   
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: s.space.xs }}>
       <label style={{
-        fontSize: 11,
-        fontWeight: 700,
+        ...s.typography.label,
         color: s.mut,
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-        fontFamily: "monospace"
+        letterSpacing: 0,
       }}>
         {label}
       </label>
@@ -47,21 +48,22 @@ export function ImgUpload({ label, cur, path, onDone, dark, height = 100 }: {
         {preview ? (
           <div style={{
             marginBottom: 10,
-            borderRadius: 10,
+            borderRadius: s.radius.lg,
             overflow: "hidden",
             border: "1px solid " + s.brd,
-            position: "relative"
+            position: "relative",
+            boxShadow: s.softShadow
           }}>
             <img src={preview} alt="" style={{ width: "100%", height, objectFit: "cover", display: "block" }} />
-            <button
+            <button type="button"
               onClick={() => { setPreview(""); onDone(""); }}
               style={{
                 position: "absolute",
                 top: 6,
                 right: 6,
-                background: "rgba(239,68,68,0.9)",
+                background: s.error,
                 border: "none",
-                borderRadius: 6,
+                borderRadius: s.radius.sm,
                 color: "#fff",
                 cursor: "pointer",
                 fontSize: 11,
@@ -75,8 +77,8 @@ export function ImgUpload({ label, cur, path, onDone, dark, height = 100 }: {
         ) : (
           <div style={{
             marginBottom: 10,
-            borderRadius: 10,
-            border: "1px dashed " + s.brd,
+            borderRadius: s.radius.lg,
+            border: "1px dashed " + s.colors.borderStrong,
             height,
             display: "flex",
             alignItems: "center",
@@ -84,7 +86,8 @@ export function ImgUpload({ label, cur, path, onDone, dark, height = 100 }: {
             color: s.sub,
             fontSize: 12,
             flexDirection: "column",
-            gap: 4
+            gap: 6,
+            background: s.primarySoft
           }}>
             <ImageIcon className="w-6 h-6" />
             <span>Aucune image</span>
@@ -97,26 +100,29 @@ export function ImgUpload({ label, cur, path, onDone, dark, height = 100 }: {
           style={{ display: "none" }}
           onChange={e => e.target.files?.[0] && upload(e.target.files[0])}
         />
-        <button
+        <button type="button"
           onClick={() => ref.current?.click()}
           disabled={uploading}
-          style={{
-            background: "rgba(13,148,136,0.1)",
-            border: "1px dashed rgba(13,148,136,0.4)",
-            borderRadius: 8,
-            padding: "8px 16px",
-            color: teal,
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: uploading ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 6
-          }}
+          style={s.button("secondary", uploading)}
         >
           {uploading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
           {uploading ? "Upload..." : "Choisir image"}
         </button>
+        {uploadError && (
+          <div style={{
+            marginTop: 8,
+            background: s.errorSoft,
+            color: s.error,
+            border: "1px solid " + s.brd,
+            borderRadius: s.radius.md,
+            padding: "10px 12px",
+            fontSize: 12,
+            fontWeight: 750,
+            lineHeight: 1.45
+          }}>
+            {uploadError}
+          </div>
+        )}
       </div>
     </div>
   );

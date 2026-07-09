@@ -146,8 +146,10 @@ export default function ReussitesSection() {
             className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
           >
             {/* Close */}
-            <button
+            <button type="button"
               onClick={() => setSelectedIdx(null)}
+              title="Close image preview"
+              aria-label="Close image preview"
               className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center transition-colors z-10"
             >
               <X className="w-4 h-4" />
@@ -155,8 +157,10 @@ export default function ReussitesSection() {
 
             {/* Prev */}
             {projects.length > 1 && (
-              <button
+              <button type="button"
                 onClick={e => { e.stopPropagation(); setSelectedIdx(i => (((i ?? 0) - 1 + projects.length) % projects.length)); }}
+                title="Previous image"
+                aria-label="Previous image"
                 className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center text-xl transition-colors z-10"
               >
                 ‹
@@ -178,8 +182,10 @@ export default function ReussitesSection() {
 
             {/* Next */}
             {projects.length > 1 && (
-              <button
+              <button type="button"
                 onClick={e => { e.stopPropagation(); setSelectedIdx(i => ((i ?? 0) + 1) % projects.length); }}
+                title="Next image"
+                aria-label="Next image"
                 className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white flex items-center justify-center text-xl transition-colors z-10"
               >
                 ›

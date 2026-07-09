@@ -134,13 +134,14 @@ export default function ImageSlider() {
               {slides.map((_, i) => (
                 <button
                   key={i}
+                  type="button"
                   onClick={() => scrollTo(i)}
-                  className="rounded-full transition-all"
-                  style={{
-                    width: selected === i ? 16 : 6,
-                    height: 6,
-                    background: selected === i ? "rgba(119,126,125,0.35)" : "rgba(77,84,85,0.22)",
-                  }}
+                  title={`Go to slide ${i + 1}`}
+                  className={`rounded-full transition-all ${
+                    selected === i
+                      ? "w-4 h-1.5 bg-slate-600/35"
+                      : "w-1.5 h-1.5 bg-slate-700/22"
+                  }`}
                 />
               ))}
             </div>
@@ -161,13 +162,19 @@ export default function ImageSlider() {
           {slides.length > 1 && (
             <>
               <button
+                type="button"
                 onClick={e => { e.stopPropagation(); emblaApi?.scrollPrev(); }}
+                title="Previous slide"
+                aria-label="Previous slide"
                 className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 text-white w-9 h-9 rounded-full items-center justify-center z-10"
               >
                 <ChevronLeft size={18} />
               </button>
               <button
+                type="button"
                 onClick={e => { e.stopPropagation(); emblaApi?.scrollNext(); }}
+                title="Next slide"
+                aria-label="Next slide"
                 className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 text-white w-9 h-9 rounded-full items-center justify-center z-10"
               >
                 <ChevronRight size={18} />

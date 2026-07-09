@@ -3,8 +3,14 @@
 import { supabase } from "@/app/supabase";
 import { motion } from "framer-motion";
 import {
+ExternalLink,
 Eye,
 EyeOff,
+Globe,
+Link2,
+Mail,
+MessageCircle,
+Phone,
 Plus,
 RefreshCw,
 Trash2
@@ -25,7 +31,18 @@ export function LinksEd({ dark }: { dark: boolean }) {
   const [links, setLinks] = useState<ContactLink[]>([]);
   const [adding, setAdding] = useState(false);
   const [saving, setSaving] = useState<number | null>(null);
-  const [newLink, setNewLink] = useState({ title: "", url: "", icon: "🔗", sort_order: 1 });
+  const [newLink, setNewLink] = useState({ title: "", url: "", icon: "link", sort_order: 1 });
+
+  const cleanIconValue = (value: string) => value.replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "").trim();
+  const renderLinkIcon = (value: string) => {
+    const normalized = cleanIconValue(value).toLowerCase();
+    if (normalized.includes("phone") || normalized.includes("tel")) return <Phone className="w-5 h-5" />;
+    if (normalized.includes("mail") || normalized.includes("email")) return <Mail className="w-5 h-5" />;
+    if (normalized.includes("whatsapp") || normalized.includes("message")) return <MessageCircle className="w-5 h-5" />;
+    if (normalized.includes("web") || normalized.includes("globe")) return <Globe className="w-5 h-5" />;
+    if (normalized.includes("external")) return <ExternalLink className="w-5 h-5" />;
+    return <Link2 className="w-5 h-5" />;
+  };
 
   const load = async () => {
     const { data } = await supabase.from("contact_links").select("*").order("sort_order");
@@ -56,7 +73,7 @@ export function LinksEd({ dark }: { dark: boolean }) {
     if (!newLink.title || !newLink.url) { alert("Titre et URL obligatoires"); return; }
     setSaving(-1);
     await supabase.from("contact_links").insert([{ ...newLink, is_active: true }]);
-    setNewLink({ title: "", url: "", icon: "🔗", sort_order: links.length + 2 });
+    setNewLink({ title: "", url: "", icon: "link", sort_order: links.length + 2 });
     setAdding(false);
     setSaving(null);
     load();
@@ -81,7 +98,8 @@ export function LinksEd({ dark }: { dark: boolean }) {
         fontSize: 13, color: s.sub, lineHeight: 1.7,
       }}>
         <div style={{ color: teal, fontWeight: 700, marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
-          🔗 Page Contact — Liens publics
+          <Link2 className="w-4 h-4" />
+          Page Contact — Liens publics
         </div>
         <div>
           Page publique :{" "}
@@ -91,7 +109,7 @@ export function LinksEd({ dark }: { dark: boolean }) {
           </a>
         </div>
         <div style={{ marginTop: 6, fontSize: 12 }}>
-          👉 Mettez ce lien dans votre QR code — il pointe vers votre page de contact.
+          Mettez ce lien dans votre QR code. Il pointe vers votre page de contact.
         </div>
       </div>
 
@@ -110,6 +128,7 @@ export function LinksEd({ dark }: { dark: boolean }) {
       {/* Links list */}
       {links.map(link => (
         <motion.div
+          className="admin-list-item"
           key={link.id}
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -122,18 +141,18 @@ export function LinksEd({ dark }: { dark: boolean }) {
           <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
             {/* Icon */}
             <div style={{ width: 44, height: 44, borderRadius: 12, background: dark ? "rgba(255,255,255,0.05)" : "#f8fafc", border: "1px solid " + s.brd, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
-              {link.icon}
+              {renderLinkIcon(link.icon)}
             </div>
 
             {/* Fields */}
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 7 }}>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {/* Emoji */}
+                {/* Icon name */}
                 <input
-                  defaultValue={link.icon}
-                  onBlur={e => updateField(link.id, "icon", e.target.value)}
-                  style={{ ...inp, width: 60, textAlign: "center", fontSize: 18 }}
-                  placeholder="🔗"
+                  defaultValue={cleanIconValue(link.icon) || "link"}
+                  onBlur={e => updateField(link.id, "icon", cleanIconValue(e.target.value) || "link")}
+                  style={{ ...inp, width: 92, textAlign: "center", fontSize: 12 }}
+                  placeholder="link"
                 />
                 {/* Title */}
                 <input
@@ -161,7 +180,7 @@ export function LinksEd({ dark }: { dark: boolean }) {
                 />
                 <div style={{ flex: 1 }} />
                 {saving === link.id && <RefreshCw className="w-3 h-3 animate-spin" style={{ color: teal }} />}
-                <button
+                <button type="button"
                   onClick={() => toggleActive(link)}
                   style={{
                     background: link.is_active ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.08)",
@@ -175,7 +194,7 @@ export function LinksEd({ dark }: { dark: boolean }) {
                   {link.is_active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                   {link.is_active ? "Actif" : "Inactif"}
                 </button>
-                <button
+                <button type="button"
                   onClick={() => deleteLink(link.id)}
                   style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.2)", borderRadius: 7, padding: "4px 8px", color: "#f87171", cursor: "pointer", display: "flex", alignItems: "center" }}
                 >
@@ -201,9 +220,9 @@ export function LinksEd({ dark }: { dark: boolean }) {
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <input
                 value={newLink.icon}
-                onChange={e => setNewLink(n => ({ ...n, icon: e.target.value }))}
-                style={{ ...inp, width: 60, textAlign: "center", fontSize: 18 }}
-                placeholder="🔗"
+                onChange={e => setNewLink(n => ({ ...n, icon: cleanIconValue(e.target.value) }))}
+                style={{ ...inp, width: 92, textAlign: "center", fontSize: 12 }}
+                placeholder="link"
               />
               <input
                 value={newLink.title}
@@ -219,7 +238,7 @@ export function LinksEd({ dark }: { dark: boolean }) {
               style={{ ...inp, fontSize: 12 }}
             />
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button
+              <button type="button"
                 onClick={addLink}
                 disabled={saving === -1}
                 style={{ background: tG, border: "none", borderRadius: 10, padding: "10px 22px", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}
@@ -227,7 +246,7 @@ export function LinksEd({ dark }: { dark: boolean }) {
                 {saving === -1 ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                 Ajouter
               </button>
-              <button
+              <button type="button"
                 onClick={() => setAdding(false)}
                 style={{ background: "transparent", border: "1px solid " + s.brd, borderRadius: 10, padding: "10px 14px", color: s.sub, fontSize: 13, cursor: "pointer" }}
               >
@@ -237,7 +256,7 @@ export function LinksEd({ dark }: { dark: boolean }) {
           </div>
         </motion.div>
       ) : (
-        <button
+        <button type="button"
           onClick={() => setAdding(true)}
           style={{ border: `2px dashed rgba(13,148,136,0.3)`, background: "transparent", color: teal, borderRadius: 14, padding: 14, cursor: "pointer", fontSize: 13.5, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
         >

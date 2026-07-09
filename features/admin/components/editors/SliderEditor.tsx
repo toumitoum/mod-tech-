@@ -16,6 +16,155 @@ import { uploadSiteImage } from "../../services/storage.service";
 import { ms,teal,tG } from "../../styles";
 import type { Slide } from "../../types";
 
+type UploadImage = (file: File, path: string) => Promise<string>;
+
+function SlideImage({ cur, slideId, uploadImg, onReload }: { cur: string; slideId: number; uploadImg: UploadImage; onReload: () => void }) {
+  const [prev, setPrev] = useState(cur);
+  const [up, setUp] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (file: File) => {
+    setUp(true);
+    try {
+      const url = await uploadImg(file, `slide-${slideId}`);
+      setPrev(url);
+      await supabase.from("slider_slides").update({ image: url }).eq("id", slideId);
+      onReload();
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : String(e));
+    }
+    setUp(false);
+  };
+
+  return (
+    <div
+      style={{
+        position: "relative",
+        cursor: "pointer",
+        borderRadius: "12px 12px 0 0",
+        overflow: "hidden"
+      }}
+      onClick={() => ref.current?.click()}
+    >
+      <img src={prev || "/images/1.jpg"} alt="" style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }} />
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(0,0,0,0.45)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center"
+      }}>
+        <span style={{
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 12,
+          background: "rgba(13,148,136,0.85)",
+          padding: "6px 14px",
+          borderRadius: 8,
+          display: "flex",
+          alignItems: "center",
+          gap: 4
+        }}>
+          {up ? <RefreshCw className="w-3 h-3 animate-spin" /> : <ImageIcon className="w-3 h-3" />}
+          {up ? "Upload" : "Changer"}
+        </span>
+      </div>
+      <input ref={ref} type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0])} />
+    </div>
+  );
+}
+
+function NewSlideImage({ dark, onUrl, uploadImg }: { dark: boolean; onUrl: (u: string) => void; uploadImg: UploadImage }) {
+  const s = ms(dark);
+  const [prev, setPrev] = useState("");
+  const [up, setUp] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (file: File) => {
+    setUp(true);
+    try {
+      const url = await uploadImg(file, "slide-new");
+      setPrev(url);
+      onUrl(url);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : String(e));
+    }
+    setUp(false);
+  };
+
+  return (
+    <div>
+      {prev ? (
+        <div style={{
+          borderRadius: 10,
+          overflow: "hidden",
+          border: "1px solid " + s.brd,
+          marginBottom: 10,
+          position: "relative"
+        }}>
+          <img src={prev} alt="" style={{ width: "100%", height: 110, objectFit: "cover", display: "block" }} />
+          <button type="button"
+            onClick={() => { setPrev(""); onUrl(""); }}
+            style={{
+              position: "absolute",
+              top: 6,
+              right: 6,
+              background: "rgba(239,68,68,0.9)",
+              border: "none",
+              borderRadius: 6,
+              color: "#fff",
+              cursor: "pointer",
+              fontSize: 11,
+              padding: "3px 8px"
+            }}
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          borderRadius: 10,
+          border: "2px dashed rgba(13,148,136,0.3)",
+          height: 90,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 10,
+          color: s.sub,
+          fontSize: 12,
+          flexDirection: "column",
+          gap: 4
+        }}>
+          <ImageIcon className="w-6 h-6" />
+          <span>Aucune image</span>
+        </div>
+      )}
+      <input ref={ref} type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0])} />
+      <button type="button"
+        onClick={() => ref.current?.click()}
+        disabled={up}
+        style={{
+          background: "rgba(13,148,136,0.1)",
+          border: "1px dashed rgba(13,148,136,0.4)",
+          borderRadius: 8,
+          padding: "8px 16px",
+          color: teal,
+          fontSize: 13,
+          fontWeight: 600,
+          cursor: up ? "not-allowed" : "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 6
+        }}
+      >
+        {up ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+        {up ? "Upload..." : "Choisir *"}
+      </button>
+    </div>
+  );
+}
+
 export function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload: () => void; dark: boolean }) {
   const s = ms(dark);
   const [saving, setSaving] = useState<number | null>(null);
@@ -54,152 +203,6 @@ export function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload
     onReload();
   };
   
-  function SlideImg({ cur, slideId }: { cur: string; slideId: number }) {
-    const [prev, setPrev] = useState(cur);
-    const [up, setUp] = useState(false);
-    const ref = useRef<HTMLInputElement>(null);
-    
-    const h = async (file: File) => {
-      setUp(true);
-      try {
-        const url = await uploadImg(file, `slide-${slideId}`);
-        setPrev(url);
-        await supabase.from("slider_slides").update({ image: url }).eq("id", slideId);
-        onReload();
-      } catch (e: unknown) {
-        alert(e instanceof Error ? e.message : String(e));
-      }
-      setUp(false);
-    };
-    
-    return (
-      <div
-        style={{
-          position: "relative",
-          cursor: "pointer",
-          borderRadius: "12px 12px 0 0",
-          overflow: "hidden"
-        }}
-        onClick={() => ref.current?.click()}
-      >
-        <img src={prev || "/images/1.jpg"} alt="" style={{ width: "100%", height: 140, objectFit: "cover", display: "block" }} />
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          background: "rgba(0,0,0,0.45)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center"
-        }}>
-          <span style={{
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: 12,
-            background: "rgba(13,148,136,0.85)",
-            padding: "6px 14px",
-            borderRadius: 8,
-            display: "flex",
-            alignItems: "center",
-            gap: 4
-          }}>
-            {up ? <RefreshCw className="w-3 h-3 animate-spin" /> : <ImageIcon className="w-3 h-3" />}
-            {up ? "⏳" : "📷 Changer"}
-          </span>
-        </div>
-        <input ref={ref} type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && h(e.target.files[0])} />
-      </div>
-    );
-  }
-  
-  function NewImg({ onUrl }: { onUrl: (u: string) => void }) {
-    const [prev, setPrev] = useState("");
-    const [up, setUp] = useState(false);
-    const ref = useRef<HTMLInputElement>(null);
-    
-    const h = async (file: File) => {
-      setUp(true);
-      try {
-        const url = await uploadImg(file, "slide-new");
-        setPrev(url);
-        onUrl(url);
-      } catch (e: unknown) {
-        alert(e instanceof Error ? e.message : String(e));
-      }
-      setUp(false);
-    };
-    
-    return (
-      <div>
-        {prev ? (
-          <div style={{
-            borderRadius: 10,
-            overflow: "hidden",
-            border: "1px solid " + s.brd,
-            marginBottom: 10,
-            position: "relative"
-          }}>
-            <img src={prev} alt="" style={{ width: "100%", height: 110, objectFit: "cover", display: "block" }} />
-            <button
-              onClick={() => { setPrev(""); onUrl(""); }}
-              style={{
-                position: "absolute",
-                top: 6,
-                right: 6,
-                background: "rgba(239,68,68,0.9)",
-                border: "none",
-                borderRadius: 6,
-                color: "#fff",
-                cursor: "pointer",
-                fontSize: 11,
-                padding: "3px 8px"
-              }}
-            >
-              <X className="w-3 h-3" />
-            </button>
-          </div>
-        ) : (
-          <div style={{
-            borderRadius: 10,
-            border: "2px dashed rgba(13,148,136,0.3)",
-            height: 90,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: 10,
-            color: s.sub,
-            fontSize: 12,
-            flexDirection: "column",
-            gap: 4
-          }}>
-            <ImageIcon className="w-6 h-6" />
-            <span>Aucune image</span>
-          </div>
-        )}
-        <input ref={ref} type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && h(e.target.files[0])} />
-        <button
-          onClick={() => ref.current?.click()}
-          disabled={up}
-          style={{
-            background: "rgba(13,148,136,0.1)",
-            border: "1px dashed rgba(13,148,136,0.4)",
-            borderRadius: 8,
-            padding: "8px 16px",
-            color: teal,
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: up ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 6
-          }}
-        >
-          {up ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
-          {up ? "⏳" : "📁 Choisir *"}
-        </button>
-      </div>
-    );
-  }
-  
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{
@@ -222,6 +225,7 @@ export function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload
       
       {[...slides].sort((a, b) => a.sort_order - b.sort_order).map(slide => (
         <motion.div
+          className="admin-list-item"
           key={slide.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -233,7 +237,7 @@ export function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload
             opacity: slide.is_active ? 1 : 0.6
           }}
         >
-          <SlideImg cur={slide.image} slideId={slide.id} />
+          <SlideImage cur={slide.image} slideId={slide.id} uploadImg={uploadImg} onReload={onReload} />
           <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 8 }}>
             <input
               defaultValue={slide.title}
@@ -289,7 +293,7 @@ export function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload
               />
               <div style={{ flex: 1 }} />
               {saving === slide.id && <RefreshCw className="w-4 h-4 animate-spin" style={{ color: teal }} />}
-              <button
+              <button type="button"
                 onClick={() => toggleActive(slide)}
                 style={{
                   background: slide.is_active ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.08)",
@@ -308,7 +312,7 @@ export function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload
                 {slide.is_active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                 {slide.is_active ? "Actif" : "Inactif"}
               </button>
-              <button
+              <button type="button"
                 onClick={() => deleteSlide(slide.id)}
                 style={{
                   background: "rgba(239,68,68,0.08)",
@@ -346,7 +350,7 @@ export function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload
             Nouvelle slide
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <NewImg onUrl={url => setNewSlide(n => ({ ...n, image: url }))} />
+            <NewSlideImage dark={dark} uploadImg={uploadImg} onUrl={url => setNewSlide(n => ({ ...n, image: url }))} />
             <input
               placeholder="Titre"
               value={newSlide.title}
@@ -382,7 +386,7 @@ export function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload
               }}
             />
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button
+              <button type="button"
                 onClick={addSlide}
                 disabled={saving === -1}
                 style={{
@@ -402,7 +406,7 @@ export function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload
                 {saving === -1 ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
                 {saving === -1 ? "" : "Ajouter"}
               </button>
-              <button
+              <button type="button"
                 onClick={() => setAdding(false)}
                 style={{
                   background: "transparent",
@@ -420,7 +424,7 @@ export function SliderEd({ slides, onReload, dark }: { slides: Slide[]; onReload
           </div>
         </motion.div>
       ) : (
-        <button
+        <button type="button"
           onClick={() => setAdding(true)}
           style={{
             border: "2px dashed rgba(13,148,136,0.3)",

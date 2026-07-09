@@ -42,3 +42,92 @@ html {
 section {
   scroll-margin-top: 90px;
 }
+
+.admin-main-layout button,
+.admin-notification-panel button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-main-layout button:not(:disabled),
+.admin-notification-panel button:not(:disabled) {
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.admin-main-layout button:hover:not(:disabled),
+.admin-notification-panel button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: saturate(1.04);
+}
+
+.admin-main-layout button:active:not(:disabled),
+.admin-notification-panel button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.admin-main-layout button:focus-visible,
+.admin-notification-panel button:focus-visible {
+  outline: 3px solid rgba(71, 85, 105, 0.20);
+  outline-offset: 3px;
+}
+
+.admin-main-layout [style*="color: #0d9488"],
+.admin-main-layout [style*="color:#0d9488"],
+.admin-main-layout [style*="color: rgb(13, 148, 136)"],
+.admin-main-layout [style*="color: #0f766e"],
+.admin-main-layout [style*="color:#0f766e"],
+.admin-main-layout [style*="color: #256d85"],
+.admin-main-layout [style*="color:#256d85"],
+.admin-main-layout [style*="color: #16845f"],
+.admin-main-layout [style*="color:#16845f"],
+.admin-main-layout [style*="color: #b7791f"],
+.admin-main-layout [style*="color:#b7791f"],
+.admin-main-layout [style*="color: #c53f38"],
+.admin-main-layout [style*="color:#c53f38"],
+.admin-main-layout [style*="color: #f47d75"],
+.admin-main-layout [style*="color:#f47d75"],
+.admin-main-layout [style*="color: #67d5a4"],
+.admin-main-layout [style*="color:#67d5a4"],
+.admin-main-layout [style*="color: #e7bd66"],
+.admin-main-layout [style*="color:#e7bd66"],
+.admin-main-layout [style*="color: #7dd3fc"],
+.admin-main-layout [style*="color:#7dd3fc"] {
+  color: #475569 !important;
+}
+
+.admin-main-layout [style*="background: #e8f7f4"],
+.admin-main-layout [style*="background:#e8f7f4"],
+.admin-main-layout [style*="background: #e6f7ef"],
+.admin-main-layout [style*="background:#e6f7ef"],
+.admin-main-layout [style*="background: #fbf1dc"],
+.admin-main-layout [style*="background:#fbf1dc"],
+.admin-main-layout [style*="background: #fcecea"],
+.admin-main-layout [style*="background:#fcecea"],
+.admin-main-layout [style*="background: #e6f3f7"],
+.admin-main-layout [style*="background:#e6f3f7"] {
+  background: #f1f5f9 !important;
+}
+
+.admin-main-layout [style*="linear-gradient(135deg, #0d9488"],
+.admin-main-layout [style*="linear-gradient(135deg,#0d9488"] {
+  background: #17212f !important;
+}
+
+.admin-main-layout input,
+.admin-main-layout select,
+.admin-main-layout textarea,
+.admin-notification-panel input,
+.admin-notification-panel select,
+.admin-notification-panel textarea {
+  border: 1px solid rgba(23, 33, 47, 0.48) !important;
+}
+
+.admin-main-layout label,
+.admin-notification-panel label {
+  color: #17212f !important;
+  font-weight: 800 !important;
+}

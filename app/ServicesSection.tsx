@@ -80,7 +80,7 @@ function ServiceModal({ service, staticData, onClose, contact }: {
         <div className="sm:hidden absolute top-3 left-1/2 -translate-x-1/2 w-8 h-[3px] rounded-full bg-slate-300 z-10" />
 
         {/* Close */}
-        <button
+        <button type="button"
           onClick={onClose}
           title="Close dialog"
           className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/85 backdrop-blur border border-slate-200 flex items-center justify-center hover:bg-white transition-colors shadow-sm"

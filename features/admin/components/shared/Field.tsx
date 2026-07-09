@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { ms,teal } from "../../styles";
+import { ms } from "../../styles";
 
 export function Field({ label, value, onChange, multi, dark, type = "text", placeholder }: {
   label: string;
@@ -14,28 +14,18 @@ export function Field({ label, value, onChange, multi, dark, type = "text", plac
 }) {
   const s = ms(dark);
   const base: React.CSSProperties = {
-    background: s.ibg,
-    border: "1px solid " + s.brd,
-    borderRadius: 8,
-    padding: "10px 13px",
-    color: s.tx,
-    fontSize: 14,
+    ...s.inputStyle,
     width: "100%",
-    outline: "none",
-    fontFamily: "inherit",
     boxSizing: "border-box",
-    transition: "all 0.2s"
+    transition: "border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease",
   };
   
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: s.space.xs }}>
       <label style={{
-        fontSize: 11,
-        fontWeight: 700,
+        ...s.typography.label,
         color: s.mut,
-        textTransform: "uppercase",
-        letterSpacing: "0.08em",
-        fontFamily: "monospace"
+        letterSpacing: 0,
       }}>
         {label}
       </label>
@@ -47,8 +37,8 @@ export function Field({ label, value, onChange, multi, dark, type = "text", plac
           placeholder={placeholder}
           style={{ ...base, resize: "vertical" }}
           onFocus={e => {
-            e.currentTarget.style.borderColor = teal;
-            e.currentTarget.style.boxShadow = `0 0 0 3px ${teal}20`;
+            e.currentTarget.style.borderColor = s.primary;
+            e.currentTarget.style.boxShadow = `0 0 0 4px ${s.focusRing}`;
           }}
           onBlur={e => {
             e.currentTarget.style.borderColor = s.brd;
@@ -63,8 +53,8 @@ export function Field({ label, value, onChange, multi, dark, type = "text", plac
           placeholder={placeholder}
           style={base}
           onFocus={e => {
-            e.currentTarget.style.borderColor = teal;
-            e.currentTarget.style.boxShadow = `0 0 0 3px ${teal}20`;
+            e.currentTarget.style.borderColor = s.primary;
+            e.currentTarget.style.boxShadow = `0 0 0 4px ${s.focusRing}`;
           }}
           onBlur={e => {
             e.currentTarget.style.borderColor = s.brd;

@@ -26,14 +26,14 @@ export function SecurityEd({ dark }: { dark: boolean }) {
   };
 
   const changePassword = async () => {
-    if (!newPw || !confirmPw) { notify("❌ Remplissez tous les champs", false); return; }
-    if (newPw.length < 6) { notify("❌ Mot de passe trop court (min 6)", false); return; }
-    if (newPw !== confirmPw) { notify("❌ Les mots de passe ne correspondent pas", false); return; }
+    if (!newPw || !confirmPw) { notify("Remplissez tous les champs", false); return; }
+    if (newPw.length < 6) { notify("Mot de passe trop court (min 6)", false); return; }
+    if (newPw !== confirmPw) { notify("Les mots de passe ne correspondent pas", false); return; }
     setSaving(true);
     const { error } = await supabase.auth.updateUser({ password: newPw });
     setSaving(false);
-    if (error) { notify("❌ " + error.message, false); }
-    else { notify("✅ Mot de passe modifié !"); setNewPw(""); setConfirmPw(""); }
+    if (error) { notify(error.message, false); }
+    else { notify("Mot de passe modifié !"); setNewPw(""); setConfirmPw(""); }
   };
 
   const inp: React.CSSProperties = {
@@ -50,25 +50,25 @@ export function SecurityEd({ dark }: { dark: boolean }) {
       </div>
 
       <div>
-        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>🔒 Nouveau mot de passe</label>
+        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>Nouveau mot de passe</label>
         <div style={{ position: "relative" }}>
           <input type={show ? "text" : "password"} value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="••••••••" style={{ ...inp, paddingRight: 80 }} />
-          <button onClick={() => setShow(!show)} type="button" style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "transparent", border: `1px solid ${s.brd}`, cursor: "pointer", color: s.sub, fontSize: 12, padding: "3px 10px", borderRadius: 999 }}>
+          <button type="button" onClick={() => setShow(!show)} style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "transparent", border: `1px solid ${s.brd}`, cursor: "pointer", color: s.sub, fontSize: 12, padding: "3px 10px", borderRadius: 999 }}>
             {show ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
           </button>
         </div>
-        {newPw && <div style={{ fontSize: 11, color: s.sub, marginTop: 4 }}>{newPw.length < 6 ? "❌ Trop court" : newPw.length < 10 ? "⚠️ Moyen" : "✅ Fort"}</div>}
+        {newPw && <div style={{ fontSize: 11, color: s.sub, marginTop: 4 }}>{newPw.length < 6 ? "Trop court" : newPw.length < 10 ? "Moyen" : "Fort"}</div>}
       </div>
 
       <div>
-        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>🔄 Confirmer le mot de passe</label>
+        <label style={{ fontSize: 11, fontWeight: 700, color: s.mut, textTransform: "uppercase", letterSpacing: "0.08em", display: "block", marginBottom: 8, fontFamily: "monospace" }}>Confirmer le mot de passe</label>
         <input type={show ? "text" : "password"} value={confirmPw} onChange={e => setConfirmPw(e.target.value)} placeholder="••••••••" style={{ ...inp, borderColor: confirmPw ? (confirmPw === newPw ? "#10b981" : "#ef4444") : s.brd }} />
-        {confirmPw && <div style={{ fontSize: 11, marginTop: 4, color: confirmPw === newPw ? "#10b981" : "#ef4444" }}>{confirmPw === newPw ? "✅ Identiques" : "❌ Ne correspondent pas"}</div>}
+        {confirmPw && <div style={{ fontSize: 11, marginTop: 4, color: confirmPw === newPw ? "#10b981" : "#ef4444" }}>{confirmPw === newPw ? "Identiques" : "Ne correspondent pas"}</div>}
       </div>
 
       {msg && <div style={{ background: msgOk ? "rgba(52,211,153,0.1)" : "rgba(239,68,68,0.1)", border: `1px solid ${msgOk ? "rgba(52,211,153,0.25)" : "rgba(239,68,68,0.25)"}`, borderRadius: 10, padding: "10px 16px", fontSize: 13, fontWeight: 600, color: msgOk ? "#34d399" : "#f87171" }}>{msg}</div>}
 
-      <button onClick={changePassword} disabled={saving || !newPw || !confirmPw || newPw !== confirmPw || newPw.length < 6}
+      <button type="button" onClick={changePassword} disabled={saving || !newPw || !confirmPw || newPw !== confirmPw || newPw.length < 6}
         style={{ background: (newPw && confirmPw && newPw === confirmPw && newPw.length >= 6) ? tG : "rgba(51,65,85,0.3)", border: "none", borderRadius: 10, padding: "12px 24px", color: "#fff", fontSize: 14, fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6, opacity: saving ? 0.7 : 1 }}>
         {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
         {saving ? "Modification..." : "Changer le mot de passe"}

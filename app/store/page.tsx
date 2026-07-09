@@ -1,7 +1,9 @@
 "use client";
 
 import { supabase } from "@/app/supabase";
+import { createNotification } from "@/features/admin/services/notification.service";
 import { AnimatePresence,motion } from "framer-motion";
+import { runOrderSideEffects } from "./order-side-effects";
 import {
 ArrowLeft,
 Check,
@@ -31,6 +33,8 @@ type Product = {
   price: number;
   original_price: number;
   discount_percent: number;
+  selling_price?: number | null;
+  discounted_price?: number | null;
   image: string;
   images: string[];
   category: string;
@@ -85,6 +89,16 @@ const loadCart = (): CartItem[] => {
 const saveCart = (cart: CartItem[]) => {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
   window.dispatchEvent(new CustomEvent("cartUpdated", { detail: cart }));
+};
+
+const getDisplayPrice = (product: Product) => {
+  const discounted = Number(product.discounted_price);
+  return discounted > 0 ? discounted : product.price;
+};
+
+const getOriginalPrice = (product: Product) => {
+  const selling = Number(product.selling_price);
+  return selling > 0 ? selling : product.original_price;
 };
 
 /* ─────────────── FIELD ─────────────── */
@@ -174,7 +188,7 @@ export default function StorePage() {
       const ex = prev.find(i => i.id === p.id && i.selectedColor === opts.color && i.selectedSize === opts.size);
       return ex
         ? prev.map(i => i.id === p.id && i.selectedColor === opts.color && i.selectedSize === opts.size ? { ...i, qty: i.qty + 1 } : i)
-        : [...prev, { ...p, qty: 1, selectedColor: opts.color, selectedSize: opts.size }];
+        : [...prev, { ...p, price: getDisplayPrice(p), qty: 1, selectedColor: opts.color, selectedSize: opts.size }];
     });
     setAddedMsg("Produit ajouté !");
     setTimeout(() => setAddedMsg(""), 2500);
@@ -218,8 +232,16 @@ export default function StorePage() {
     const { error } = await supabase.from("orders").insert([orderData]);
     if (error) { alert("Erreur: " + error.message); setSending(false); return; }
 
-    try { await fetch("/api/send-order-email", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ order: orderData }) }); }
-    catch (e) { console.log("Email skipped:", e); }
+    void createNotification({
+      title: "Nouvelle commande",
+      message: `${form.name} a créé une nouvelle commande.`,
+      type: "order_created",
+      module: "orders",
+      entity_type: "orders",
+      created_by: form.name
+    });
+
+    void runOrderSideEffects(orderData, form.name);
 
     setCart([]); setSending(false); setSuccess(true); setCartOpen(false); setCheckout(false);
   };
@@ -247,7 +269,7 @@ export default function StorePage() {
           <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Commande confirmée !</h2>
           <p className="text-slate-500 mb-1 text-sm">Nous vous contacterons au <span className="font-semibold text-slate-700">{form.phone}</span></p>
           <p className="text-slate-400 text-xs mb-8">Paiement à la livraison · Livraison dans toute l&apos;Algérie</p>
-          <button
+          <button type="button"
             onClick={() => { setSuccess(false); setForm({ name:"", phone:"", email:"", wilaya:"", commune:"", address:"", notes:"" }); }}
             className="inline-flex items-center gap-2 px-6 py-3 bg-teal-500 hover:bg-teal-400 text-white font-bold rounded-xl text-sm transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98]"
           >
@@ -267,7 +289,7 @@ export default function StorePage() {
 
           {/* Left */}
           <div className="flex items-center gap-3">
-            <button onClick={() => setMobileMenu(!mobileMenu)} className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all">
+            <button type="button" onClick={() => setMobileMenu(!mobileMenu)} title="Menu" className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all">
               <Menu className="w-4 h-4" />
             </button>
             <Link href="/" className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-teal-600 transition-colors">
@@ -279,10 +301,10 @@ export default function StorePage() {
 
           {/* Right */}
           <div className="flex items-center gap-2">
-            <button onClick={() => setSearchOpen(v => !v)} className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all">
+            <button type="button" onClick={() => setSearchOpen(v => !v)} title="Rechercher" className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all">
               <Search className="w-4 h-4" />
             </button>
-            <button onClick={() => setCartOpen(true)} className="relative flex items-center gap-2 px-3 h-9 rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all text-sm font-medium">
+            <button type="button" onClick={() => setCartOpen(true)} className="relative flex items-center gap-2 px-3 h-9 rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all text-sm font-medium">
               <ShoppingCart className="w-4 h-4" />
               <span className="hidden sm:inline">Panier</span>
               {cartCount > 0 && (
@@ -333,7 +355,7 @@ export default function StorePage() {
               {[{ label: "Accueil", href: "/" }, { label: "Store", href: "/store" }].map(l => (
                 <a key={l.href} href={l.href} className="block px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-600 transition-all">{l.label}</a>
               ))}
-              <button onClick={() => { setCartOpen(true); setMobileMenu(false); }} className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-600 transition-all">
+              <button type="button" onClick={() => { setCartOpen(true); setMobileMenu(false); }} className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-600 transition-all">
                 Panier ({cartCount})
               </button>
             </div>
@@ -380,17 +402,19 @@ export default function StorePage() {
 
             {slides.length > 1 && (
               <>
-                <button onClick={() => setSlideIdx(p => (p - 1 + slides.length) % slides.length)}
+                <button type="button" onClick={() => setSlideIdx(p => (p - 1 + slides.length) % slides.length)}
+                  title="Précédent"
                   className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm border border-white/30 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <button onClick={() => setSlideIdx(p => (p + 1) % slides.length)}
+                <button type="button" onClick={() => setSlideIdx(p => (p + 1) % slides.length)}
+                  title="Suivant"
                   className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm border border-white/30 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                   <ChevronRight className="w-4 h-4" />
                 </button>
                 <div className="absolute bottom-3 right-4 flex gap-1.5">
                   {slides.map((_, i) => (
-                    <button key={i} onClick={() => setSlideIdx(i)}
+                    <button type="button" key={i} onClick={() => setSlideIdx(i)} title={`Aller à la diapositive ${i + 1}`}
                       className={`rounded-full transition-all duration-300 ${i === slideIdx ? "w-5 h-1.5 bg-teal-400" : "w-1.5 h-1.5 bg-white/50"}`} />
                   ))}
                 </div>
@@ -400,7 +424,7 @@ export default function StorePage() {
         </section>
       ) : (
         <section className="relative h-[260px] w-full flex items-center overflow-hidden bg-slate-900">
-          <img src={heroData.bgImage} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+          <img src={heroData.bgImage} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-70" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
           <div className="relative z-10 max-w-7xl mx-auto px-6">
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
@@ -416,7 +440,7 @@ export default function StorePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-8">
         <div className="flex flex-wrap items-center gap-2">
           {CATS.map(c => (
-            <button key={c} onClick={() => setCat(c)}
+            <button type="button" key={c} onClick={() => setCat(c)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
                 cat === c
                   ? "bg-teal-500 text-white shadow-md shadow-teal-500/20"
@@ -472,7 +496,7 @@ export default function StorePage() {
                     {p.colors?.length > 0 && (
                       <div className="flex gap-1 flex-wrap">
                         {p.colors.map(c => (
-                          <button key={c.name} onClick={() => updateOption(p.id, "color", c.name)}
+                          <button type="button" key={c.name} onClick={() => updateOption(p.id, "color", c.name)}
                             style={{ backgroundColor: c.hex }}
                             title={c.name}
                             className={`w-4 h-4 rounded-full border-2 transition-transform ${opts.color === c.name ? "border-teal-500 scale-110" : "border-transparent"}`}
@@ -485,7 +509,7 @@ export default function StorePage() {
                     {p.sizes?.length > 0 && (
                       <div className="flex gap-1 flex-wrap">
                         {p.sizes.map(s => (
-                          <button key={s} onClick={() => updateOption(p.id, "size", s)}
+                          <button type="button" key={s} onClick={() => updateOption(p.id, "size", s)}
                             className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${opts.size === s ? "bg-teal-500 text-white border-teal-500" : "bg-white text-slate-600 border-slate-200 hover:border-teal-300"}`}>
                             {s}
                           </button>
@@ -496,14 +520,16 @@ export default function StorePage() {
                     {/* Price + Add */}
                     <div className="flex items-end justify-between mt-auto pt-2 border-t border-slate-50">
                       <div>
-                        <p className="text-teal-600 font-bold text-sm md:text-base leading-none">{p.price.toLocaleString()} <span className="text-xs font-medium">DA</span></p>
-                        {disc > 0 && p.original_price > 0 && (
-                          <p className="text-[10px] text-slate-400 line-through mt-0.5">{p.original_price.toLocaleString()} DA</p>
+                        <p className="text-teal-600 font-bold text-sm md:text-base leading-none">{getDisplayPrice(p).toLocaleString()} <span className="text-xs font-medium">DA</span></p>
+                        {disc > 0 && getOriginalPrice(p) > getDisplayPrice(p) && (
+                          <p className="text-[10px] text-slate-400 line-through mt-0.5">{getOriginalPrice(p).toLocaleString()} DA</p>
                         )}
                       </div>
                       <button
+                        type="button"
                         onClick={() => addToCart(p)}
                         disabled={!p.in_stock}
+                        title="Ajouter au panier"
                         className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 ${
                           p.in_stock ? "bg-teal-500 hover:bg-teal-400 text-white shadow-sm shadow-teal-500/20 active:scale-95" : "bg-slate-100 text-slate-400 cursor-not-allowed"
                         }`}
@@ -566,14 +592,14 @@ export default function StorePage() {
               {/* Drawer header */}
               <div className="px-5 md:px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
                 {checkout && (
-                  <button onClick={() => setCheckout(false)} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 mr-2 transition-colors">
+                  <button type="button" onClick={() => setCheckout(false)} title="Retour" className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 mr-2 transition-colors">
                     <ArrowLeft className="w-4 h-4" />
                   </button>
                 )}
                 <h2 className="text-base font-bold text-slate-900 flex-1">
                   {checkout ? "Finaliser la commande" : `Panier (${cartCount})`}
                 </h2>
-                <button onClick={() => { setCartOpen(false); setCheckout(false); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
+                <button type="button" title="Fermer" onClick={() => { setCartOpen(false); setCheckout(false); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -588,7 +614,7 @@ export default function StorePage() {
                     <p className="font-semibold text-slate-700 mb-1">Votre panier est vide</p>
                     <p className="text-sm text-slate-400">Ajoutez des produits pour commencer</p>
                   </div>
-                  <button onClick={() => setCartOpen(false)} className="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-bold rounded-xl transition-all duration-200 active:scale-[0.98]">
+                  <button type="button" onClick={() => setCartOpen(false)} className="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-bold rounded-xl transition-all duration-200 active:scale-[0.98]">
                     Continuer les achats
                   </button>
                 </div>
@@ -613,16 +639,16 @@ export default function StorePage() {
                           <div className="flex items-center justify-between mt-2">
                             <span className="text-sm font-bold text-teal-600">{(item.price * item.qty).toLocaleString()} DA</span>
                             <div className="flex items-center gap-1">
-                              <button onClick={() => updateQty(item.id, item.qty - 1, item.selectedColor, item.selectedSize)}
+                              <button type="button" title="Diminuer la quantité" onClick={() => updateQty(item.id, item.qty - 1, item.selectedColor, item.selectedSize)}
                                 className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:border-teal-300 transition-colors">
                                 <Minus className="w-3 h-3" />
                               </button>
                               <span className="w-6 text-center text-xs font-semibold">{item.qty}</span>
-                              <button onClick={() => updateQty(item.id, item.qty + 1, item.selectedColor, item.selectedSize)}
+                              <button type="button" title="Augmenter la quantité" onClick={() => updateQty(item.id, item.qty + 1, item.selectedColor, item.selectedSize)}
                                 className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:border-teal-300 transition-colors">
                                 <Plus className="w-3 h-3" />
                               </button>
-                              <button onClick={() => removeFromCart(item.id, item.selectedColor, item.selectedSize)}
+                              <button type="button" title="Supprimer du panier" onClick={() => removeFromCart(item.id, item.selectedColor, item.selectedSize)}
                                 className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:border-red-200 hover:text-red-500 transition-all ml-1">
                                 <Trash2 className="w-3 h-3" />
                               </button>
@@ -638,7 +664,7 @@ export default function StorePage() {
                       <span className="text-sm text-slate-500">Total</span>
                       <span className="text-lg font-extrabold text-teal-600">{cartTotal.toLocaleString()} DA</span>
                     </div>
-                    <button onClick={() => setCheckout(true)}
+                    <button type="button" onClick={() => setCheckout(true)}
                       className="w-full py-3 bg-teal-500 hover:bg-teal-400 text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98]">
                       Commander ({cartCount} produit{cartCount > 1 ? "s" : ""})
                     </button>
@@ -666,16 +692,16 @@ export default function StorePage() {
 
                     {/* Fields */}
                     <Field label="Nom complet *">
-                      <input  value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={inputCls} />
+                      <input placeholder="Votre nom complet" title="Nom complet" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className={inputCls} />
                     </Field>
                     <Field label="Téléphone *">
-                      <input type="tel" placeholder="ex. 06 XX XX XX XX" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className={inputCls} />
+                      <input type="tel" placeholder="ex. 06 XX XX XX XX" title="Téléphone" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} className={inputCls} />
                     </Field>
                     <Field label="Email">
-                      <input type="email" placeholder="ex@email.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} className={inputCls} />
+                      <input type="email" placeholder="ex@email.com" title="Email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} className={inputCls} />
                     </Field>
                     <Field label="Wilaya *">
-                      <select value={form.wilaya} onChange={e => setForm(f => ({ ...f, wilaya: e.target.value }))} className={inputCls}>
+                      <select title="Sélectionnez une wilaya" value={form.wilaya} onChange={e => setForm(f => ({ ...f, wilaya: e.target.value }))} className={inputCls}>
                         <option value="">Sélectionnez une wilaya</option>
                         {WILAYAS.map(w => <option key={w} value={w}>{w}</option>)}
                       </select>
@@ -693,7 +719,7 @@ export default function StorePage() {
 
                   {/* Checkout footer */}
                   <div className="px-5 md:px-6 py-4 border-t border-slate-100 bg-white shrink-0 space-y-2">
-                    <button onClick={sendOrder} disabled={sending}
+                    <button type="button" onClick={sendOrder} disabled={sending}
                       className="w-full py-3 bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98] flex items-center justify-center gap-2">
                       {sending ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Envoi...</> : "Confirmer la commande"}
                     </button>

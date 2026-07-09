@@ -198,23 +198,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, result }, { status: 500 });
     }
 
-    // ================= SEND TO GOOGLE SHEET =================
-    try {
-      const sheetRes = await fetch(
-        "https://script.google.com/macros/s/AKfycbyinV7bf7Uxkn64svqmeanzi2aB8eNMRil2Eb2TgPq7E-I7tnsJjw4WQUiq2JZY_cc4OQ/exec",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(order),
-        }
-      );
-      if (!sheetRes.ok) {
-        console.error("Google Sheet error: HTTP", sheetRes.status);
-      }
-    } catch (sheetErr) {
-      console.error("Google Sheet error:", sheetErr);
-    }
-
     return NextResponse.json({ ok: true, result });
   } catch (err: unknown) {
     console.error("API error:", err);

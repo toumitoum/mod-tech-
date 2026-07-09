@@ -17,6 +17,162 @@ import { uploadSiteImage } from "../../services/storage.service";
 import { ms,teal,tG } from "../../styles";
 import type { Partner } from "../../types";
 
+type UploadPartnerImage = (file: File, path: string) => Promise<string>;
+
+function PartnerLogoImage({ cur, pid, dark, uploadImg, onReload }: { cur: string; pid: number; dark: boolean; uploadImg: UploadPartnerImage; onReload: () => void }) {
+  const s = ms(dark);
+  const [prev, setPrev] = useState(cur);
+  const [up, setUp] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (file: File) => {
+    setUp(true);
+    try {
+      const url = await uploadImg(file, `partner-${pid}`);
+      setPrev(url);
+      await supabase.from("partners").update({ logo: url }).eq("id", pid);
+      onReload();
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : String(e));
+    }
+    setUp(false);
+  };
+
+  return (
+    <div
+      style={{
+        width: 110,
+        height: 64,
+        borderRadius: 10,
+        overflow: "hidden",
+        border: "1px solid " + s.brd,
+        cursor: "pointer",
+        position: "relative",
+        background: dark ? "#1e2a3a" : "#f8fafc",
+        flexShrink: 0
+      }}
+      onClick={() => ref.current?.click()}
+    >
+      <img src={prev} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", padding: 6 }} />
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          opacity: 0,
+          transition: "opacity 0.2s"
+        }}
+        onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+        onMouseLeave={e => (e.currentTarget.style.opacity = "0")}
+      >
+        <span style={{ color: "#fff", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}>
+          {up ? <RefreshCw className="w-3 h-3 animate-spin" /> : <ImageIcon className="w-3 h-3" />}
+          {up ? "Upload" : "Changer"}
+        </span>
+      </div>
+      <input ref={ref} type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0])} />
+    </div>
+  );
+}
+
+function NewPartnerLogo({ dark, onUrl, uploadImg }: { dark: boolean; onUrl: (u: string) => void; uploadImg: UploadPartnerImage }) {
+  const s = ms(dark);
+  const [prev, setPrev] = useState("");
+  const [up, setUp] = useState(false);
+  const ref = useRef<HTMLInputElement>(null);
+
+  const handleUpload = async (file: File) => {
+    setUp(true);
+    try {
+      const url = await uploadImg(file, "partner-new");
+      setPrev(url);
+      onUrl(url);
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : String(e));
+    }
+    setUp(false);
+  };
+
+  return (
+    <div>
+      {prev ? (
+        <div style={{
+          borderRadius: 8,
+          border: "1px solid " + s.brd,
+          marginBottom: 8,
+          padding: 6,
+          background: dark ? "#1e2a3a" : "#f8fafc",
+          height: 70,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative"
+        }}>
+          <img src={prev} alt="" style={{ maxHeight: 56, maxWidth: 140, objectFit: "contain" }} />
+          <button type="button"
+            onClick={() => { setPrev(""); onUrl(""); }}
+            style={{
+              position: "absolute",
+              top: 4,
+              right: 4,
+              background: "rgba(239,68,68,0.9)",
+              border: "none",
+              borderRadius: 5,
+              color: "#fff",
+              cursor: "pointer",
+              fontSize: 10,
+              padding: "2px 6px"
+            }}
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          borderRadius: 8,
+          border: "2px dashed rgba(13,148,136,0.3)",
+          height: 70,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 8,
+          color: s.sub,
+          fontSize: 12,
+          flexDirection: "column",
+          gap: 3
+        }}>
+          <ImageIcon className="w-5 h-5" />
+          <span>Aucun logo</span>
+        </div>
+      )}
+      <input ref={ref} type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0])} />
+      <button type="button"
+        onClick={() => ref.current?.click()}
+        disabled={up}
+        style={{
+          background: "rgba(13,148,136,0.1)",
+          border: "1px dashed rgba(13,148,136,0.4)",
+          borderRadius: 8,
+          padding: "7px 14px",
+          color: teal,
+          fontSize: 12,
+          fontWeight: 600,
+          cursor: up ? "not-allowed" : "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 6
+        }}
+      >
+        {up ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+        {up ? "Upload..." : "Logo *"}
+      </button>
+    </div>
+  );
+}
+
 export function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; onReload: () => void; dark: boolean }) {
   const s = ms(dark);
   const [saving, setSaving] = useState<number | null>(null);
@@ -56,158 +212,6 @@ export function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; 
     onReload();
   };
   
-  function LogoImg({ cur, pid }: { cur: string; pid: number }) {
-    const [prev, setPrev] = useState(cur);
-    const [up, setUp] = useState(false);
-    const ref = useRef<HTMLInputElement>(null);
-    
-    const h = async (file: File) => {
-      setUp(true);
-      try {
-        const url = await uploadImg(file, `partner-${pid}`);
-        setPrev(url);
-        await supabase.from("partners").update({ logo: url }).eq("id", pid);
-        onReload();
-      } catch (e: unknown) {
-        alert(e instanceof Error ? e.message : String(e));
-      }
-      setUp(false);
-    };
-    
-    return (
-      <div
-        style={{
-          width: 110,
-          height: 64,
-          borderRadius: 10,
-          overflow: "hidden",
-          border: "1px solid " + s.brd,
-          cursor: "pointer",
-          position: "relative",
-          background: dark ? "#1e2a3a" : "#f8fafc",
-          flexShrink: 0
-        }}
-        onClick={() => ref.current?.click()}
-      >
-        <img src={prev} alt="" style={{ width: "100%", height: "100%", objectFit: "contain", padding: 6 }} />
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            opacity: 0,
-            transition: "opacity 0.2s"
-          }}
-          onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-          onMouseLeave={e => (e.currentTarget.style.opacity = "0")}
-        >
-          <span style={{ color: "#fff", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", gap: 2 }}>
-            {up ? <RefreshCw className="w-3 h-3 animate-spin" /> : <ImageIcon className="w-3 h-3" />}
-            {up ? "⏳" : "📷"}
-          </span>
-        </div>
-        <input ref={ref} type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && h(e.target.files[0])} />
-      </div>
-    );
-  }
-  
-  function NewLogo({ onUrl }: { onUrl: (u: string) => void }) {
-    const [prev, setPrev] = useState("");
-    const [up, setUp] = useState(false);
-    const ref = useRef<HTMLInputElement>(null);
-    
-    const h = async (file: File) => {
-      setUp(true);
-      try {
-        const url = await uploadImg(file, "partner-new");
-        setPrev(url);
-        onUrl(url);
-      } catch (e: unknown) {
-        alert(e instanceof Error ? e.message : String(e));
-      }
-      setUp(false);
-    };
-    
-    return (
-      <div>
-        {prev ? (
-          <div style={{
-            borderRadius: 8,
-            border: "1px solid " + s.brd,
-            marginBottom: 8,
-            padding: 6,
-            background: dark ? "#1e2a3a" : "#f8fafc",
-            height: 70,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            position: "relative"
-          }}>
-            <img src={prev} alt="" style={{ maxHeight: 56, maxWidth: 140, objectFit: "contain" }} />
-            <button
-              onClick={() => { setPrev(""); onUrl(""); }}
-              style={{
-                position: "absolute",
-                top: 4,
-                right: 4,
-                background: "rgba(239,68,68,0.9)",
-                border: "none",
-                borderRadius: 5,
-                color: "#fff",
-                cursor: "pointer",
-                fontSize: 10,
-                padding: "2px 6px"
-              }}
-            >
-              <X className="w-3 h-3" />
-            </button>
-          </div>
-        ) : (
-          <div style={{
-            borderRadius: 8,
-            border: "2px dashed rgba(13,148,136,0.3)",
-            height: 70,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginBottom: 8,
-            color: s.sub,
-            fontSize: 12,
-            flexDirection: "column",
-            gap: 3
-          }}>
-            <ImageIcon className="w-5 h-5" />
-            <span>Aucun logo</span>
-          </div>
-        )}
-        <input ref={ref} type="file" accept="image/*" style={{ display: "none" }} onChange={e => e.target.files?.[0] && h(e.target.files[0])} />
-        <button
-          onClick={() => ref.current?.click()}
-          disabled={up}
-          style={{
-            background: "rgba(13,148,136,0.1)",
-            border: "1px dashed rgba(13,148,136,0.4)",
-            borderRadius: 8,
-            padding: "7px 14px",
-            color: teal,
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: up ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: 6
-          }}
-        >
-          {up ? <RefreshCw className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
-          {up ? "⏳" : "📁 Logo *"}
-        </button>
-      </div>
-    );
-  }
-  
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{
@@ -230,6 +234,7 @@ export function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; 
       
       {[...partners].sort((a, b) => a.sort_order - b.sort_order).map(p => (
         <motion.div
+          className="admin-list-item"
           key={p.id}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -242,7 +247,7 @@ export function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; 
           }}
         >
           <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
-            <LogoImg cur={p.logo} pid={p.id} />
+            <PartnerLogoImage cur={p.logo} pid={p.id} dark={dark} uploadImg={uploadImg} onReload={onReload} />
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 7 }}>
               <input
                 defaultValue={p.name}
@@ -298,7 +303,7 @@ export function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; 
                 />
                 <div style={{ flex: 1 }} />
                 {saving === p.id && <RefreshCw className="w-3 h-3 animate-spin" style={{ color: teal }} />}
-                <button
+                <button type="button"
                   onClick={() => toggleActive(p)}
                   style={{
                     background: p.is_active ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.08)",
@@ -317,7 +322,7 @@ export function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; 
                   {p.is_active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                   {p.is_active ? "Actif" : "Inactif"}
                 </button>
-                <button
+                <button type="button"
                   onClick={() => deleteP(p.id)}
                   style={{
                     background: "rgba(239,68,68,0.08)",
@@ -356,7 +361,7 @@ export function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; 
             Nouveau partenaire
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <NewLogo onUrl={url => setNewP(n => ({ ...n, logo: url }))} />
+            <NewPartnerLogo dark={dark} uploadImg={uploadImg} onUrl={url => setNewP(n => ({ ...n, logo: url }))} />
             <input
               placeholder="Nom *"
               value={newP.name}
@@ -390,7 +395,7 @@ export function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; 
               }}
             />
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <button
+              <button type="button"
                 onClick={addP}
                 disabled={saving === -1}
                 style={{
@@ -408,9 +413,9 @@ export function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; 
                 }}
               >
                 {saving === -1 ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                {saving === -1 ? "⏳" : "Ajouter"}
+                {saving === -1 ? "Ajout..." : "Ajouter"}
               </button>
-              <button
+              <button type="button"
                 onClick={() => setAdding(false)}
                 style={{
                   background: "transparent",
@@ -428,7 +433,7 @@ export function PartnersEd({ partners, onReload, dark }: { partners: Partner[]; 
           </div>
         </motion.div>
       ) : (
-        <button
+        <button type="button"
           onClick={() => setAdding(true)}
           style={{
             border: "2px dashed rgba(13,148,136,0.3)",

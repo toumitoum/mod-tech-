@@ -202,6 +202,7 @@ const ContactSection = () => {
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Téléphone</label>
                   <input
                     type="tel"
+                    placeholder="Votre numéro de téléphone"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="bg-slate-50 border border-slate-200 focus:border-teal-400 focus:bg-white focus:ring-2 focus:ring-teal-100 rounded-xl px-4 py-3 text-sm text-slate-800 outline-none w-full transition-all duration-200 placeholder:text-slate-400"
