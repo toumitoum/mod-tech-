@@ -178,7 +178,7 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="admin-dashboard-shell" style={{
+    <div className={`admin-dashboard-shell${dark ? " admin-dark" : ""}`} style={{
       minHeight: "100vh",
       background: s.bg,
       color: s.tx,
@@ -226,6 +226,22 @@ export default function AdminPage() {
           --admin-space-xs: ${s.space.xs}px;
           --admin-space-sm: ${s.space.sm}px;
           --admin-space-md: ${s.space.md}px;
+        }
+
+        .admin-dashboard-shell.admin-dark label,
+        .admin-dashboard-shell.admin-dark [style*="color: #475569"],
+        .admin-dashboard-shell.admin-dark [style*="color:#475569"],
+        .admin-dashboard-shell.admin-dark [style*="color: #64748b"],
+        .admin-dashboard-shell.admin-dark [style*="color:#64748b"],
+        .admin-dashboard-shell.admin-dark [style*="color: #94a3b8"],
+        .admin-dashboard-shell.admin-dark [style*="color:#94a3b8"],
+        .admin-dashboard-shell.admin-dark [style*="color: #b6b6bd"],
+        .admin-dashboard-shell.admin-dark [style*="color:#b6b6bd"],
+        .admin-dashboard-shell.admin-dark [style*="color: #7f8087"],
+        .admin-dashboard-shell.admin-dark [style*="color:#7f8087"],
+        .admin-dashboard-shell.admin-dark [style*="color: #5f6067"],
+        .admin-dashboard-shell.admin-dark [style*="color:#5f6067"] {
+          color: #ffffff !important;
         }
 
         html,
@@ -830,7 +846,7 @@ export default function AdminPage() {
                       borderRadius: 12,
                       padding: "9px 10px",
                       width: "100%",
-                      color: groupActive ? s.primary : s.sub,
+                      color: groupActive && !dark ? s.primary : s.sub,
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",

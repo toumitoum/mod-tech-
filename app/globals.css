@@ -126,8 +126,14 @@ section {
   border: 1px solid rgba(23, 33, 47, 0.48) !important;
 }
 
-.admin-main-layout label,
-.admin-notification-panel label {
+.admin-dashboard-shell:not(.admin-dark) .admin-main-layout label,
+.admin-dashboard-shell:not(.admin-dark) .admin-notification-panel label {
   color: #17212f !important;
+  font-weight: 800 !important;
+}
+
+.admin-dashboard-shell.admin-dark .admin-main-layout label,
+.admin-dashboard-shell.admin-dark .admin-notification-panel label {
+  color: #ffffff !important;
   font-weight: 800 !important;
 }
