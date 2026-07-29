@@ -112,7 +112,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-const inputCls = "w-full bg-slate-50 border border-slate-200 focus:border-teal-400 focus:bg-white focus:ring-2 focus:ring-teal-100 rounded-xl px-4 py-2.5 text-sm text-slate-800 outline-none transition-all duration-200 placeholder:text-slate-400";
+const inputCls = "mod-input w-full px-4 text-sm outline-none placeholder:text-slate-400";
 
 /* ─────────────── PAGE ─────────────── */
 
@@ -249,21 +249,21 @@ export default function StorePage() {
   /* ─── LOADING ─── */
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="w-10 h-10 border-2 border-teal-500/30 border-t-teal-500 rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#f6f8f7]">
+        <div className="w-10 h-10 border-2 border-[#14C8B8]/30 border-t-[#14C8B8] rounded-full animate-spin" />
       </div>
     );
 
   /* ─── SUCCESS ─── */
   if (success)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#f6f8f7] p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-white rounded-3xl shadow-xl border border-slate-100 p-10 max-w-md w-full text-center"
+          className="mod-card p-10 max-w-md w-full text-center"
         >
-          <div className="w-16 h-16 bg-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-teal-500/25">
+          <div className="w-16 h-16 bg-[#14C8B8] rounded-[24px] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-[#14C8B8]/25">
             <Check className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Commande confirmée !</h2>
@@ -271,7 +271,7 @@ export default function StorePage() {
           <p className="text-slate-400 text-xs mb-8">Paiement à la livraison · Livraison dans toute l&apos;Algérie</p>
           <button type="button"
             onClick={() => { setSuccess(false); setForm({ name:"", phone:"", email:"", wilaya:"", commune:"", address:"", notes:"" }); }}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-teal-500 hover:bg-teal-400 text-white font-bold rounded-xl text-sm transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98]"
+            className="mod-button-primary inline-flex items-center gap-2 px-6 text-white font-bold text-sm active:scale-[0.98]"
           >
             Nouvelle commande
           </button>
@@ -281,34 +281,34 @@ export default function StorePage() {
 
   /* ─── PAGE ─── */
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#f6f8f7]">
 
       {/* ── HEADER ── */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-slate-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-15 sm:h-16">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#080b0d]/95 text-white shadow-[0_8px_30px_rgba(0,0,0,0.18)] backdrop-blur-2xl">
+        <div className="mod-container flex items-center justify-between h-16 sm:h-[76px]">
 
           {/* Left */}
           <div className="flex items-center gap-3">
-            <button type="button" onClick={() => setMobileMenu(!mobileMenu)} title="Menu" className="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all">
+            <button type="button" onClick={() => setMobileMenu(!mobileMenu)} title="Menu" aria-label="Ouvrir le menu" className="lg:hidden flex h-10 w-10 items-center justify-center rounded-2xl border border-white/15 bg-white/5 text-white/75 transition-all hover:border-[#14C8B8]/50 hover:text-[#59dfaa]">
               <Menu className="w-4 h-4" />
             </button>
-            <Link href="/" className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-teal-600 transition-colors">
+            <Link href="/" className="flex items-center gap-1.5 text-sm font-semibold text-white/65 transition-colors hover:text-[#59dfaa]">
               <ArrowLeft className="w-4 h-4" /> Accueil
             </Link>
-            <span className="hidden sm:inline text-slate-200">|</span>
-            <span className="hidden sm:inline text-sm font-bold text-slate-800">MOD-TECH <span className="text-teal-500">Store</span></span>
+            <span className="hidden sm:inline text-white/20">|</span>
+            <span className="hidden sm:inline text-sm font-bold tracking-wide text-white">MOD-TECH <span className="text-[#59dfaa]">Store</span></span>
           </div>
 
           {/* Right */}
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setSearchOpen(v => !v)} title="Rechercher" className="w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all">
+            <button type="button" onClick={() => setSearchOpen(v => !v)} title="Rechercher" aria-label="Rechercher un produit" className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/15 bg-white/5 text-white/75 transition-all hover:border-[#14C8B8]/50 hover:text-[#59dfaa]">
               <Search className="w-4 h-4" />
             </button>
-            <button type="button" onClick={() => setCartOpen(true)} className="relative flex items-center gap-2 px-3 h-9 rounded-xl border border-slate-200 text-slate-600 hover:border-teal-300 hover:text-teal-600 transition-all text-sm font-medium">
+            <button type="button" onClick={() => setCartOpen(true)} className="relative flex h-10 items-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-4 text-sm font-bold text-white transition-all hover:border-[#14C8B8]/50 hover:text-[#59dfaa]">
               <ShoppingCart className="w-4 h-4" />
               <span className="hidden sm:inline">Panier</span>
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-teal-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow">
+                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#14C8B8] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow">
                   {cartCount}
                 </span>
               )}
@@ -322,21 +322,21 @@ export default function StorePage() {
         {searchOpen && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-slate-900/20 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-black/65 backdrop-blur-sm"
             onClick={() => setSearchOpen(false)}
           >
             <motion.div
               initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={e => e.stopPropagation()}
-              className="bg-white border-b border-slate-100 px-4 py-4 shadow-lg"
+              className="border-b border-white/10 bg-[#090c0f] px-4 py-5 shadow-2xl"
             >
               <div className="relative max-w-xl mx-auto">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
                 <input
                   autoFocus value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Rechercher un produit..."
-                  className="w-full bg-slate-50 border border-slate-200 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none transition-all"
+                  className="h-14 w-full rounded-2xl border border-white/15 bg-white/[0.07] py-3 pl-11 pr-4 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-[#14C8B8] focus:ring-4 focus:ring-[#14C8B8]/15"
                 />
               </div>
             </motion.div>
@@ -349,13 +349,13 @@ export default function StorePage() {
         {mobileMenu && (
           <motion.div
             initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden fixed top-[61px] left-0 right-0 bg-white border-b border-slate-100 z-40 shadow-md overflow-hidden"
+            className="lg:hidden fixed top-16 left-0 right-0 z-40 overflow-hidden border-b border-white/10 bg-[#080b0d] shadow-2xl sm:top-[76px]"
           >
-            <div className="px-4 py-3 space-y-1">
+            <div className="mod-container space-y-1 py-4">
               {[{ label: "Accueil", href: "/" }, { label: "Store", href: "/store" }].map(l => (
-                <a key={l.href} href={l.href} className="block px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-600 transition-all">{l.label}</a>
+                <a key={l.href} href={l.href} className="block rounded-2xl px-4 py-3 text-sm font-semibold text-white/75 transition-all hover:bg-white/8 hover:text-[#59dfaa]">{l.label}</a>
               ))}
-              <button type="button" onClick={() => { setCartOpen(true); setMobileMenu(false); }} className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-teal-50 hover:text-teal-600 transition-all">
+              <button type="button" onClick={() => { setCartOpen(true); setMobileMenu(false); }} className="w-full rounded-2xl px-4 py-3 text-left text-sm font-semibold text-white/75 transition-all hover:bg-white/8 hover:text-[#59dfaa]">
                 Panier ({cartCount})
               </button>
             </div>
@@ -369,7 +369,7 @@ export default function StorePage() {
         {addedMsg && (
           <motion.div
             initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -16 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-teal-500 text-white px-4 py-2.5 rounded-full shadow-lg text-sm font-semibold"
+            className="fixed top-24 left-1/2 z-[70] flex -translate-x-1/2 items-center gap-2 rounded-full bg-[#59dfaa] px-4 py-2.5 text-sm font-semibold text-[#07140f] shadow-[0_14px_36px_rgba(89,223,170,0.25)]"
           >
             <Check className="w-4 h-4" /> {addedMsg}
           </motion.div>
@@ -378,8 +378,9 @@ export default function StorePage() {
 
       {/* ── SLIDER ── */}
       {slides.length > 0 ? (
-        <section className="w-full bg-white border-b border-slate-100">
-          <div className="relative w-full overflow-hidden group">
+        <section className="border-b border-white/10 bg-[#06090c] py-4 sm:py-6">
+          <div className="mod-container">
+            <div className="group relative overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.035] shadow-[0_20px_65px_rgba(0,0,0,0.22)] sm:rounded-[28px]">
             <div
               className="flex transition-transform duration-500 ease-in-out"
               style={{ transform: `translateX(-${slideIdx * 100}%)` }}
@@ -388,12 +389,12 @@ export default function StorePage() {
                 <div key={slide.id} className="min-w-full relative">
                   <img
                     src={slide.image} alt={slide.title || "Slide"}
-                    className="w-full h-[180px] md:h-[260px] lg:h-[320px] object-contain bg-white"
+                    className="h-[220px] w-full object-contain bg-white sm:h-[300px] lg:h-[420px]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-black/10" />
                   {slide.title && (
                     <div className="absolute bottom-8 left-0 right-0 text-center px-6">
-                      <h3 className="text-white font-bold text-base md:text-xl drop-shadow">{slide.title}</h3>
+                      <h3 className="text-base font-semibold tracking-tight text-white drop-shadow sm:text-xl">{slide.title}</h3>
                     </div>
                   )}
                 </div>
@@ -404,65 +405,68 @@ export default function StorePage() {
               <>
                 <button type="button" onClick={() => setSlideIdx(p => (p - 1 + slides.length) % slides.length)}
                   title="Précédent"
-                  className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm border border-white/30 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                  className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/35 text-white opacity-100 backdrop-blur-sm transition-all hover:border-[#59dfaa]/70 hover:bg-white/15 sm:opacity-0 sm:group-hover:opacity-100">
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button type="button" onClick={() => setSlideIdx(p => (p + 1) % slides.length)}
                   title="Suivant"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/20 hover:bg-white/40 backdrop-blur-sm border border-white/30 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                  className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/35 text-white opacity-100 backdrop-blur-sm transition-all hover:border-[#59dfaa]/70 hover:bg-white/15 sm:opacity-0 sm:group-hover:opacity-100">
                   <ChevronRight className="w-4 h-4" />
                 </button>
                 <div className="absolute bottom-3 right-4 flex gap-1.5">
                   {slides.map((_, i) => (
                     <button type="button" key={i} onClick={() => setSlideIdx(i)} title={`Aller à la diapositive ${i + 1}`}
-                      className={`rounded-full transition-all duration-300 ${i === slideIdx ? "w-5 h-1.5 bg-teal-400" : "w-1.5 h-1.5 bg-white/50"}`} />
+                      className={`rounded-full transition-all duration-300 ${i === slideIdx ? "w-5 h-1.5 bg-[#14C8B8]" : "w-1.5 h-1.5 bg-white/50"}`} />
                   ))}
                 </div>
               </>
             )}
+            </div>
           </div>
         </section>
       ) : (
-        <section className="relative h-[260px] w-full flex items-center overflow-hidden bg-slate-900">
-          <img src={heroData.bgImage} alt="Hero" className="absolute inset-0 w-full h-full object-cover opacity-70" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
-          <div className="relative z-10 max-w-7xl mx-auto px-6">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <span className="inline-block text-xs bg-teal-500/20 border border-teal-400/30 text-teal-300 px-3 py-1 rounded-full mb-4 uppercase tracking-widest font-semibold">{heroData.badge}</span>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white mb-3">{heroData.title}</h1>
-              <p className="text-sm text-slate-300">{heroData.subtitle}</p>
-            </motion.div>
+        <section className="bg-[#06090c] py-4 sm:py-6">
+          <div className="mod-container relative flex h-[300px] items-center overflow-hidden rounded-[24px] border border-white/10 bg-slate-900 shadow-[0_20px_65px_rgba(0,0,0,0.22)] sm:h-[340px] sm:rounded-[28px] lg:h-[420px]">
+            <img src={heroData.bgImage} alt="Hero" className="absolute inset-0 h-full w-full object-cover opacity-65" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#050708] via-[#050708]/75 to-[#050708]/15" />
+            <div className="relative z-10 max-w-2xl px-6 sm:px-10 lg:px-14">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+                <span className="mb-5 inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-[#59dfaa]"><span className="h-2 w-2 rounded-full bg-[#59dfaa]" />{heroData.badge}</span>
+                <h1 className="mb-4 text-3xl font-light uppercase leading-[1.06] tracking-[0.04em] text-white sm:text-4xl lg:text-5xl">{heroData.title}</h1>
+                <p className="max-w-xl text-sm leading-6 text-white/70 sm:text-base">{heroData.subtitle}</p>
+              </motion.div>
+            </div>
           </div>
         </section>
       )}
 
       {/* ── CATEGORIES ── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-8">
-        <div className="flex flex-wrap items-center gap-2">
+      <div className="mod-container py-6 sm:py-8">
+        <div className="flex flex-wrap items-center gap-2 rounded-[22px] border border-slate-200/90 bg-white p-3 shadow-[0_10px_32px_rgba(15,23,42,0.05)] sm:p-4">
           {CATS.map(c => (
             <button type="button" key={c} onClick={() => setCat(c)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
+              className={`rounded-full px-4 py-2 text-xs font-bold transition-all duration-200 ${
                 cat === c
-                  ? "bg-teal-500 text-white shadow-md shadow-teal-500/20"
-                  : "bg-white text-slate-600 border border-slate-200 hover:border-teal-300 hover:text-teal-600"
+                  ? "bg-[#0f172a] text-white shadow-md shadow-slate-900/15"
+                  : "bg-slate-50 text-slate-600 ring-1 ring-inset ring-slate-200 transition hover:bg-white hover:text-[#0f766e] hover:ring-[#14C8B8]/45"
               }`}
             >{c}</button>
           ))}
-          <span className="ml-auto text-xs text-slate-400 font-medium">
+          <span className="ml-auto whitespace-nowrap px-1 text-xs font-semibold text-slate-400">
             {filteredProducts.length} produit{filteredProducts.length !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
 
       {/* ── PRODUCTS ── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+      <main className="mod-container pb-20 sm:pb-24">
         {filteredProducts.length === 0 ? (
           <div className="text-center py-24 flex flex-col items-center gap-4">
             <Package className="w-12 h-12 text-slate-300" />
             <p className="text-slate-500 font-medium">Aucun produit trouvé</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map((p, i) => {
               const disc = p.discount_percent || 0;
               const opts = selectedOptions[p.id] || {};
@@ -472,25 +476,27 @@ export default function StorePage() {
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04, duration: 0.4 }}
-                  className="bg-white border border-slate-100 rounded-2xl overflow-hidden hover:shadow-lg hover:shadow-slate-200/60 hover:border-teal-200 transition-all duration-300 flex flex-col group"
+                  className="group flex flex-col overflow-hidden rounded-[22px] border border-slate-200/90 bg-white shadow-[0_12px_34px_rgba(15,23,42,0.055)] transition-all duration-300 hover:-translate-y-1.5 hover:border-[#14C8B8]/45 hover:shadow-[0_22px_50px_rgba(15,23,42,0.11)] sm:rounded-[24px]"
                 >
                   {/* Image */}
-                  <div
-                    className="relative h-36 md:h-44 bg-white overflow-hidden cursor-pointer"
+                  <button
+                    type="button"
+                    aria-label={`Voir ${p.name}`}
+                    className="relative aspect-[4/3] w-full overflow-hidden border-b border-slate-100 bg-[linear-gradient(145deg,#f8fbfa,#ffffff)] text-left"
                     onClick={() => router.push(`/store/${p.id}`)}
                   >
-                    <img src={p.image} alt={p.name} className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500" />
+                    <img src={p.image} alt={p.name} className="h-full w-full object-contain p-4 transition-transform duration-500 group-hover:scale-[1.06]" />
                     {disc > 0 && (
-                      <span className="absolute top-2 left-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">-{disc}%</span>
+                      <span className="absolute left-3 top-3 rounded-full bg-red-500 px-2 py-1 text-[10px] font-bold text-white shadow-sm">-{disc}%</span>
                     )}
                     {!p.in_stock && (
-                      <span className="absolute top-2 left-2 bg-slate-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Épuisé</span>
+                      <span className="absolute left-3 top-3 rounded-full bg-slate-700 px-2 py-1 text-[10px] font-bold text-white shadow-sm">Épuisé</span>
                     )}
-                  </div>
+                  </button>
 
                   {/* Body */}
-                  <div className="p-3 flex flex-col flex-1 gap-2">
-                    <h3 className="text-xs md:text-sm font-semibold text-slate-800 leading-snug line-clamp-2">{p.name}</h3>
+                  <div className="flex flex-1 flex-col gap-3 p-3.5 sm:p-4">
+                    <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-slate-800 sm:text-[15px]">{p.name}</h3>
 
                     {/* Colors */}
                     {p.colors?.length > 0 && (
@@ -499,7 +505,8 @@ export default function StorePage() {
                           <button type="button" key={c.name} onClick={() => updateOption(p.id, "color", c.name)}
                             style={{ backgroundColor: c.hex }}
                             title={c.name}
-                            className={`w-4 h-4 rounded-full border-2 transition-transform ${opts.color === c.name ? "border-teal-500 scale-110" : "border-transparent"}`}
+                            aria-label={`Choisir la couleur ${c.name}`}
+                            className={`h-4 w-4 rounded-full border-2 transition-transform ${opts.color === c.name ? "border-[#0f172a] scale-110 ring-2 ring-[#14C8B8]/25" : "border-transparent"}`}
                           />
                         ))}
                       </div>
@@ -510,7 +517,7 @@ export default function StorePage() {
                       <div className="flex gap-1 flex-wrap">
                         {p.sizes.map(s => (
                           <button type="button" key={s} onClick={() => updateOption(p.id, "size", s)}
-                            className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${opts.size === s ? "bg-teal-500 text-white border-teal-500" : "bg-white text-slate-600 border-slate-200 hover:border-teal-300"}`}>
+                            className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${opts.size === s ? "bg-[#14C8B8] text-white border-[#14C8B8]" : "bg-white text-slate-600 border-slate-200 hover:border-[#14C8B8]/50"}`}>
                             {s}
                           </button>
                         ))}
@@ -518,9 +525,9 @@ export default function StorePage() {
                     )}
 
                     {/* Price + Add */}
-                    <div className="flex items-end justify-between mt-auto pt-2 border-t border-slate-50">
+                    <div className="mt-auto flex items-end justify-between border-t border-slate-100 pt-3">
                       <div>
-                        <p className="text-teal-600 font-bold text-sm md:text-base leading-none">{getDisplayPrice(p).toLocaleString()} <span className="text-xs font-medium">DA</span></p>
+                        <p className="text-base font-extrabold leading-none tracking-tight text-[#0f766e] sm:text-lg">{getDisplayPrice(p).toLocaleString()} <span className="text-xs font-semibold">DA</span></p>
                         {disc > 0 && getOriginalPrice(p) > getDisplayPrice(p) && (
                           <p className="text-[10px] text-slate-400 line-through mt-0.5">{getOriginalPrice(p).toLocaleString()} DA</p>
                         )}
@@ -530,8 +537,9 @@ export default function StorePage() {
                         onClick={() => addToCart(p)}
                         disabled={!p.in_stock}
                         title="Ajouter au panier"
-                        className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-200 ${
-                          p.in_stock ? "bg-teal-500 hover:bg-teal-400 text-white shadow-sm shadow-teal-500/20 active:scale-95" : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                        aria-label={`Ajouter ${p.name} au panier`}
+                        className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 ${
+                          p.in_stock ? "bg-[#0f172a] text-white shadow-sm shadow-slate-900/20 hover:bg-[#0f766e] active:scale-95" : "cursor-not-allowed bg-slate-100 text-slate-400"
                         }`}
                       >
                         <Plus className="w-4 h-4" />
@@ -546,14 +554,16 @@ export default function StorePage() {
       </main>
 
       {/* ── TRUST BAR ── */}
-      <div className="bg-white border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center">
-            <div className="flex items-center gap-3 col-span-2 md:col-span-1">
-              <img src="/lovable-uploads/5c0baea8-dfe7-4330-a35f-643db8adb0b0.png" className="h-9 w-auto" alt="logo" />
+      <div className="border-t border-white/10 bg-[#080b0d] text-white">
+        <div className="mod-container py-7 sm:py-8">
+          <div className="grid grid-cols-2 items-center gap-6 md:grid-cols-4">
+            <div className="col-span-2 flex items-center gap-3 md:col-span-1">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/15 bg-white p-1.5">
+                <img src="/lovable-uploads/5c0baea8-dfe7-4330-a35f-643db8adb0b0.png" className="h-full w-full object-contain" alt="logo" />
+              </div>
               <div>
-                <p className="text-sm font-bold text-slate-800">MOD-TECH</p>
-                {contact?.phone1 && <p className="text-xs text-slate-400">{contact.phone1}</p>}
+                <p className="text-sm font-bold text-white">MOD-TECH</p>
+                {contact?.phone1 && <p className="text-xs text-white/45">{contact.phone1}</p>}
               </div>
             </div>
             {[
@@ -562,12 +572,12 @@ export default function StorePage() {
               { icon: Clock,  title: "Support 7j/7",       sub: "Réponse rapide"  },
             ].map(({ icon: Icon, title, sub }, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center shrink-0">
-                  <Icon className="w-4 h-4 text-teal-600" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#14C8B8]/20 bg-[#14C8B8]/10">
+                  <Icon className="h-4 w-4 text-[#59dfaa]" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-800">{title}</p>
-                  <p className="text-[10px] text-slate-400">{sub}</p>
+                  <p className="text-xs font-semibold text-white/85">{title}</p>
+                  <p className="text-[10px] text-white/45">{sub}</p>
                 </div>
               </div>
             ))}
@@ -581,25 +591,25 @@ export default function StorePage() {
           <div className="fixed inset-0 z-50">
             <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => { setCartOpen(false); setCheckout(false); }}
             />
             <motion.div
               initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }}
               transition={{ type: "tween", duration: 0.28 }}
-              className="absolute top-0 right-0 bottom-0 w-full md:w-[480px] bg-white shadow-2xl flex flex-col"
+              className="absolute bottom-0 right-0 top-0 flex w-full flex-col bg-[#f6f8f7] shadow-2xl md:w-[500px]"
             >
               {/* Drawer header */}
-              <div className="px-5 md:px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+              <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-[#080b0d] px-5 py-5 text-white md:px-7">
                 {checkout && (
-                  <button type="button" onClick={() => setCheckout(false)} title="Retour" className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 mr-2 transition-colors">
+                  <button type="button" onClick={() => setCheckout(false)} title="Retour" className="mr-2 rounded-xl p-2 text-white/65 transition-colors hover:bg-white/10 hover:text-white">
                     <ArrowLeft className="w-4 h-4" />
                   </button>
                 )}
-                <h2 className="text-base font-bold text-slate-900 flex-1">
+                <h2 className="flex-1 text-base font-bold text-white">
                   {checkout ? "Finaliser la commande" : `Panier (${cartCount})`}
                 </h2>
-                <button type="button" title="Fermer" onClick={() => { setCartOpen(false); setCheckout(false); }} className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors">
+                <button type="button" title="Fermer" aria-label="Fermer le panier" onClick={() => { setCartOpen(false); setCheckout(false); }} className="rounded-xl p-2 text-white/65 transition-colors hover:bg-white/10 hover:text-white">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -607,14 +617,14 @@ export default function StorePage() {
               {/* Empty */}
               {!cart.length && !checkout ? (
                 <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
-                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center">
-                    <ShoppingCart className="w-7 h-7 text-slate-400" />
+                  <div className="flex h-16 w-16 items-center justify-center rounded-[22px] border border-[#14C8B8]/20 bg-[#14C8B8]/10">
+                    <ShoppingCart className="h-7 w-7 text-[#0f766e]" />
                   </div>
                   <div>
                     <p className="font-semibold text-slate-700 mb-1">Votre panier est vide</p>
                     <p className="text-sm text-slate-400">Ajoutez des produits pour commencer</p>
                   </div>
-                  <button type="button" onClick={() => setCartOpen(false)} className="px-5 py-2.5 bg-teal-500 hover:bg-teal-400 text-white text-sm font-bold rounded-xl transition-all duration-200 active:scale-[0.98]">
+                  <button type="button" onClick={() => setCartOpen(false)} className="mod-button-primary px-5 text-sm font-bold text-white active:scale-[0.98]">
                     Continuer les achats
                   </button>
                 </div>
@@ -622,11 +632,11 @@ export default function StorePage() {
               ) : !checkout ? (
                 <>
                   {/* Cart items */}
-                  <div className="flex-1 overflow-y-auto px-5 md:px-6 py-4 space-y-3">
+                  <div className="flex-1 space-y-3 overflow-y-auto px-5 py-5 md:px-7">
                     {cart.map((item, idx) => (
                       <div key={`${item.id}-${item.selectedColor}-${item.selectedSize}-${idx}`}
-                        className="flex gap-3 p-3 bg-slate-50 rounded-2xl border border-slate-100">
-                        <div className="w-14 h-14 rounded-xl bg-white border border-slate-100 overflow-hidden shrink-0">
+                        className="flex gap-3 rounded-[20px] border border-slate-200/90 bg-white p-3.5 shadow-[0_8px_22px_rgba(15,23,42,0.04)]">
+                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-slate-100 bg-[#f8fbfa]">
                           <img src={item.image} alt="" className="w-full h-full object-contain p-1" />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -637,19 +647,19 @@ export default function StorePage() {
                             </p>
                           )}
                           <div className="flex items-center justify-between mt-2">
-                            <span className="text-sm font-bold text-teal-600">{(item.price * item.qty).toLocaleString()} DA</span>
+                            <span className="text-sm font-bold text-[#0f766e]">{(item.price * item.qty).toLocaleString()} DA</span>
                             <div className="flex items-center gap-1">
                               <button type="button" title="Diminuer la quantité" onClick={() => updateQty(item.id, item.qty - 1, item.selectedColor, item.selectedSize)}
-                                className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:border-teal-300 transition-colors">
+                                className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors hover:border-[#14C8B8]/50 hover:text-[#0f766e]">
                                 <Minus className="w-3 h-3" />
                               </button>
                               <span className="w-6 text-center text-xs font-semibold">{item.qty}</span>
                               <button type="button" title="Augmenter la quantité" onClick={() => updateQty(item.id, item.qty + 1, item.selectedColor, item.selectedSize)}
-                                className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:border-teal-300 transition-colors">
+                                className="flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white transition-colors hover:border-[#14C8B8]/50 hover:text-[#0f766e]">
                                 <Plus className="w-3 h-3" />
                               </button>
                               <button type="button" title="Supprimer du panier" onClick={() => removeFromCart(item.id, item.selectedColor, item.selectedSize)}
-                                className="w-6 h-6 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:border-red-200 hover:text-red-500 transition-all ml-1">
+                                className="ml-1 flex h-7 w-7 items-center justify-center rounded-lg border border-slate-200 bg-white transition-all hover:border-red-200 hover:text-red-500">
                                 <Trash2 className="w-3 h-3" />
                               </button>
                             </div>
@@ -659,13 +669,13 @@ export default function StorePage() {
                     ))}
                   </div>
                   {/* Cart footer */}
-                  <div className="px-5 md:px-6 py-4 border-t border-slate-100 bg-white shrink-0">
+                  <div className="shrink-0 border-t border-slate-200 bg-white px-5 py-5 md:px-7">
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-sm text-slate-500">Total</span>
-                      <span className="text-lg font-extrabold text-teal-600">{cartTotal.toLocaleString()} DA</span>
+                      <span className="text-lg font-extrabold tracking-tight text-[#0f766e]">{cartTotal.toLocaleString()} DA</span>
                     </div>
                     <button type="button" onClick={() => setCheckout(true)}
-                      className="w-full py-3 bg-teal-500 hover:bg-teal-400 text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98]">
+                      className="mod-button-primary w-full px-5 text-sm font-bold text-white active:scale-[0.98]">
                       Commander ({cartCount} produit{cartCount > 1 ? "s" : ""})
                     </button>
                   </div>
@@ -674,19 +684,19 @@ export default function StorePage() {
               ) : (
                 <>
                   {/* Checkout form */}
-                  <div className="flex-1 overflow-y-auto px-5 md:px-6 py-4 space-y-4">
+                  <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5 md:px-7">
                     {/* Summary */}
-                    <div className="bg-teal-50 border border-teal-100 rounded-2xl p-4">
-                      <p className="text-xs font-semibold text-teal-700 uppercase tracking-wider mb-3">Récapitulatif</p>
+                    <div className="rounded-[20px] border border-[#14C8B8]/25 bg-[#14C8B8]/10 p-4">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-[#0f766e]">Récapitulatif</p>
                       {cart.map((item, idx) => (
                         <div key={idx} className="flex justify-between text-xs text-slate-600 mb-1.5">
                           <span className="truncate mr-2">{item.name} ×{item.qty}{item.selectedColor && ` · ${item.selectedColor}`}{item.selectedSize && ` · ${item.selectedSize}`}</span>
-                          <span className="font-semibold text-teal-600 shrink-0">{(item.price * item.qty).toLocaleString()} DA</span>
+                          <span className="shrink-0 font-semibold text-[#0f766e]">{(item.price * item.qty).toLocaleString()} DA</span>
                         </div>
                       ))}
-                      <div className="flex justify-between font-bold text-sm pt-3 mt-2 border-t border-teal-200">
+                      <div className="mt-2 flex justify-between border-t border-[#14C8B8]/25 pt-3 text-sm font-bold">
                         <span>Total</span>
-                        <span className="text-teal-600">{cartTotal.toLocaleString()} DA</span>
+                        <span className="text-[#0f766e]">{cartTotal.toLocaleString()} DA</span>
                       </div>
                     </div>
 
@@ -718,9 +728,9 @@ export default function StorePage() {
                   </div>
 
                   {/* Checkout footer */}
-                  <div className="px-5 md:px-6 py-4 border-t border-slate-100 bg-white shrink-0 space-y-2">
+                  <div className="shrink-0 space-y-2 border-t border-slate-200 bg-white px-5 py-5 md:px-7">
                     <button type="button" onClick={sendOrder} disabled={sending}
-                      className="w-full py-3 bg-teal-500 hover:bg-teal-400 disabled:opacity-50 text-white font-bold text-sm rounded-xl transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98] flex items-center justify-center gap-2">
+                      className="mod-button-primary flex w-full items-center justify-center gap-2 px-5 text-sm font-bold text-white disabled:opacity-50 active:scale-[0.98]">
                       {sending ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Envoi...</> : "Confirmer la commande"}
                     </button>
                   </div>

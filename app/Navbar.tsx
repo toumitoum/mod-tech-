@@ -3,6 +3,7 @@
 import { AnimatePresence,motion } from "framer-motion";
 import { ArrowRight,Menu,X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect,useState } from "react";
 
 const navLinks = [
@@ -18,6 +19,8 @@ export default function Navbar() {
   const [open, setOpen]       = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive]   = useState<string>("");
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -37,11 +40,15 @@ export default function Navbar() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-white/95 backdrop-blur-2xl shadow-sm border-b border-slate-100"
-            : "bg-transparent"
+            ? isHome
+              ? "border-b border-white/10 bg-[#05070b]/96 shadow-[0_12px_32px_rgba(0,0,0,0.28)] backdrop-blur-2xl"
+              : "bg-white/88 backdrop-blur-2xl shadow-sm border-b border-slate-200/70"
+            : isHome
+              ? "border-b border-white/[0.06] bg-[#05070b]/88 backdrop-blur-xl"
+              : "bg-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between h-16 sm:h-18 px-5 sm:px-8 lg:px-12">
+        <div className="mod-container flex h-[76px] items-center justify-between lg:h-[88px]">
 
           {/* ── Logo ── */}
           <Link
@@ -52,23 +59,27 @@ export default function Navbar() {
             <img
               src="/lovable-uploads/82aae3c4-6a6f-4687-91d2-40410f0e26b7.png"
               alt="MOD-TECHNOLOGIE"
-              className="h-9 w-auto"
+              className="h-9 w-auto lg:h-10"
             />
           </Link>
 
           {/* ── Desktop links ── */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden items-center gap-0.5 md:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onMouseEnter={() => setActive(link.href)}
                 onMouseLeave={() => setActive("")}
-                className="relative px-3.5 py-2 text-sm font-medium text-slate-600 hover:text-teal-600 transition-colors duration-200 rounded-lg hover:bg-teal-50 group"
+                onFocus={() => setActive(link.href)}
+                onBlur={() => setActive("")}
+                className={`group relative rounded-lg px-2.5 py-2 text-[13px] font-medium tracking-[-0.01em] transition-colors duration-200 hover:text-[#59dfaa] lg:px-3 ${
+                  isHome ? "text-white/80 hover:bg-white/[0.07]" : "text-slate-600 hover:bg-white/75"
+                }`}
               >
                 {link.label}
                 {/* Active underline */}
-                <span className={`absolute bottom-1 left-3.5 right-3.5 h-px bg-teal-500 rounded-full transition-all duration-200 ${
+                <span className={`absolute bottom-1 left-2.5 right-2.5 h-px rounded-full bg-[#14C8B8] transition-all duration-200 lg:left-3 lg:right-3 ${
                   active === link.href ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
                 } origin-left`} />
               </Link>
@@ -79,7 +90,11 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               href="#contact"
-              className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-bold bg-teal-500 hover:bg-teal-400 text-white rounded-xl transition-all duration-200 shadow-md shadow-teal-500/20 hover:shadow-teal-400/30 active:scale-[0.98]"
+              className={`group inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-[13px] font-semibold tracking-[-0.01em] shadow-sm transition-all duration-200 active:scale-[0.98] lg:px-5 ${
+                isHome
+                  ? "bg-white text-slate-900 hover:bg-[#59dfaa]"
+                  : "mod-button-primary"
+              }`}
             >
               Demander un devis
               <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -88,9 +103,14 @@ export default function Navbar() {
 
           {/* ── Mobile toggle ── */}
           <button type="button"
-            className="md:hidden w-9 h-9 flex items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-teal-300 hover:text-teal-600 transition-all duration-200 shadow-sm"
+            className={`relative z-[60] ml-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-lg transition-all duration-200 md:hidden ${
+              isHome
+                ? "border-[#14C8B8]/70 bg-[#14C8B8] text-[#06150f] shadow-[#14C8B8]/20 hover:bg-[#59dfaa]"
+                : "border-slate-200 bg-white text-slate-700 hover:border-[#14C8B8]/50 hover:text-[#0fb3a4] shadow-sm"
+            }`}
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
+            aria-expanded={open}
           >
             <AnimatePresence mode="wait" initial={false}>
               <motion.div
@@ -114,7 +134,9 @@ export default function Navbar() {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className="md:hidden overflow-hidden bg-white border-t border-slate-100 shadow-lg"
+              className={`overflow-hidden border-t shadow-xl md:hidden ${
+                isHome ? "border-white/10 bg-[#070b11]" : "border-slate-100 bg-white"
+              }`}
             >
               <div className="px-5 pt-3 pb-6 space-y-1">
                 {navLinks.map((link, i) => (
@@ -127,7 +149,11 @@ export default function Navbar() {
                     <Link
                       href={link.href}
                       onClick={() => setOpen(false)}
-                      className="flex items-center justify-between px-3 py-3 rounded-xl text-sm font-medium text-slate-700 hover:text-teal-600 hover:bg-teal-50 transition-all duration-150"
+                      className={`flex items-center justify-between rounded-2xl px-3 py-3 text-sm font-semibold transition-all duration-150 ${
+                        isHome
+                          ? "text-white/85 hover:bg-white/10 hover:text-[#14C8B8]"
+                          : "text-slate-700 hover:bg-[#14C8B8]/8 hover:text-[#0fb3a4]"
+                      }`}
                     >
                       {link.label}
                       <ArrowRight className="w-3.5 h-3.5 text-slate-300" />
@@ -139,7 +165,11 @@ export default function Navbar() {
                   <Link
                     href="#contact"
                     onClick={() => setOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-3 text-sm font-bold bg-teal-500 hover:bg-teal-400 text-white rounded-xl transition-all duration-200 shadow-md shadow-teal-500/20 active:scale-[0.98]"
+                    className={`flex w-full items-center justify-center gap-2 rounded-full px-4 text-sm font-bold active:scale-[0.98] ${
+                      isHome
+                        ? "bg-[#59dfaa] text-[#07140f]"
+                        : "mod-button-primary"
+                    }`}
                   >
                     Demander un devis
                     <ArrowRight className="w-4 h-4" />

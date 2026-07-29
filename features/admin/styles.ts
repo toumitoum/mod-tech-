@@ -1,9 +1,9 @@
 import type React from "react";
 
 const brand = {
-  primary: "#0d9488",
-  primaryHover: "#0f766e",
-  primaryPressed: "#115e59",
+  primary: "#14C8B8",
+  primaryHover: "#0fb3a4",
+  primaryPressed: "#0f766e",
 };
 
 export const teal = brand.primary;
@@ -13,70 +13,70 @@ export const adminColors = {
   light: {
     primary: brand.primary,
     primaryHover: brand.primaryHover,
-    primarySoft: "#e8f7f4",
-    primarySoftHover: "#d3f0ea",
-    background: "#f8fafc",
+    primarySoft: "#e7fbf9",
+    primarySoftHover: "#cff6f1",
+    background: "#f7f9fc",
     surface: "#ffffff",
     surfaceElevated: "#ffffff",
-    border: "#e2e8f0",
+    border: "#e5e7eb",
     borderStrong: "#cbd5e1",
     input: "#ffffff",
     hover: "#f1f5f9",
-    textPrimary: "#17212f",
+    textPrimary: "#111827",
     textSecondary: "#475569",
     textMuted: "#94a3b8",
     disabled: "#94a3b8",
     disabledSoft: "#f1f5f9",
-    success: "#16845f",
-    successSoft: "#e6f7ef",
-    warning: "#b7791f",
-    warningSoft: "#fbf1dc",
-    error: "#c53f38",
-    errorSoft: "#fcecea",
-    info: "#256d85",
-    infoSoft: "#e6f3f7",
-    focusRing: "rgba(13, 148, 136, 0.18)",
-    overlay: "rgba(255, 255, 255, 0.94)",
-    shadow: "0 18px 46px rgba(15, 23, 42, 0.08)",
-    softShadow: "0 10px 26px rgba(15, 23, 42, 0.06)",
+    success: "#059669",
+    successSoft: "#e8f8f1",
+    warning: "#b45309",
+    warningSoft: "#fff6df",
+    error: "#dc2626",
+    errorSoft: "#fef0f0",
+    info: "#2563eb",
+    infoSoft: "#eff6ff",
+    focusRing: "rgba(20, 200, 184, 0.18)",
+    overlay: "rgba(255, 255, 255, 0.86)",
+    shadow: "0 24px 56px rgba(15, 23, 42, 0.10)",
+    softShadow: "0 10px 28px rgba(15, 23, 42, 0.06)",
   },
   dark: {
     primary: brand.primary,
     primaryHover: brand.primaryHover,
-    primarySoft: "rgba(13, 148, 136, 0.16)",
-    primarySoftHover: "rgba(13, 148, 136, 0.24)",
-    background: "#050505",
-    surface: "#0d0d0f",
-    surfaceElevated: "#161618",
-    border: "rgba(255, 255, 255, 0.10)",
-    borderStrong: "rgba(255, 255, 255, 0.16)",
-    input: "#111113",
-    hover: "rgba(255, 255, 255, 0.06)",
-    textPrimary: "#f7f7f8",
-    textSecondary: "#ffffff",
-    textMuted: "#ffffff",
-    disabled: "#ffffff",
-    disabledSoft: "rgba(255, 255, 255, 0.08)",
-    success: "#67d5a4",
-    successSoft: "rgba(103, 213, 164, 0.15)",
-    warning: "#e7bd66",
-    warningSoft: "rgba(231, 189, 102, 0.15)",
-    error: "#f47d75",
-    errorSoft: "rgba(244, 125, 117, 0.15)",
-    info: "#7dd3fc",
-    infoSoft: "rgba(125, 211, 252, 0.14)",
+    primarySoft: "rgba(20, 200, 184, 0.16)",
+    primarySoftHover: "rgba(20, 200, 184, 0.24)",
+    background: "#0f172a",
+    surface: "#111c31",
+    surfaceElevated: "#17243a",
+    border: "rgba(203, 213, 225, 0.14)",
+    borderStrong: "rgba(203, 213, 225, 0.24)",
+    input: "#0b1324",
+    hover: "rgba(203, 213, 225, 0.08)",
+    textPrimary: "#f8fafc",
+    textSecondary: "#cbd5e1",
+    textMuted: "#94a3b8",
+    disabled: "#64748b",
+    disabledSoft: "rgba(203, 213, 225, 0.08)",
+    success: "#6ee7b7",
+    successSoft: "rgba(16, 185, 129, 0.16)",
+    warning: "#fcd34d",
+    warningSoft: "rgba(245, 158, 11, 0.16)",
+    error: "#fca5a5",
+    errorSoft: "rgba(239, 68, 68, 0.16)",
+    info: "#93c5fd",
+    infoSoft: "rgba(59, 130, 246, 0.16)",
     focusRing: "rgba(94, 234, 212, 0.30)",
-    overlay: "rgba(13, 13, 15, 0.84)",
-    shadow: "0 24px 80px rgba(0, 0, 0, 0.34)",
-    softShadow: "0 16px 48px rgba(0, 0, 0, 0.18)",
+    overlay: "rgba(15, 23, 42, 0.84)",
+    shadow: "0 24px 64px rgba(2, 6, 23, 0.38)",
+    softShadow: "0 12px 32px rgba(2, 6, 23, 0.24)",
   },
 } as const;
 
 export const adminRadii = {
-  sm: 10,
+  sm: 8,
   md: 12,
   lg: 16,
-  xl: 20,
+  xl: 24,
 } as const;
 
 export const adminSpace = {
@@ -84,17 +84,18 @@ export const adminSpace = {
   sm: 16,
   md: 24,
   lg: 32,
-  xl: 40,
-  "2xl": 48,
+  xl: 48,
+  "2xl": 64,
+  "3xl": 96,
 } as const;
 
 export const adminTypography = {
-  heading: { fontSize: 24, lineHeight: 1.2, fontWeight: 850 },
-  title: { fontSize: 20, lineHeight: 1.25, fontWeight: 850 },
-  subtitle: { fontSize: 14, lineHeight: 1.55, fontWeight: 650 },
-  label: { fontSize: 12, lineHeight: 1.4, fontWeight: 800 },
+  heading: { fontSize: 28, lineHeight: 1.16, fontWeight: 800 },
+  title: { fontSize: 20, lineHeight: 1.25, fontWeight: 800 },
+  subtitle: { fontSize: 14, lineHeight: 1.55, fontWeight: 600 },
+  label: { fontSize: 12, lineHeight: 1.4, fontWeight: 700 },
   body: { fontSize: 14, lineHeight: 1.6, fontWeight: 500 },
-  caption: { fontSize: 12, lineHeight: 1.45, fontWeight: 650 },
+  caption: { fontSize: 12, lineHeight: 1.45, fontWeight: 600 },
   description: { fontSize: 13, lineHeight: 1.6, fontWeight: 500 },
 } as const;
 
@@ -104,12 +105,12 @@ export function ms(dark: boolean) {
   const c = dark ? adminColors.dark : adminColors.light;
   const button = (variant: AdminButtonVariant = "secondary", disabled = false): React.CSSProperties => {
     const base: React.CSSProperties = {
-      border: "none",
+      border: "1px solid transparent",
       borderRadius: adminRadii.md,
-      minHeight: 40,
+      minHeight: 42,
       padding: "10px 16px",
       fontSize: 13,
-      fontWeight: 850,
+      fontWeight: 700,
       cursor: disabled ? "not-allowed" : "pointer",
       display: "inline-flex",
       alignItems: "center",
@@ -118,6 +119,7 @@ export function ms(dark: boolean) {
       opacity: disabled ? 0.62 : 1,
       userSelect: "none",
       whiteSpace: "nowrap",
+      letterSpacing: "-0.01em",
       transform: "translateY(0)",
       transition: "background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, opacity 0.18s ease",
     };
@@ -125,17 +127,18 @@ export function ms(dark: boolean) {
     if (variant === "primary") {
       return {
         ...base,
-        background: disabled ? c.disabledSoft : dark ? "#f7f7f8" : c.textPrimary,
-        color: disabled ? c.textMuted : dark ? "#111113" : "#ffffff",
-        boxShadow: disabled || dark ? "none" : "0 12px 24px rgba(15, 23, 42, 0.16)",
+        background: disabled ? c.disabledSoft : c.primary,
+        color: disabled ? c.textMuted : "#062a28",
+        boxShadow: disabled ? "none" : dark ? "0 10px 24px rgba(20, 200, 184, 0.16)" : "0 10px 20px rgba(15, 118, 110, 0.16)",
       };
     }
 
     if (variant === "danger") {
       return {
         ...base,
-        background: disabled ? c.disabledSoft : c.hover,
-        color: disabled ? c.textMuted : c.textPrimary,
+        background: disabled ? c.disabledSoft : c.errorSoft,
+        border: "1px solid " + (disabled ? c.border : c.errorSoft),
+        color: disabled ? c.textMuted : c.error,
         boxShadow: "none",
       };
     }
@@ -152,8 +155,9 @@ export function ms(dark: boolean) {
     if (variant === "outline") {
       return {
         ...base,
-        background: disabled ? c.disabledSoft : c.hover,
-        color: disabled ? c.textMuted : c.textSecondary,
+        background: disabled ? c.disabledSoft : c.surface,
+        border: "1px solid " + c.border,
+        color: disabled ? c.textMuted : c.textPrimary,
         boxShadow: "none",
       };
     }
@@ -161,6 +165,7 @@ export function ms(dark: boolean) {
     return {
       ...base,
       background: disabled ? c.disabledSoft : c.hover,
+      border: "1px solid " + c.border,
       color: disabled ? c.textMuted : c.textPrimary,
       boxShadow: "none",
     };
@@ -225,14 +230,14 @@ export function ms(dark: boolean) {
     button,
     sbtn: (active: boolean): React.CSSProperties => ({
       background: active ? c.primarySoft : "transparent",
-      border: "1px solid transparent",
+      border: "1px solid " + (active ? c.primarySoft : "transparent"),
       borderRadius: adminRadii.md,
       padding: "10px 16px",
       textAlign: "left",
       color: active ? c.primary : c.textSecondary,
       cursor: "pointer",
       fontSize: 13,
-      fontWeight: active ? 800 : 650,
+      fontWeight: active ? 800 : 600,
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",

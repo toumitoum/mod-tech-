@@ -169,7 +169,7 @@ export default function AdminPage() {
         display: "flex", alignItems: "center", justifyContent: "center",
         boxShadow: s.shadow
       }}>
-        <RefreshCw className="w-5 h-5 animate-spin" style={{ color: "#fff" }} />
+        <RefreshCw className="w-5 h-5 animate-spin" style={{ color: "#062a28" }} />
       </div>
       <div style={{ color: s.primary, fontSize: s.typography.subtitle.fontSize, fontWeight: 800 }}>
         Vérification en cours...
@@ -223,9 +223,19 @@ export default function AdminPage() {
           --admin-radius-sm: ${s.radius.sm}px;
           --admin-radius-md: ${s.radius.md}px;
           --admin-radius-lg: ${s.radius.lg}px;
+          --admin-radius-xl: ${s.radius.xl}px;
           --admin-space-xs: ${s.space.xs}px;
           --admin-space-sm: ${s.space.sm}px;
           --admin-space-md: ${s.space.md}px;
+          --admin-sidebar: ${dark ? "#0b1324" : "#0f172a"};
+          --admin-sidebar-elevated: ${dark ? "#111c31" : "#14213a"};
+          --admin-sidebar-border: ${dark ? "rgba(203, 213, 225, 0.16)" : "rgba(148, 163, 184, 0.20)"};
+          --admin-sidebar-text: #e2e8f0;
+          --admin-sidebar-muted: #94a3b8;
+          --admin-sidebar-active-ink: #062a28;
+          color-scheme: ${dark ? "dark" : "light"};
+          font-synthesis: none;
+          text-rendering: optimizeLegibility;
         }
 
         .admin-dashboard-shell.admin-dark label,
@@ -241,7 +251,7 @@ export default function AdminPage() {
         .admin-dashboard-shell.admin-dark [style*="color:#7f8087"],
         .admin-dashboard-shell.admin-dark [style*="color: #5f6067"],
         .admin-dashboard-shell.admin-dark [style*="color:#5f6067"] {
-          color: #ffffff !important;
+          color: var(--admin-text-secondary) !important;
         }
 
         html,
@@ -263,6 +273,11 @@ export default function AdminPage() {
           transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease, opacity 0.18s ease;
         }
 
+        .admin-dashboard-shell ::selection {
+          background: var(--admin-primary-soft);
+          color: var(--admin-text);
+        }
+
         .admin-dashboard-shell button:focus-visible,
         .admin-dashboard-shell a:focus-visible,
         .admin-dashboard-shell input:focus-visible,
@@ -274,7 +289,6 @@ export default function AdminPage() {
 
         .admin-dashboard-shell button:not(:disabled):hover {
           transform: translateY(-1px);
-          box-shadow: var(--admin-soft-shadow) !important;
         }
 
         .admin-dashboard-shell input:not([type="file"]),
@@ -286,10 +300,14 @@ export default function AdminPage() {
           border-radius: var(--admin-radius-md) !important;
           color: var(--admin-text) !important;
           box-shadow: none !important;
+          font-size: 14px;
+          line-height: 1.5;
         }
 
-        .admin-dashboard-shell button {
-          border-color: transparent !important;
+        .admin-dashboard-shell input::placeholder,
+        .admin-dashboard-shell textarea::placeholder {
+          color: var(--admin-text-muted);
+          opacity: 1;
         }
 
         .admin-dashboard-shell button[style*="background: transparent"] {
@@ -323,11 +341,6 @@ export default function AdminPage() {
           background: var(--admin-primary-soft) !important;
         }
 
-        .admin-dashboard-shell [style*="box-shadow"],
-        .admin-dashboard-shell [style*="boxShadow"] {
-          box-shadow: var(--admin-soft-shadow) !important;
-        }
-
         .admin-dashboard-shell .admin-page-toolbar {
           border-color: transparent !important;
           box-shadow: none !important;
@@ -337,7 +350,7 @@ export default function AdminPage() {
         .admin-dashboard-shell .admin-card {
           border-color: var(--admin-border) !important;
           box-shadow: var(--admin-panel-shadow) !important;
-          border-radius: var(--admin-radius-lg) !important;
+          border-radius: var(--admin-radius-xl) !important;
         }
 
         .admin-dashboard-shell .admin-list-item {
@@ -493,6 +506,18 @@ export default function AdminPage() {
           padding: 32px;
         }
 
+        .admin-dashboard-shell .admin-topbar {
+          background: ${s.top} !important;
+        }
+
+        .admin-dashboard-shell .admin-sidebar button:not(:disabled):hover {
+          background-color: rgba(255, 255, 255, 0.07) !important;
+        }
+
+        .admin-dashboard-shell .admin-sidebar button[aria-current="page"]:hover {
+          background: linear-gradient(135deg, var(--admin-primary), ${s.primaryHover}) !important;
+        }
+
         @keyframes adminToastIn {
           from { opacity: 0; transform: translateY(-8px) scale(0.98); }
           to { opacity: 1; transform: translateY(0) scale(1); }
@@ -533,18 +558,38 @@ export default function AdminPage() {
           }
         }
 
+        @media (max-width: 980px) {
+          .admin-dashboard-shell .admin-sidebar {
+            position: fixed !important;
+            left: 0;
+            top: 76px !important;
+            height: calc(100dvh - 76px) !important;
+            max-width: calc(100vw - 20px);
+            box-shadow: 18px 0 48px rgba(2, 6, 23, 0.26) !important;
+          }
+        }
+
         @media (max-width: 768px) {
+          .admin-topbar {
+            min-height: 72px !important;
+            padding: 0 16px !important;
+          }
+          .admin-dashboard-shell .admin-sidebar {
+            top: 72px !important;
+            height: calc(100dvh - 72px) !important;
+          }
           .admin-content {
-            padding: 14px !important;
+            padding: 20px 16px 32px !important;
           }
           .admin-card {
-            padding: 16px !important;
+            padding: 20px !important;
           }
           .admin-header-search {
             display: none !important;
           }
           .admin-page-toolbar {
             align-items: stretch !important;
+            margin-bottom: 20px !important;
           }
           .admin-page-toolbar-actions {
             width: 100%;
@@ -556,25 +601,50 @@ export default function AdminPage() {
           .admin-page-toolbar-actions button[data-admin-icon-button="true"] {
             flex: 0 0 40px;
           }
+          .admin-toast {
+            top: 82px !important;
+            right: 16px !important;
+            max-width: calc(100vw - 32px) !important;
+          }
+        }
+
+        @media (max-width: 520px) {
+          .admin-breadcrumb {
+            display: none !important;
+          }
+          .admin-topbar {
+            gap: 8px !important;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .admin-dashboard-shell *,
+          .admin-dashboard-shell *::before,
+          .admin-dashboard-shell *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+          }
         }
       `}</style>
 
-      <div style={{
-        background: s.surface,
+      <div className="admin-topbar" style={{
+        background: s.top,
         border: "none",
         borderBottom: "1px solid " + s.brd,
         borderRadius: 0,
-        minHeight: 82,
+        minHeight: 76,
         display: "flex",
         alignItems: "center",
-        padding: "0 28px",
+        padding: "0 clamp(16px, 3vw, 32px)",
         position: "sticky",
         top: 0,
         zIndex: 100,
         backdropFilter: "blur(18px)",
         gap: 12,
         margin: 0,
-        boxShadow: "none"
+        boxShadow: "0 1px 0 rgba(15, 23, 42, 0.02)"
       }}>
         <button type="button"
           onClick={() => setOpen(!open)}
@@ -582,8 +652,8 @@ export default function AdminPage() {
           style={{
             width: 40,
             height: 40,
-            background: "transparent",
-            border: "1px solid transparent",
+            background: s.hover,
+            border: "1px solid " + s.brd,
             borderRadius: s.radius.md,
             cursor: "pointer",
             color: s.sub,
@@ -599,16 +669,17 @@ export default function AdminPage() {
 
         <img src="/images/logo.png" alt="MOD-TECH" style={{ width: 38, height: 38, objectFit: "contain", flexShrink: 0 }} />
 
-        <nav aria-label="Breadcrumb" style={{
+        <nav className="admin-breadcrumb" aria-label="Breadcrumb" style={{
           display: "flex",
           alignItems: "center",
           gap: 8,
           minWidth: 0,
           color: s.sub,
           fontSize: 12,
-          fontWeight: 700
+          fontWeight: 700,
+          letterSpacing: "-0.01em"
         }}>
-          <span style={{ color: s.tx, fontWeight: 850, whiteSpace: "nowrap" }}>MOD-TECH</span>
+          <span style={{ color: s.tx, fontWeight: 800, whiteSpace: "nowrap" }}>MOD-TECH</span>
           <ChevronRight className="w-3.5 h-3.5" style={{ flexShrink: 0 }} />
           <span style={{ whiteSpace: "nowrap" }}>{activeGroup?.label || "Admin"}</span>
           <ChevronRight className="w-3.5 h-3.5" style={{ flexShrink: 0 }} />
@@ -619,7 +690,7 @@ export default function AdminPage() {
 
         <div style={{ flex: 1 }} />
 
-        <div className="admin-header-search" style={{ position: "relative", width: "min(360px, 30vw)" }}>
+        <div className="admin-header-search" style={{ position: "relative", width: "clamp(220px, 25vw, 360px)" }}>
           <Search className="w-4 h-4" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: s.mut, pointerEvents: "none" }} />
           <input
             aria-label="Rechercher une section"
@@ -628,15 +699,16 @@ export default function AdminPage() {
             placeholder="Rechercher..."
             style={{
               width: "100%",
-              minHeight: 44,
+              minHeight: 42,
               padding: "10px 14px 10px 40px",
               borderRadius: s.radius.lg,
               border: "1px solid " + s.brd,
-              background: s.ibg,
+              background: s.surface,
               color: s.tx,
               fontSize: 13,
               fontWeight: 650,
-              outline: "none"
+              outline: "none",
+              boxShadow: "0 1px 2px rgba(15, 23, 42, 0.02)"
             }}
           />
           {headerSearchResults.length > 0 && (
@@ -728,7 +800,7 @@ export default function AdminPage() {
             }}>
               <div style={{ padding: "10px 10px 12px", borderBottom: "1px solid " + s.brd, marginBottom: 6 }}>
                 <div style={{ fontSize: 12, color: s.mut, fontWeight: 750 }}>Connecté</div>
-                <div style={{ fontSize: 13, color: s.tx, fontWeight: 850, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{userEmail || "Administrateur"}</div>
+                <div style={{ fontSize: 13, color: s.tx, fontWeight: 800, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{userEmail || "Administrateur"}</div>
               </div>
               <button
                 type="button"
@@ -784,7 +856,7 @@ export default function AdminPage() {
           className="admin-toast"
           style={{
             position: "fixed",
-            top: 86,
+            top: 88,
             right: 18,
             zIndex: 260,
             maxWidth: "min(420px, calc(100vw - 36px))",
@@ -806,29 +878,29 @@ export default function AdminPage() {
       )}
 
       {/* Main layout */}
-      <div className="admin-main-layout" style={{ display: "flex", minHeight: "calc(100vh - 82px)", background: s.bg }}>
+      <div className="admin-main-layout" style={{ display: "flex", minHeight: "calc(100vh - 76px)", background: s.bg }}>
         {/* Sidebar */}
-        <aside style={{
+        <aside className="admin-sidebar" style={{
           width: open ? 280 : 0,
           overflow: "hidden",
           transition: "width 0.24s ease",
-          background: "#001d3d",
-          borderRight: "1px solid " + s.brd,
+          background: "var(--admin-sidebar)",
+          borderRight: "1px solid var(--admin-sidebar-border)",
           boxShadow: "none",
           display: "flex",
           flexDirection: "column",
           flexShrink: 0,
           position: "sticky",
-          top: 82,
-          height: "calc(100vh - 82px)",
+          top: 76,
+          height: "calc(100vh - 76px)",
           zIndex: 90,
           backdropFilter: "blur(16px)"
         }}>
           <div style={{
-            padding: "22px 18px 24px",
+            padding: "18px 14px 24px",
             display: "flex",
             flexDirection: "column",
-            gap: 10,
+            gap: 12,
             flex: 1,
             overflowY: "auto"
           }}>
@@ -844,17 +916,17 @@ export default function AdminPage() {
                       background: "transparent",
                       border: "1px solid transparent",
                       borderRadius: 12,
-                      padding: "9px 10px",
+                      padding: "10px 12px",
                       width: "100%",
-                      color: groupActive ? "#67e8f9" : "#b9d8ef",
+                      color: groupActive ? s.primary : "var(--admin-sidebar-muted)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
                       cursor: "pointer",
                       fontSize: 11,
-                      fontWeight: 800,
+                      fontWeight: 700,
                       textTransform: "uppercase",
-                      letterSpacing: "0.06em"
+                      letterSpacing: "0.08em"
                     }}
                   >
                     <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
@@ -880,13 +952,14 @@ export default function AdminPage() {
                           <button type="button"
                             key={item.key}
                             onClick={() => setActive(item.key)}
+                            aria-current={isActive ? "page" : undefined}
                             style={{
                               background: isActive ? `linear-gradient(135deg, ${s.primary}, ${s.primaryHover})` : "transparent",
                               border: "1px solid transparent",
                               borderRadius: 12,
-                              padding: "11px 12px",
+                              padding: "10px 12px",
                               textAlign: "left",
-                              color: "#ffffff",
+                              color: isActive ? "var(--admin-sidebar-active-ink)" : "var(--admin-sidebar-text)",
                               cursor: "pointer",
                               display: "flex",
                               alignItems: "center",
@@ -900,8 +973,8 @@ export default function AdminPage() {
                                 width: 30,
                                 height: 30,
                                 borderRadius: 10,
-                                background: isActive ? "rgba(255,255,255,0.16)" : s.primarySoft,
-                                color: isActive ? "#ffffff" : "#b9d8ef",
+                                background: isActive ? "rgba(6,42,40,0.10)" : "rgba(255,255,255,0.07)",
+                                color: isActive ? "var(--admin-sidebar-active-ink)" : "var(--admin-sidebar-muted)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
@@ -910,7 +983,7 @@ export default function AdminPage() {
                                 {item.icon}
                               </span>
                               <span style={{ minWidth: 0 }}>
-                                <span style={{ display: "block", fontWeight: isActive ? 850 : 700, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>
+                                <span style={{ display: "block", fontWeight: isActive ? 800 : 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{item.label}</span>
                               </span>
                             </span>
                             <span style={{ display: "flex", alignItems: "center", gap: 5, flexShrink: 0 }}>
@@ -920,8 +993,8 @@ export default function AdminPage() {
                                   minWidth: 22,
                                   height: 20,
                                   borderRadius: 999,
-                                  background: isActive ? "rgba(255,255,255,0.18)" : s.primarySoft,
-                                  color: isActive ? "#ffffff" : s.primary,
+                                  background: isActive ? "rgba(6,42,40,0.12)" : "rgba(255,255,255,0.08)",
+                                  color: isActive ? "var(--admin-sidebar-active-ink)" : s.primary,
                                   fontSize: 10,
                                   fontWeight: 900,
                                   display: "flex",
@@ -945,9 +1018,9 @@ export default function AdminPage() {
         </aside>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "28px 28px 40px", background: s.bg }} className="admin-content">
+        <div style={{ flex: 1, overflowY: "auto", padding: "clamp(24px, 3vw, 40px)", background: s.bg }} className="admin-content">
           {status === "loading" ? (
-            <div style={{ maxWidth: 1240, margin: "0 auto", display: "flex", flexDirection: "column", gap: 18 }}>
+            <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
                 <div>
                   <div className="admin-skeleton" style={{ width: 220, height: 24, borderRadius: 10, marginBottom: 10 }} />
@@ -973,7 +1046,7 @@ export default function AdminPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              minHeight: "calc(100vh - 170px)",
+              minHeight: "calc(100vh - 160px)",
               flexDirection: "column",
               gap: 14,
               textAlign: "center"
@@ -990,7 +1063,7 @@ export default function AdminPage() {
               }}>
                 <CircleAlert className="w-7 h-7" />
               </div>
-              <div style={{ fontSize: 20, fontWeight: 900, color: s.tx }}>Erreur de connexion</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: s.tx }}>Erreur de connexion</div>
               <div style={{ maxWidth: 420, fontSize: 13, color: s.sub, lineHeight: 1.7 }}>
                 Impossible de charger les données administrateur pour le moment.
               </div>
@@ -1001,9 +1074,9 @@ export default function AdminPage() {
                   border: "none",
                   borderRadius: 10,
                   padding: "10px 24px",
-                  color: "#fff",
+                  color: "#062a28",
                   fontSize: 14,
-                  fontWeight: 700,
+                  fontWeight: 800,
                   cursor: "pointer",
                   marginTop: 8,
                   display: "flex",
@@ -1016,28 +1089,28 @@ export default function AdminPage() {
               </button>
             </div>
           ) : (
-            <div style={{ maxWidth: 1240, margin: "0 auto" }}>
+            <div style={{ maxWidth: 1280, margin: "0 auto" }}>
               {/* Section header */}
               <div className="admin-page-toolbar" style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                marginBottom: 24,
+                marginBottom: 32,
                 background: "transparent",
                 border: "none",
                 borderRadius: s.radius.lg,
-                padding: "8px 0",
+                padding: "8px 0 16px",
                 boxShadow: "none",
                 flexWrap: "wrap",
-                gap: 16
+                gap: 20
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
                   <div style={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: 14,
+                    width: 46,
+                    height: 46,
+                    borderRadius: s.radius.lg,
                     background: `linear-gradient(135deg, ${s.primary}, ${s.info})`,
-                    color: "#ffffff",
+                    color: "#062a28",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1047,7 +1120,7 @@ export default function AdminPage() {
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 }}>
-                      <h2 style={{ margin: 0, fontSize: 24, fontWeight: 850, color: s.tx }}>{activeNav?.label}</h2>
+                      <h2 style={{ margin: 0, fontSize: "clamp(1.375rem, 2vw, 1.75rem)", lineHeight: 1.18, letterSpacing: "-0.03em", fontWeight: 800, color: s.tx }}>{activeNav?.label}</h2>
                       {dirty && (
                         <span style={{
                           fontSize: 11,
@@ -1104,9 +1177,9 @@ export default function AdminPage() {
                         border: "none",
                         borderRadius: 12,
                         padding: "10px 18px",
-                        color: dirty ? "#fff" : s.disabled,
+                        color: dirty ? "#062a28" : s.disabled,
                         fontSize: 14,
-                        fontWeight: 850,
+                        fontWeight: 800,
                         cursor: dirty ? "pointer" : "not-allowed",
                         display: "flex",
                         alignItems: "center",
@@ -1127,8 +1200,8 @@ export default function AdminPage() {
               <div style={{
                 background: isAuto ? "transparent" : s.surface,
                 border: isAuto ? "none" : "1px solid " + s.brd,
-                borderRadius: 16,
-                padding: isAuto ? 0 : 28,
+                borderRadius: s.radius.xl,
+                padding: isAuto ? 0 : "clamp(20px, 2.5vw, 32px)",
                 boxShadow: isAuto ? "none" : s.shadow
               }} className="admin-card">
                 {active === "users" && <UsersEd dark={dark} />}

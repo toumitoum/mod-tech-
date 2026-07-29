@@ -10,44 +10,31 @@ import Navbar from "./Navbar";
 import ReussitesSection from "./ReussitesSection";
 import ServicesSection from "./ServicesSection";
 import WhatsAppButton from "./WhatsAppButton";
+import TrustSections from "./TrustSections";
 
 
 export default function Home() {
   return (
-    <main className="overflow-x-hidden">
+    <main className="mod-dark-page overflow-x-hidden">
+      <a
+        href="#accueil"
+        className="sr-only fixed left-4 top-4 z-[100] rounded-xl bg-white px-4 py-3 text-sm font-bold text-slate-950 focus:not-sr-only"
+      >
+        Aller au contenu
+      </a>
 
-      {/* Navbar */}
       <Navbar />
-
-      {/* Hero Section */}
       <HeroSection />
 
-   
-
-    
-<ImageSlider />
-<ServicesSection />
-
-   
-
-      {/* About */}
+      <ImageSlider />
+      <ServicesSection />
       <AboutSection />
-
-      {/* Success / Projects */}
+      <TrustSections />
       <ReussitesSection />
-
-      {/* Partners */}
       <PartnersBar />
-
-      {/* Contact */}
       <ContactSection />
-
-      {/* Footer */}
       <Footer />
-
-      {/* WhatsApp floating button */}
       <WhatsAppButton />
-
     </main>
   );
 }

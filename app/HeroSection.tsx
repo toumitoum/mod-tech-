@@ -1,9 +1,9 @@
 "use client";
 
 import { supabase } from "@/app/supabase";
-import { easeInOut,motion } from "framer-motion";
-import { ArrowRight,ChevronDown } from "lucide-react";
-import { useCallback,useEffect,useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, ChevronDown, ShieldCheck } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 interface HeroData {
   title: string;
@@ -18,93 +18,17 @@ interface HeroData {
 const DEFAULT_HERO: HeroData = {
   title: "Sécurité & Innovation",
   titleHighlight: "Technologique",
-  subtitle:
-    "Spécialistes en systèmes de sécurité, réseaux informatiques, domotique, contrôle d'accès et sonorisation.",
+  subtitle: "Spécialistes en systèmes de sécurité, réseaux informatiques, domotique, contrôle d'accès et sonorisation.",
   badge: "Solutions technologiques",
   btnPrimary: "Demander un devis",
   btnSecondary: "Découvrir nos services",
   bgImage: "",
 };
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: { staggerChildren: 0.12, delayChildren: 0.1, ease: easeInOut },
-  },
-};
+const ease = [0.22, 1, 0.36, 1] as const;
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, ease: easeInOut },
-  },
-};
-
-const HeroSkeleton = () => (
-  <section className="min-h-screen bg-white flex items-center justify-center">
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin" />
-      <span className="text-sm text-slate-400 animate-pulse">Chargement...</span>
-    </div>
-  </section>
-);
-
-function Background({ bgImage }: { bgImage?: string }) {
-  if (bgImage) {
-    return (
-     <div className="absolute inset-0">
-  <img
-    src={bgImage}
-    alt=""
-    className="w-full h-full object-cover"
-  />
-
-  {/* Bottom blur */}
-  <div className="absolute bottom-0 left-0 right-0 h-10 -md bg-gradient-to-t from-teal-100/90 to-transparent" />
-</div>
-    );
-  }
-
-  return (
-    <>
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage:
-            "linear-gradient(hsla(173, 80%, 40%, 0.50) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,166,0.5) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-      />
-      <div className="absolute -top-20 -left-20 w-[70vw] h-[70vw] bg-teal-400/15 rounded-full blur-[100px]" />
-      <div className="absolute bottom-0 right-0 w-[60vw] h-[60vw] bg-teal-300/10 rounded-full blur-[80px]" />
-    </>
-  );
-}
-
-function ScrollIndicator() {
-  return (
-    <motion.div
-      className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center text-slate-400 cursor-pointer"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: 1.2 }}
-      onClick={() =>
-        document.getElementById("services")?.scrollIntoView({ behavior: "smooth" })
-      }
-    >
-      <span className="text-xs tracking-[0.2em] uppercase">Défiler</span>
-
-      <motion.div
-        animate={{ y: [0, 6, 0] }}
-        transition={{ repeat: Infinity, duration: 1.8 }}
-      >
-        <ChevronDown className="w-6 h-6" />
-      </motion.div>
-    </motion.div>
-  );
+function HeroSkeleton() {
+  return <section className="min-h-screen bg-[#05070b]" aria-busy="true" />;
 }
 
 export default function HeroSection() {
@@ -113,81 +37,59 @@ export default function HeroSection() {
 
   const fetchContent = useCallback(async () => {
     try {
-      const heroRes = await supabase
-        .from("site_content")
-        .select("content")
-        .eq("section", "hero")
-        .single();
-
-      if (heroRes.data?.content) {
-        setData((prev) => ({ ...prev, ...heroRes.data.content }));
-      }
-    } catch (err) {
-      console.error(err);
+      const { data: hero } = await supabase.from("site_content").select("content").eq("section", "hero").single();
+      if (hero?.content) setData((current) => ({ ...current, ...hero.content }));
+    } catch (error) {
+      console.error(error);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    void Promise.resolve().then(fetchContent);
-  }, [fetchContent]);
-
+  useEffect(() => { void Promise.resolve().then(fetchContent); }, [fetchContent]);
   if (loading) return <HeroSkeleton />;
 
+  const visual = data.bgImage || "/brand-assets/modtech-hero-security-network.png";
+
   return (
-    <section className="relative min-h-[100dvh] flex items-center bg-white overflow-hidden">
-      <Background bgImage={data.bgImage} />
+    <section id="accueil" className="hero-shell relative isolate min-h-[100svh] overflow-hidden bg-[#05070b] pt-[76px] text-white lg:pt-[88px]">
+      <div aria-hidden="true" className="absolute inset-0 hero-grid" />
+      <div aria-hidden="true" className="absolute -left-28 top-1/3 h-80 w-80 rounded-full bg-[#14c8b8]/10 blur-[120px]" />
+      <div aria-hidden="true" className="absolute right-0 top-0 h-full w-[55%] bg-[radial-gradient(ellipse_at_70%_40%,rgba(20,200,184,0.12),transparent_65%)]" />
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 py-24">      
-<motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="w-full max-w-none lg:max-w-4xl"
-        >
-         
-
-          {/* Title */}
-          <motion.h1
-            variants={itemVariants}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight text-slate-900 mb-5"
-          >
-            {data.title}{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-teal-600">
-              {data.titleHighlight}
-            </span>
+      <div className="mod-container relative z-10 grid min-h-[calc(100svh-76px)] items-center gap-10 py-10 sm:py-20 lg:min-h-[calc(100svh-88px)] lg:grid-cols-12 lg:gap-8 lg:py-14">
+        <motion.div initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }} className="max-w-2xl lg:col-span-5">
+          <motion.div variants={{ hidden: { opacity: 0, y: 14 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.55, ease }} className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#14c8b8]/25 bg-[#14c8b8]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#72e1d5] sm:mb-7 sm:gap-3 sm:px-4 sm:py-2 sm:text-[11px] sm:tracking-[0.17em]">
+            <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.8} />
+            {data.badge}
+          </motion.div>
+          <motion.h1 variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.7, ease }} className="max-w-xl text-[2.55rem] font-semibold leading-[0.98] tracking-[-0.06em] text-white sm:text-[clamp(3rem,5.2vw,5.2rem)] sm:tracking-[-0.065em]">
+            {data.title} <span className="text-[#14c8b8]">{data.titleHighlight}</span>
           </motion.h1>
-
-          {/* Subtitle */}
-          <motion.p
-            variants={itemVariants}
-            className="text-slate-600 text-base sm:text-lg lg:text-xl max-w-xl mb-10"
-          >
+          <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.65, ease }} className="mt-5 max-w-xl text-[15px] leading-7 text-white/65 sm:mt-7 sm:text-lg sm:leading-8">
             {data.subtitle}
           </motion.p>
-
-          {/* Buttons */}
-          <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4">
-            <a
-              href="#contact"
-              className="flex items-center justify-center gap-2 px-8 py-4 bg-teal-500 hover:bg-teal-400 text-white font-bold rounded-xl transition"
-            >
+          <motion.div variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.6, ease }} className="mt-7 flex flex-wrap items-center gap-3 sm:mt-9">
+            <a href="#contact" className="hero-cta-primary mod-button-primary group inline-flex items-center justify-center gap-2.5 whitespace-nowrap px-4 text-[13px] font-semibold sm:gap-3 sm:px-5">
               {data.btnPrimary}
-              <ArrowRight className="w-5 h-5" />
-            </a>
-
-            <a
-              href="#services"
-              className="flex items-center justify-center px-8 py-4 border-2 border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 font-semibold"
-            >
-              {data.btnSecondary}
+              <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-[#062522]/10 transition-transform duration-200 group-hover:translate-x-0.5">
+                <ArrowRight className="h-3.5 w-3.5" />
+              </span>
             </a>
           </motion.div>
         </motion.div>
+
+        <motion.div initial={{ opacity: 0, x: 32 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.9, delay: 0.18, ease }} className="relative lg:col-span-7 lg:pl-10">
+          <div className="relative overflow-hidden rounded-[28px] border border-white/15 bg-[#0b1318] p-2 shadow-[0_34px_100px_rgba(0,0,0,0.5)] sm:rounded-[34px] sm:p-3">
+            <div className="absolute inset-0 z-10 bg-[linear-gradient(125deg,rgba(4,10,15,0.5),transparent_42%,rgba(20,200,184,0.16))]" />
+            <img src={visual} alt="Infrastructure et sécurité MOD-TECHNOLOGIE" className="aspect-[1.42/1] w-full rounded-[22px] object-cover sm:rounded-[26px]" />
+          </div>
+        </motion.div>
       </div>
 
-      <ScrollIndicator />
+      <a href="#services" aria-label="Découvrir les services" className="absolute bottom-5 left-1/2 z-20 hidden -translate-x-1/2 flex-col items-center gap-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white/45 transition-colors hover:text-[#72e1d5] lg:flex">
+        Défiler <ChevronDown className="h-4 w-4 animate-bounce" />
+      </a>
     </section>
   );
 }

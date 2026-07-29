@@ -31,7 +31,7 @@ export default function WhatsAppButton() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Discuter sur WhatsApp"
-      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-5 z-50 w-11 h-11 sm:w-13 sm:h-13 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg shadow-[#25D366]/40 hover:bg-[#20c45e] transition-colors duration-200"
+      className="fixed bottom-5 right-5 z-50 flex h-13 w-13 items-center justify-center rounded-2xl border border-white/40 bg-[#25D366] text-white shadow-[0_16px_32px_rgba(37,211,102,0.34)] transition-all duration-200 hover:-translate-y-1 hover:bg-[#20c45e] sm:bottom-6 sm:right-6 sm:h-14 sm:w-14"
     >
       <FaWhatsapp className="w-5 h-5 sm:w-6 sm:h-6" />
     </a>
