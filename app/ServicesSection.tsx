@@ -70,7 +70,7 @@ function ServiceModal({ service, staticData, onClose, contact }: {
       className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-6"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-[#020609]/85 backdrop-blur-md" />
+      <div className="absolute inset-0 bg-slate-900/35 backdrop-blur-md" />
 
       <motion.div
         initial={{ opacity: 0, y: 56, scale: 0.98 }}
@@ -81,15 +81,15 @@ function ServiceModal({ service, staticData, onClose, contact }: {
         aria-modal="true"
         aria-labelledby="service-modal-title"
         aria-describedby="service-modal-description"
-        className="relative z-10 w-full overflow-hidden rounded-t-[28px] border border-white/15 bg-[#0a1116] sm:max-w-2xl sm:rounded-[28px]"
+        className="relative z-10 w-full overflow-hidden rounded-t-[28px] border border-slate-200 bg-white sm:max-w-2xl sm:rounded-[28px]"
         style={{
           maxHeight: "90vh",
-          boxShadow: "0 32px 90px rgba(0, 0, 0, 0.58)"
+          boxShadow: "0 32px 90px rgba(15, 23, 42, 0.22)"
         }}
         onClick={e => e.stopPropagation()}
       >
         {/* Mobile pill */}
-        <div className="sm:hidden absolute top-3 left-1/2 z-10 h-[3px] w-8 -translate-x-1/2 rounded-full bg-white/30" />
+        <div className="sm:hidden absolute top-3 left-1/2 z-10 h-[3px] w-8 -translate-x-1/2 rounded-full bg-slate-300" />
 
         {/* Close */}
         <button type="button"
@@ -97,7 +97,7 @@ function ServiceModal({ service, staticData, onClose, contact }: {
           onClick={onClose}
           title="Fermer"
           aria-label="Fermer la fenêtre de service"
-          className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-[#071015]/85 text-white shadow-lg backdrop-blur transition-colors hover:border-[#56ddb4]/55 hover:bg-[#101d23]"
+          className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/90 text-slate-800 shadow-lg backdrop-blur transition-colors hover:border-[#14c8b8]/55 hover:text-[#0f9f92]"
         >
           <X className="h-4 w-4" strokeWidth={2.5} />
         </button>
@@ -109,7 +109,7 @@ function ServiceModal({ service, staticData, onClose, contact }: {
             <img src={imgSrc} alt={service.title} className="w-full h-full object-cover" />
             <div
               className="absolute inset-0"
-              style={{ background: "linear-gradient(to top, rgba(2,6,23,0.94) 0%, rgba(2,6,23,0.42) 52%, rgba(2,6,23,0.08) 100%)" }}
+              style={{ background: "linear-gradient(to top, rgba(15,23,42,0.76) 0%, rgba(15,23,42,0.28) 52%, rgba(15,23,42,0.04) 100%)" }}
             />
             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl border border-[#56ddb4]/35 bg-[#56ddb4]/10 backdrop-blur-sm">
@@ -126,7 +126,7 @@ function ServiceModal({ service, staticData, onClose, contact }: {
 
             {/* Full description */}
             {service.description ? (
-              <p id="service-modal-description" className="text-[15px] leading-7 text-slate-300">
+              <p id="service-modal-description" className="text-[15px] leading-7 text-slate-600">
                 {service.description}
               </p>
             ) : (
@@ -134,7 +134,7 @@ function ServiceModal({ service, staticData, onClose, contact }: {
             )}
 
             {/* Divider */}
-            <div className="h-px w-full bg-white/10" />
+            <div className="h-px w-full bg-slate-200" />
 
             {/* Actions */}
             <div className="flex flex-col gap-3">
@@ -178,27 +178,27 @@ function ServiceModal({ service, staticData, onClose, contact }: {
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                   {contact.phone1 && (
                     <a href={`tel:${contact.phone1}`}
-                      className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-[13px] font-medium text-slate-200 transition-all duration-200 hover:border-[#56ddb4]/45 hover:bg-[#0f1b20]">
+                      className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[13px] font-medium text-slate-700 transition-all duration-200 hover:border-[#14c8b8]/45 hover:bg-teal-50">
                       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#56ddb4]/10">
-                        <Phone className="h-3 w-3 text-[#70e7c1]" />
+                        <Phone className="h-3 w-3 text-[#0f9f92]" />
                       </div>
                       <span className="font-semibold">{contact.phone1}</span>
                     </a>
                   )}
                   {contact.phone2 && (
                     <a href={`tel:${contact.phone2}`}
-                      className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-[13px] font-medium text-slate-200 transition-all duration-200 hover:border-[#56ddb4]/45 hover:bg-[#0f1b20]">
+                      className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[13px] font-medium text-slate-700 transition-all duration-200 hover:border-[#14c8b8]/45 hover:bg-teal-50">
                       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#56ddb4]/10">
-                        <Phone className="h-3 w-3 text-[#70e7c1]" />
+                        <Phone className="h-3 w-3 text-[#0f9f92]" />
                       </div>
                       <span className="font-semibold">{contact.phone2}</span>
                     </a>
                   )}
                   {contact.email && (
                     <a href={`mailto:${contact.email}`}
-                      className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] px-4 py-3 text-[13px] font-medium text-slate-200 transition-all duration-200 hover:border-[#56ddb4]/45 hover:bg-[#0f1b20] sm:col-span-2">
+                      className="flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-[13px] font-medium text-slate-700 transition-all duration-200 hover:border-[#14c8b8]/45 hover:bg-teal-50 sm:col-span-2">
                       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#56ddb4]/10">
-                        <Mail className="h-3 w-3 text-[#70e7c1]" />
+                        <Mail className="h-3 w-3 text-[#0f9f92]" />
                       </div>
                       <span>{contact.email}</span>
                     </a>
@@ -304,7 +304,7 @@ const ServicesSection = () => {
                   <img
                     src={imgSrc}
                     alt={service.title}
-                    className="absolute inset-0 h-full w-full object-cover opacity-55 saturate-[0.72] transition-transform duration-700 ease-out group-hover:scale-[1.04] group-hover:opacity-75 group-hover:saturate-100 sm:opacity-60 sm:group-hover:scale-[1.06] sm:group-hover:opacity-80"
+                    className="absolute inset-0 h-full w-full object-cover opacity-99 saturate-[0.72] transition-transform duration-700 ease-out group-hover:scale-[1.04] group-hover:opacity-80 group-hover:saturate-100 sm:opacity-10 sm:group-hover:scale-[1.06] sm:group-hover:opacity-80"
                   />
                   <div className="relative z-10 flex w-full flex-col justify-between p-4 sm:p-7">
                     <div />

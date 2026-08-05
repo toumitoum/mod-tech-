@@ -30,13 +30,13 @@ export default function PartnersBar() {
   const items = [...partners, ...partners];
 
   return (
-    <section aria-label="Nos partenaires" className="relative isolate overflow-hidden bg-[#070c10] py-16 sm:py-20">
+    <section aria-label="Nos partenaires" className="partners-section relative isolate overflow-hidden bg-[#f8fafc] py-16 sm:py-20">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 opacity-60"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(148,163,184,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,0.055) 1px, transparent 1px)",
+            "linear-gradient(rgba(15,23,42,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(15,23,42,0.045) 1px, transparent 1px)",
           backgroundSize: "68px 68px",
           maskImage: "linear-gradient(to bottom, transparent, black 30%, black 70%, transparent)",
         }}
@@ -46,15 +46,15 @@ export default function PartnersBar() {
       <div className="relative z-10 mod-container">
         <div className="mb-9 flex items-center justify-center gap-4 sm:mb-11">
           <span aria-hidden="true" className="h-px w-10 bg-gradient-to-r from-transparent to-[#56ddb4]" />
-          <p className="whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.2em] text-white/55">
+          <p className="whitespace-nowrap text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">
             Ils nous font confiance
           </p>
           <span aria-hidden="true" className="h-px w-10 bg-gradient-to-l from-transparent to-[#56ddb4]" />
         </div>
 
         <div className="relative overflow-hidden py-3 sm:py-4">
-          <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-14 bg-gradient-to-r from-[#070c10] via-[#070c10]/92 to-transparent sm:w-24" />
-          <div aria-hidden="true" className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-14 bg-gradient-to-l from-[#070c10] via-[#070c10]/92 to-transparent sm:w-24" />
+          <div aria-hidden="true" className="pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-14 bg-gradient-to-r from-[#f8fafc] via-[#f8fafc]/92 to-transparent sm:w-24" />
+          <div aria-hidden="true" className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-14 bg-gradient-to-l from-[#f8fafc] via-[#f8fafc]/92 to-transparent sm:w-24" />
 
           <div className="mod-partners-track flex w-max items-center gap-3 px-4 sm:gap-4 sm:px-6">
             {items.map((partner, i) => {

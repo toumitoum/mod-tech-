@@ -385,3 +385,67 @@ section {
   color: #ffffff !important;
   font-weight: 800 !important;
 }
+
+/* Public landing page — light premium theme */
+.mod-light-page {
+  min-height: 100vh;
+  background: #ffffff;
+  color: #111827;
+}
+
+.mod-light-page section {
+  background: #ffffff !important;
+}
+
+.mod-light-page #services,
+.mod-light-page #slider,
+.mod-light-page #reussites,
+.mod-light-page #apropos {
+  background: #f8fafc !important;
+}
+
+.mod-light-page .hero-grid {
+  opacity: 0.7;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.055) 1px, transparent 1px);
+}
+
+.mod-light-page section h2,
+.mod-light-page section > div h2,
+.mod-light-page section article h3,
+.mod-light-page section details summary,
+.mod-light-page section figure blockquote {
+  color: #0f172a !important;
+}
+
+.mod-light-page section p,
+.mod-light-page section details p {
+  color: #64748b !important;
+}
+
+.mod-light-page section article,
+.mod-light-page section figure,
+.mod-light-page section details {
+  border-color: #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 12px 34px rgba(15, 23, 42, 0.07) !important;
+}
+
+/* Image-led cards retain contrast over photography. */
+.mod-light-page #services button h3,
+.mod-light-page #services button p,
+.mod-light-page #reussites button h3 {
+  color: #ffffff !important;
+}
+
+.mod-light-page #slider .group\/carousel {
+  border-color: #e2e8f0 !important;
+  background: #ffffff !important;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.1) !important;
+}
+
+.mod-light-page #slider [class*="border-white"]:not(button),
+.mod-light-page #reussites [class*="border-white"]:not(button) {
+  border-color: #e2e8f0 !important;
+}

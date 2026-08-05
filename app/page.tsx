@@ -15,7 +15,7 @@ import TrustSections from "./TrustSections";
 
 export default function Home() {
   return (
-    <main className="mod-dark-page overflow-x-hidden">
+    <main className="mod-light-page overflow-x-hidden">
       <a
         href="#accueil"
         className="sr-only fixed left-4 top-4 z-[100] rounded-xl bg-white px-4 py-3 text-sm font-bold text-slate-950 focus:not-sr-only"

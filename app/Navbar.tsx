@@ -3,7 +3,6 @@
 import { AnimatePresence,motion } from "framer-motion";
 import { ArrowRight,Menu,X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect,useState } from "react";
 
 const navLinks = [
@@ -19,8 +18,6 @@ export default function Navbar() {
   const [open, setOpen]       = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [active, setActive]   = useState<string>("");
-  const pathname = usePathname();
-  const isHome = pathname === "/";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -40,12 +37,8 @@ export default function Navbar() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? isHome
-              ? "border-b border-white/10 bg-[#05070b]/96 shadow-[0_12px_32px_rgba(0,0,0,0.28)] backdrop-blur-2xl"
-              : "bg-white/88 backdrop-blur-2xl shadow-sm border-b border-slate-200/70"
-            : isHome
-              ? "border-b border-white/[0.06] bg-[#05070b]/88 backdrop-blur-xl"
-              : "bg-transparent"
+            ? "border-b border-slate-200/80 bg-white/92 shadow-[0_10px_28px_rgba(15,23,42,0.08)] backdrop-blur-2xl"
+            : "border-b border-slate-200/60 bg-white/75 backdrop-blur-xl"
         }`}
       >
         <div className="mod-container flex h-[76px] items-center justify-between lg:h-[88px]">
@@ -74,7 +67,7 @@ export default function Navbar() {
                 onFocus={() => setActive(link.href)}
                 onBlur={() => setActive("")}
                 className={`group relative rounded-lg px-2.5 py-2 text-[13px] font-medium tracking-[-0.01em] transition-colors duration-200 hover:text-[#59dfaa] lg:px-3 ${
-                  isHome ? "text-white/80 hover:bg-white/[0.07]" : "text-slate-600 hover:bg-white/75"
+                  "text-slate-600 hover:bg-slate-100 hover:text-slate-950"
                 }`}
               >
                 {link.label}
@@ -91,9 +84,7 @@ export default function Navbar() {
             <Link
               href="#contact"
               className={`group inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-[13px] font-semibold tracking-[-0.01em] shadow-sm transition-all duration-200 active:scale-[0.98] lg:px-5 ${
-                isHome
-                  ? "bg-white text-slate-900 hover:bg-[#59dfaa]"
-                  : "mod-button-primary"
+                "bg-slate-950 text-white hover:bg-[#0f766e]"
               }`}
             >
               Demander un devis
@@ -104,9 +95,7 @@ export default function Navbar() {
           {/* ── Mobile toggle ── */}
           <button type="button"
             className={`relative z-[60] ml-auto flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-lg transition-all duration-200 md:hidden ${
-              isHome
-                ? "border-[#14C8B8]/70 bg-[#14C8B8] text-[#06150f] shadow-[#14C8B8]/20 hover:bg-[#59dfaa]"
-                : "border-slate-200 bg-white text-slate-700 hover:border-[#14C8B8]/50 hover:text-[#0fb3a4] shadow-sm"
+              "border-slate-200 bg-white text-slate-700 hover:border-[#14C8B8]/50 hover:text-[#0fb3a4] shadow-sm"
             }`}
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"
@@ -135,7 +124,7 @@ export default function Navbar() {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
               className={`overflow-hidden border-t shadow-xl md:hidden ${
-                isHome ? "border-white/10 bg-[#070b11]" : "border-slate-100 bg-white"
+                "border-slate-100 bg-white"
               }`}
             >
               <div className="px-5 pt-3 pb-6 space-y-1">
@@ -150,9 +139,7 @@ export default function Navbar() {
                       href={link.href}
                       onClick={() => setOpen(false)}
                       className={`flex items-center justify-between rounded-2xl px-3 py-3 text-sm font-semibold transition-all duration-150 ${
-                        isHome
-                          ? "text-white/85 hover:bg-white/10 hover:text-[#14C8B8]"
-                          : "text-slate-700 hover:bg-[#14C8B8]/8 hover:text-[#0fb3a4]"
+                        "text-slate-700 hover:bg-[#14C8B8]/8 hover:text-[#0fb3a4]"
                       }`}
                     >
                       {link.label}
@@ -166,9 +153,7 @@ export default function Navbar() {
                     href="#contact"
                     onClick={() => setOpen(false)}
                     className={`flex w-full items-center justify-center gap-2 rounded-full px-4 text-sm font-bold active:scale-[0.98] ${
-                      isHome
-                        ? "bg-[#59dfaa] text-[#07140f]"
-                        : "mod-button-primary"
+                      "bg-slate-950 text-white"
                     }`}
                   >
                     Demander un devis

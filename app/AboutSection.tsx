@@ -118,13 +118,13 @@ const AboutSection = () => {
             </motion.p>
 
             {/* Strengths grid */}
-            <motion.div variants={fadeUp} className="mt-10 grid grid-cols-2 gap-px overflow-hidden bg-white/10 sm:grid-cols-3">
+            <motion.div variants={fadeUp} className="mt-10 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-slate-200 shadow-[0_12px_30px_rgba(15,23,42,0.06)] sm:grid-cols-3">
               {strengths.map((item) => (
-                <div key={item} className="group min-h-28 bg-[#060b0e] p-4 transition-colors hover:bg-[#0a1519] sm:p-5">
-                  <div className="mb-5 flex h-7 w-7 items-center justify-center rounded-full border border-[#14c8b8]/35 bg-[#14c8b8]/10">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-[#70e7c1]" />
+                <div key={item} className="group min-h-28 bg-white p-4 transition-colors hover:bg-teal-50 sm:p-5">
+                  <div className="mb-5 flex h-8 w-8 items-center justify-center rounded-full bg-teal-50">
+                    <CheckCircle2 className="h-4 w-4 text-[#14a99a]" />
                   </div>
-                  <span className="text-xs font-medium leading-5 text-white/85 sm:text-sm">{item}</span>
+                  <span className="text-xs font-medium leading-5 text-slate-700 sm:text-sm">{item}</span>
                 </div>
               ))}
             </motion.div>
@@ -133,7 +133,7 @@ const AboutSection = () => {
             <motion.div variants={fadeUp} className="mt-8">
               <a
                 href="#contact"
-                className="group inline-flex items-center gap-2 text-sm font-semibold text-[#70e7c1] transition-colors duration-200 hover:text-white"
+                className="group inline-flex items-center gap-2 text-sm font-semibold text-[#0f9f92] transition-colors duration-200 hover:text-slate-950"
               >
                 Nous contacter
                 <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
@@ -151,19 +151,19 @@ const AboutSection = () => {
           >
             {/* Image */}
             {data.image && (
-              <div className="relative overflow-hidden rounded-[24px] border border-white/10">
+              <div className="relative overflow-hidden rounded-[24px] border border-slate-200 shadow-[0_14px_34px_rgba(15,23,42,0.08)]">
                 <img
                   src={data.image}
                   alt="À propos de MOD-TECHNOLOGIE"
                   className="w-full h-64 sm:h-72 object-cover object-center"
                 />
                 {/* Subtle teal tint overlay */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-[#020608]/45 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-[#0f766e]/18 to-transparent" />
               </div>
             )}
 
             {/* Stats cards */}
-            <div className="grid grid-cols-3 gap-px bg-white/10">
+            <div className="grid grid-cols-3 gap-px overflow-hidden rounded-2xl bg-slate-200 shadow-[0_12px_30px_rgba(15,23,42,0.06)]">
               {stats.map((stat, i) => (
                 <motion.div
                   key={stat.label}
@@ -171,14 +171,14 @@ const AboutSection = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="relative bg-[#060b0e] p-4 text-center transition-colors duration-300 hover:bg-[#0a1519] sm:p-6"
+                  className="relative bg-white p-4 text-center transition-colors duration-300 hover:bg-teal-50 sm:p-6"
                 >
                   {/* Hover glow */}
                   <div className="relative z-10">
-                    <div className="mb-2 text-3xl font-light leading-none tabular-nums text-white sm:text-4xl">
+                    <div className="mb-2 text-3xl font-light leading-none tabular-nums text-slate-950 sm:text-4xl">
                       <AnimatedCounter value={stat.number} />
                     </div>
-                    <div className="text-[9px] font-semibold uppercase leading-tight tracking-[0.12em] text-white/45 sm:text-[10px]">
+                    <div className="text-[9px] font-semibold uppercase leading-tight tracking-[0.12em] text-slate-400 sm:text-[10px]">
                       {stat.label}
                     </div>
                   </div>
@@ -187,8 +187,8 @@ const AboutSection = () => {
             </div>
 
             {/* Decorative quote block */}
-            <div className="relative border-l-2 border-[#14c8b8] bg-[#071216] px-6 py-5">
-              <p className="text-sm font-medium italic leading-7 text-white/75">
+            <div className="relative rounded-r-2xl border-l-2 border-[#14c8b8] bg-teal-50 px-6 py-5">
+              <p className="text-sm font-medium italic leading-7 text-slate-600">
                 La sécurité n&apos;est pas un luxe — c&apos;est une nécessité que nous rendons accessible à tous.
               </p>
             </div>
